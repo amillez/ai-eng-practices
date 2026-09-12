@@ -4,7 +4,12 @@ Standing policy for **all agents** pointed at this repo.
 
 Use imperative language. Follow this unless the **current chat** explicitly overrides for that one-off. Chat overrides win for one-off asks. Do not treat a one-off override as a new default.
 
-Primary source: [Cursor workshop — Model Selection & Token Efficiency](../sources/cursor-model-selection-token-efficiency.md). Heuristics and savings numbers are **as of the workshop**, not eternal.
+Primary sources:
+
+- [Cursor workshop — Model Selection & Token Efficiency](../sources/cursor-model-selection-token-efficiency.md)
+- [Research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
+
+Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 ---
 
@@ -36,6 +41,7 @@ Use this when you need a pick, not a philosophy. Leave **Fast** off by default. 
 | Reading / understanding a codebase | GPT 5.6 Sol or Grok 4.6 | **medium** | Prefer Ask mode (recon). Composer is also fine for cheaper navigation. Sol was the workshop pick for planning + reading large codebases. |
 | General reasoning + implementation that still needs reasoning | Plan with Grok 4.6 → build with Composer 2.5 | Plan **medium/high**. Build **low/medium**. | If decisions keep appearing mid-build, stay on Grok (or escalate). Do not force Composer through ambiguity. |
 | Writing / agreeing on a plan | Opus (or Grok 4.6) | **medium** → **high** if architecture tradeoffs matter | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
+| Mechanical chore (format, rename in known files, boilerplate with tests already green) | Composer 2.5 | **low** | Few edge cases, little verification needed. Lower effort before escalating model. |
 
 Concrete picks:
 
@@ -62,6 +68,14 @@ Escalate **one knob at a time**. Say why.
 - The task is correctly scoped and the model is the right class, but it needs more tool loops to finish.
 - Do not raise effort to compensate for a vague prompt. Clarify first.
 
+**Lower effort** when (cost lever — as of Sep 2026 signals from Thariq / jxnlco):
+
+- The task is mechanical, well-specified, and needs **less verification** or fewer edge cases (rename, format, straightforward refactor with tests).
+- The agent is over-verifying routine work — extra file reads, redundant tool loops, "speedrun cheating" at low effort is often what you want.
+- Do not raise effort to paper over ambiguity. Fix the prompt or plan first.
+
+Escalate **one knob at a time** (model, effort, context, Fast). De-escalate when the hard part is done.
+
 **Escalate context** when:
 
 - The work is an extremely complex refactor with ongoing decisions in one thread.
@@ -84,7 +98,7 @@ De-escalate as soon as the hard part is done. After a strong-model plan, impleme
 - Paste only the relevant error lines, not the giant log.
 - One task per turn. State success criteria ("done when…").
 - If the thread has been compacted repeatedly or the agent is acting on blurry memory, **start a fresh chat**. Optionally `@` the old chat as a pointer, or carry a short written summary of decisions — not the whole transcript.
-- Always-on rules ride every turn. Keep them short. Put long procedure in **skills** (lazy-loaded body).
+- Always-on rules ride every turn — keep them **short**; put long procedure in **skills** (lazy-loaded). Custom Modes pin a skill for one chat; see [Cursor changelog](https://cursor.com/changelog) if you need harness details.
 - Do not enable MCPs you are not using. Audit unused ones.
 
 ---
@@ -132,7 +146,21 @@ If spend looks wrong, inspect prompting and model class first. Workshop examples
 
 ---
 
-## 7. Overrides
+## 7. Production vs throwaway AI code
+
+[Boris Cherny's frame](https://x.com/bcherny/status/2098217571153838124) (Sep 2026): **both modes are valid** — pick explicitly before the agent starts. Throwaway work (spikes, mockups, one-off probes) can be a black box with low blast radius. Anything merged to `main` or touched again in six months is **production** and needs a **higher bar than human-written code**: reviewable, owned, tested, CI + automated review where you have it.
+
+If production agent output misses the bar, escalate model or effort, invest in skills/rules, or have the agent pay down debt — do not merge slop because it "mostly works."
+
+---
+
+## 8. Research hygiene
+
+When researching **Anthropic / Claude tooling**, prefer primary builder accounts (e.g. [@ClaudeDevs](https://x.com/ClaudeDevs), shipping notes, official docs) over marketing accounts. Marketing posts lag product reality.
+
+---
+
+## 9. Overrides
 
 This policy applies to **all agents**. It is not scoped to a team, product, or bot flavor.
 
@@ -145,4 +173,7 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 ## Related
 
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
-- [Source note](../sources/cursor-model-selection-token-efficiency.md)
+- [Playbook: Cursor Projects](../playbooks/cursor-projects.md)
+- [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
+- [Source: workshop](../sources/cursor-model-selection-token-efficiency.md)
+- [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)

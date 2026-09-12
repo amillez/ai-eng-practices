@@ -1,6 +1,6 @@
 # AI engineering practices
 
-Living, opinionated practices for AI-assisted software engineering — **TSCOB + personal**.
+Living, opinionated practices for AI-assisted software engineering.
 
 This repo is a small set of playbooks and standing policies. Prefer checklists and decision guides over essays. Keep advice cost-aware and anti-hype. When a number comes from a talk or eval, treat it as a snapshot, not eternal truth.
 
@@ -9,6 +9,8 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | Playbook | Use when |
 | --- | --- |
 | [Model selection & token efficiency](playbooks/model-selection-and-token-efficiency.md) | Choosing a model, writing a prompt, or diagnosing spend / blurry context |
+| [Cursor Projects](playbooks/cursor-projects.md) | Deciding Project vs one-shot agent vs Grok Bot |
+| [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents |
 
 ## Standing policies (for humans and bots)
 
@@ -18,7 +20,12 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 
 ## Sources
 
-Workshop notes and citations live under [`sources/`](sources/). Start with [Cursor: Model Selection & Token Efficiency](sources/cursor-model-selection-token-efficiency.md).
+Workshop notes and citations live under [`sources/`](sources/).
+
+| Source | Topic |
+| --- | --- |
+| [Cursor: Model Selection & Token Efficiency](sources/cursor-model-selection-token-efficiency.md) | Workshop (Aug 2026) |
+| [Research digest 2026-09-12](sources/research-digest-2026-09-12.md) | Projects, Grok Bot fleets, evals drift, policy updates |
 
 ## How to propose updates
 
