@@ -1,6 +1,6 @@
 # Eng team of bots
 
-Distilled playbook for running **specialized engineering bots** that manage coding agents — not as a Peersyst day-job system, but as a pattern for **Sam (AI practices)**, **Mark (RN)**, and **Jarvis (hub coordinator)**.
+Distilled playbook for running **specialized engineering bots** that manage coding agents — illustrated with **Sam (AI practices)**, **Mark (RN)**, and **Jarvis (hub coordinator)** as one example split.
 
 **Snapshot, not scripture.** Fleet sizes and product names are **as of September 2026**.
 
@@ -42,15 +42,13 @@ Focused bots stay sharper. Lingxi's fleet (names are his; use your own):
 
 They *can* cross areas, but each carries **domain memory** — specs, design principles, test patterns. A harness bot should not own RN visual polish.
 
-### Map to our roles (TSCOB + personal, not Peersyst)
+### Example role split
 
 | Role | Bot posture |
 | --- | --- |
 | **Sam** | Owns this repo's playbooks/policies, skill regressions, model-pick reviews. |
 | **Mark** | Owns RN client quality, visual proof, `/react-native-best-practices`-class skills. |
 | **Jarvis (hub)** | Coordinator across projects: intake, routing, cross-domain handoffs in git. Does not write feature code. |
-
-Keep Peersyst day-job scope **out** of these bots' standing rules unless explicitly forked.
 
 ---
 

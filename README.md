@@ -1,6 +1,6 @@
 # AI engineering practices
 
-Living, opinionated practices for AI-assisted software engineering — **TSCOB + personal**.
+Living, opinionated practices for AI-assisted software engineering.
 
 This repo is a small set of playbooks and standing policies. Prefer checklists and decision guides over essays. Keep advice cost-aware and anti-hype. When a number comes from a talk or eval, treat it as a snapshot, not eternal truth.
 

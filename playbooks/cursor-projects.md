@@ -16,7 +16,7 @@ Standing bot rules: [policies/agent-use-policy.md](../policies/agent-use-policy.
 | **Cursor Project** | Long-running **coordinator** that plans, delegates to worker agents, and keeps **shared context** in git-synced files. | Work that outlives one chat: features, migrations, gardening. |
 | **Grok Bot routine** | Persistent eng intern on its own computers that **manages** cloud agents, checks proofs, and closes the feedback loop. | Domain-owned fleets, Slack-driven intake, proof-heavy UI work. See [eng-team-of-bots](eng-team-of-bots.md). |
 
-**Default for TSCOB + personal:** start with a one-shot cloud agent. Promote to a Project when the same body of work needs a second PR, a standing watch, or a coordinator that remembers how you test.
+**Default:** start with a one-shot cloud agent. Promote to a Project when the same body of work needs a second PR, a standing watch, or a coordinator that remembers how you test.
 
 ---
 
@@ -114,7 +114,7 @@ Source: [Cursor changelog](https://cursor.com/changelog) (Aug–Sep 2026).
 
 Cursor supports **self-hosted workers** (your laptop, team pools, sandboxes on Lambda/Coder/Cloudflare/etc.) so tool execution stays on your network. Useful for VPN, iOS Simulator, screenshots, secrets on internal machines.
 
-**Default for TSCOB + personal: skip.** Cloud agents on Cursor's infra are enough for most web/RN/docs work. Self-hosted adds Enterprise/ops cost: pool sizing, hibernation, reconnect windows, desktop packages for computer use. Reach for it when compliance or device access **requires** it — not as the default topology.
+**Default: skip self-hosted.** Cloud agents on Cursor's infra are enough for most web/RN/docs work. Self-hosted adds Enterprise/ops cost: pool sizing, hibernation, reconnect windows, desktop packages for computer use. Reach for it when compliance or device access **requires** it — not as the default topology.
 
 Source: [Self-hosted machines](https://cursor.com/changelog) (Sep 2 2026).
 
