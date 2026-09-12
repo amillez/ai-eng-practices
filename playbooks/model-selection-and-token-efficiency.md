@@ -144,7 +144,7 @@ Auto may send a harder turn to a stronger model. That is a feature. Still do not
 **What to do:**
 
 1. Revisit model defaults when **Cursor changes defaults** or **CursorBench major versions** ship — not on every minor release.
-2. Re-run [skill/plugin regression](skill-and-plugin-regression.md) on pinned skills after a bump.
+2. Smoke-test pinned skills after a bump — does the agent still follow the playbook?
 3. Judge models on **your repo's tasks**, not leaderboard alone. Benches drift; your test suite does not lie (if you have one).
 
 ---

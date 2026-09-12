@@ -1,152 +1,75 @@
 # Eng team of bots
 
-<<<<<<< HEAD
-Distilled playbook for running **specialized engineering bots** that manage coding agents — illustrated with **Sam (AI practices)**, **Mark (RN)**, and **Jarvis (hub coordinator)** as one example split.
-=======
-Distilled playbook for running **specialized engineering bots** that manage coding agents.
->>>>>>> b06bf73 (docs: remove Peersyst and named-bot refs from eng-team-of-bots)
+How **we** run specialized engineering bots that manage cloud agents.
 
-**Snapshot, not scripture.** Fleet sizes and product names are **as of September 2026**.
-
-Primary sources:
-
-- [Lingxi Li — Grok Bot for Engineering](https://x.com/lingxi/status/2094493172516966781) (also on [x.ai guides](https://x.ai/bot/guides/grok-bot-for-engineering))
-- [Eric Zakariasson — summary thread](https://x.com/ericzakariasson/status/2094818067905941886)
+**Snapshot, not scripture** — fleet patterns as of September 2026.
 
 Standing bot rules: [policies/agent-use-policy.md](../policies/agent-use-policy.md).
 
----
-
-## 1. Core framing
-
-> Treat Grok Bot like a **sharp eng intern with its own computers** that manages coding agents.
-
-The intern does not replace you on architecture, taste, or risk calls. It:
-
-- Spins up cloud agents with your skills and a thorough prompt + **expected proof**
-- Monitors transcripts and artifacts (screenshots, CI, Bugbot)
-- Queues follow-ups or interrupts when the run stalls
-- Keeps going until the result hits **your bar** — or escalates
-
-Before bots: ~**15** cloud agents managed by hand. With a fleet: **200+** simultaneously (Lingxi's account, Sep 2026 — treat as anecdote, not a target).
+Inspiration (not a copy-paste org chart): [Lingxi Li — Grok Bot for Engineering](https://x.com/lingxi/status/2094493172516966781) ([x.ai guide](https://x.ai/bot/guides/grok-bot-for-engineering)).
 
 ---
 
-## 2. Specialize by domain
+## Specialization
 
-Focused bots stay sharper. Lingxi's fleet (names are his; use your own):
+Focused bots stay sharper. Our split:
 
-| Bot role | Domain |
+| Bot | Domain |
 | --- | --- |
-| Mobile shared / iOS | RN + native client edges |
-| Desktop + CI/CD | Client builds, release hygiene |
-| Infra | Unclear ownership, env flakiness |
-| Android | Platform-specific surface |
-| Harness | Agent tooling, skills, coordinator behavior |
+| **Sam** | This repo — playbooks, policies, model picks, skill hygiene. |
+| **Mark** | RN client quality, visual proof, mobile best-practice skills. |
+| **Jarvis (hub)** | Cross-project intake, routing, git handoffs. Plans and delegates; does not write feature code. |
 
-They *can* cross areas, but each carries **domain memory** — specs, design principles, test patterns. A harness bot should not own RN visual polish.
-
-<<<<<<< HEAD
-### Example role split
-
-| Role | Bot posture |
-| --- | --- |
-| **Sam** | Owns this repo's playbooks/policies, skill regressions, model-pick reviews. |
-| **Mark** | Owns RN client quality, visual proof, `/react-native-best-practices`-class skills. |
-| **Jarvis (hub)** | Coordinator across projects: intake, routing, cross-domain handoffs in git. Does not write feature code. |
-=======
-Add a **hub coordinator** bot for cross-project intake, routing, and git-based handoffs — it plans and delegates; it does not write feature code.
->>>>>>> b06bf73 (docs: remove Peersyst and named-bot refs from eng-team-of-bots)
+Each bot carries **domain memory** (specs, test patterns, design principles). A harness bot should not own RN visual polish.
 
 ---
 
-## 3. The feedback loop (non-negotiable)
+## How bots dispatch cloud agents
 
-A bot without verification is an expensive autocomplete.
+Every launch includes:
 
-1. **Launch** — cloud agent + skills + success criteria + proof spec ("screenshot must show before/after").
-2. **Monitor** — transcript, artifacts, CI, Bugbot/security findings.
-3. **Unblock** — environment flakiness, missing permissions, wrong approach.
-4. **Review** — multimodal check for UI; architecture skills for structural work.
-5. **Merge policy** — auto-merge only when confidence is high **and** blast radius is low; otherwise queue for human.
+1. **Skills + thorough prompt** aligned with [agent-use-policy](../policies/agent-use-policy.md).
+2. **Expected proof** — screenshot, CI green, Bugbot clean, or explicit success criteria.
+3. **Monitor** — transcript, artifacts, CI; queue follow-ups when a run stalls.
+4. **Bar** — iterate until proof passes or escalate to a human. No "mostly works" merges on production paths.
 
-Lingxi uses a **shared Notion PR database** past context limits: bots poll every ~30 min for CI failures, merge conflicts, and Bugbot comments. For us, a git-based PR index or lightweight board is fine — the pattern matters more than the tool.
-
----
-
-## 4. Ops bot (Jenny pattern)
-
-Engineering is not only code. An **ops bot** that does not write production code:
-
-- Daily 1:1s with engineer bots (playbook refresh, blockers, vibe)
-- Postmortems when a bot under-reaches the real goal
-- Playbook updates announced to the fleet so mistakes do not repeat
-- Onboarding new bots with team rules and peer help
-
-This mirrors Fatih Arslan's **plan-retro → skill rewrite** and Cursor **gardening** — applied to bot behavior, not just the codebase. See [cursor-projects.md](cursor-projects.md).
+Auto-merge only when confidence is high **and** blast radius is low.
 
 ---
 
-## 5. Eric's summary (condensed)
+## Monday eng-bot 1:1s
 
-From [Eric's thread](https://x.com/ericzakariasson/status/2094818067905941886) on Lingxi's setup:
+Weekly sync between eng bots (and humans when needed):
 
-- Sharp intern + own computers + manages coding agents
-- **Specialize by domain** — iOS, desktop, infra, Android, harness
-- Spin cloud agents, **check proofs**, unblock flakiness, iterate to bar
-- Own machines when VPN / Simulator / screenshots require it
-- **Notion (or equivalent)** past context: watch Bugbot / CI / conflicts → follow up → review → auto-merge when safe
-- **Ops bot** for 1:1s, postmortems, onboarding
+- Playbook / policy refresh — what changed on `main`?
+- Blockers and misfires from the prior week.
+- Postmortem → skill or policy edit when a bot under-reached the real goal.
 
-Eric's own experiment ([multiple teams of Grok Bots](https://x.ai/bot/guides/how-i-run-multiple-teams-of-grok-bots)): one channel per project, Notion Projects/Tasks, a manager bot staffs ≤5 specialists — reuse bench bots before creating new ones.
+Same retro loop as [plan lifecycle in git](cursor-projects.md#plan-lifecycle) — applied to bot behavior.
 
 ---
 
-## 6. Cursor Projects vs Grok Bot routines
+## Cursor Project vs Grok Bot
 
 | | Cursor Project | Grok Bot routine |
 | --- | --- | --- |
-| **Primary interface** | Cursor coordinator + shared context files | Slack / messaging + bot memory |
-| **Best at** | Repo-scoped features, migrations, gardening in git | Fleet orchestration, proof loops, org chores |
-| **Scale pattern** | Thousands of subagents via coordinator | 200+ cloud agents via specialized bots |
-| **Our default** | Start here for repo work | Add when manual agent babysitting hurts |
+| **Best at** | Repo-scoped multi-PR work with human + Cursor | Standing loops, Slack intake, proof monitoring |
+| **Our default** | Features, migrations, gardening in git | Eng-bot fleets that babysit cloud agents |
 
-They compose: a Grok Bot can **create and manage** Cursor cloud agents. A hub coordinator might own cross-project routing; each Project owns repo context.
-
-Decision guide: [cursor-projects.md](cursor-projects.md).
+They compose: a Grok Bot can **create and manage** Cursor cloud agents. Decision guide: [cursor-projects.md](cursor-projects.md).
 
 ---
 
-## 7. Risk and cost guardrails
+## Guardrails
 
-- **P0 urgency routines** (Lingxi): check transcript every ~5 min, steer aggressively. Effective; **burns tokens fast**. Reserve for true P0.
-- **Nightly audits**: great for slop cleanup; still need review bar — see [production vs throwaway](../policies/agent-use-policy.md#production-vs-throwaway-ai-code).
-- **Auto-merge**: only with low blast radius + strong proof. Production paths need human or Bot-reviewed merge.
-
----
-
-## Anti-patterns
-
-| Anti-pattern | Why it hurts |
-| --- | --- |
-| One mega-bot for all domains | Context dilution; weak proofs |
-| No proof spec on launch | Bot declares done; you discover gaps in prod |
-| Babysitting 15+ agents by hand | Exactly what the fleet pattern removes |
-| Copying Lingxi's exact bot names/skills | His memory systems are tuned to Grok Bot; adapt |
+- **P0 routines** (aggressive transcript polling) burn tokens — reserve for true P0.
+- **Nightly audits** need the same review bar as daytime work — see [production vs throwaway](../policies/agent-use-policy.md#production-vs-throwaway-ai-code).
+- Treat external fleet-size anecdotes as **snapshots**, not targets. Hold the quality bar locally.
 
 ---
-
-## Bot-ready defaults
-
-1. **Specialize** bots by domain; add a hub coordinator for cross-cutting routing.
-2. Every dispatch includes **proof expectations**.
-3. **Ops loop**: postmortem → playbook/skill update.
-4. Prefer **Cursor Projects** for repo-scoped work; **Grok Bot** when fleet + Slack + proof monitoring is the bottleneck.
-5. Treat throughput claims as **snapshots**; hold the quality bar locally.
 
 ## Related
 
 - [Cursor Projects](cursor-projects.md)
 - [Agent use policy](../policies/agent-use-policy.md)
-- [Skill and plugin regression](skill-and-plugin-regression.md)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)

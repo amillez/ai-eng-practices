@@ -9,9 +9,8 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | Playbook | Use when |
 | --- | --- |
 | [Model selection & token efficiency](playbooks/model-selection-and-token-efficiency.md) | Choosing a model, writing a prompt, or diagnosing spend / blurry context |
-| [Cursor Projects](playbooks/cursor-projects.md) | Deciding Project vs one-shot agent vs Grok Bot; migrations, gardening, plan lifecycle |
-| [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents, proofs, and ops loops |
-| [Skill and plugin regression](playbooks/skill-and-plugin-regression.md) | Re-checking skills/plugins after a model or harness bump |
+| [Cursor Projects](playbooks/cursor-projects.md) | Deciding Project vs one-shot agent vs Grok Bot |
+| [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents |
 
 ## Standing policies (for humans and bots)
 

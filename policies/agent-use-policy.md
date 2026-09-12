@@ -98,7 +98,7 @@ De-escalate as soon as the hard part is done. After a strong-model plan, impleme
 - Paste only the relevant error lines, not the giant log.
 - One task per turn. State success criteria ("done when…").
 - If the thread has been compacted repeatedly or the agent is acting on blurry memory, **start a fresh chat**. Optionally `@` the old chat as a pointer, or carry a short written summary of decisions — not the whole transcript.
-- Always-on rules ride every turn. Keep them short. Put long procedure in **skills** (lazy-loaded body).
+- Always-on rules ride every turn — keep them **short**; put long procedure in **skills** (lazy-loaded). Custom Modes pin a skill for one chat; see [Cursor changelog](https://cursor.com/changelog) if you need harness details.
 - Do not enable MCPs you are not using. Audit unused ones.
 
 ---
@@ -144,41 +144,13 @@ If spend looks wrong, inspect prompting and model class first. Workshop examples
 - Disable unused MCPs. Extra tool surface is extra prefix and extra chances to wander.
 - Do not paste huge files "for context." Point at them.
 
-### Custom Modes vs skills vs always-on rules
-
-| Mechanism | Behavior | Use for |
-| --- | --- | --- |
-| **Always-on rules** | Re-fed every turn as prefix. | Short defaults only — a few lines. |
-| **Skills** | Lazy-loaded when relevant (or invoked with `/`). | Playbooks, checklists, long how-tos. |
-| **Custom Mode** | A skill **pinned** for the chat ("always on" for this session). | Repeatable workflows: migration mode, review mode, gardening. |
-
-From `/`, pick a skill → **Use as Mode** (or ⌥⏎ / Alt+Enter). Do not duplicate a skill's body into always-on rules just to keep it loaded — that burns prefix every turn.
-
-Source: [Cursor changelog — Custom modes](https://cursor.com/changelog) (Aug 2026).
-
-After model bumps, re-eval top skills. See [playbooks/skill-and-plugin-regression.md](../playbooks/skill-and-plugin-regression.md).
-
 ---
 
 ## 7. Production vs throwaway AI code
 
-Boris Cherny's frame (paraphrased, Sep 2026): **both modes are valid** — pick explicitly.
+[Boris Cherny's frame](https://x.com/bcherny/status/2098217571153838124) (Sep 2026): **both modes are valid** — pick explicitly before the agent starts. Throwaway work (spikes, mockups, one-off probes) can be a black box with low blast radius. Anything merged to `main` or touched again in six months is **production** and needs a **higher bar than human-written code**: reviewable, owned, tested, CI + automated review where you have it.
 
-| Mode | Bar | Examples |
-| --- | --- | --- |
-| **Throwaway / prototype** | Black box OK. Low blast radius. You will discard or replace soon. | Spikes, mockups, one-off scripts, "does the API work?" probes. |
-| **Production** | **Higher bar than human-written code.** Reviewable, owned, tested, maintainable. | Anything merged to `main`, shipped to users, or touched again in six months. |
-
-Production guardrails (pick what fits your stack):
-
-- Lint + tests + CI required before merge.
-- Automated review (Bugbot, security scan) on PRs.
-- Owner who can explain the change.
-- Fuzzing / e2e where blast radius warrants it.
-
-If production agent code misses the bar: escalate model or effort, invest in skills/rules, steer more — or have the agent pay down debt in the repo. Do not silently merge slop because it "mostly works."
-
-Source: [Boris Cherny on X](https://x.com/bcherny/status/2098217571153838124) (Sep 2026).
+If production agent output misses the bar, escalate model or effort, invest in skills/rules, or have the agent pay down debt — do not merge slop because it "mostly works."
 
 ---
 
@@ -203,6 +175,5 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
 - [Playbook: Cursor Projects](../playbooks/cursor-projects.md)
 - [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
-- [Playbook: Skill and plugin regression](../playbooks/skill-and-plugin-regression.md)
 - [Source: workshop](../sources/cursor-model-selection-token-efficiency.md)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
