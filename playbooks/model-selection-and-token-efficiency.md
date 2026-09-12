@@ -111,6 +111,8 @@ Did Composer / Balance fail or is the surface huge / visual / gnarly?
   no  → stay cheap
 ```
 
+Worked situation rows and concrete picks live in the policy: [Agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
+
 ---
 
 ## 6. Knobs

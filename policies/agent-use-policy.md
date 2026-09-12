@@ -25,6 +25,26 @@ Primary source: [Cursor workshop — Model Selection & Token Efficiency](../sour
 | Highly complex, wide surface, gnarly debug, visual-heavy | Fable — only after a cheaper path failed or the surface is clearly too wide |
 | Writing / execution plans a human will read | Opus (sometimes better than Fable for this) |
 
+### Agent chooser examples
+
+Use this when you need a pick, not a philosophy. Leave **Fast** off by default. Escalate **one knob at a time**. De-escalate to Composer when the hard part is done.
+
+| Situation | Model | Effort | Notes |
+| --- | --- | --- | --- |
+| Straightforward / super defined | Composer 2.5 | **low** (medium only if a few tool loops are needed) | Auto → Balance is OK if you are not picking. Files and success criteria are already clear. |
+| High complexity, wide surface | Fable | **high** (→ xhigh only if still thrashing after a clear plan) | Escalate after cheaper paths fail, or the surface is obviously huge / visual / gnarly. Do not start here. |
+| Reading / understanding a codebase | GPT 5.6 Sol or Grok 4.6 | **medium** | Prefer Ask mode (recon). Composer is also fine for cheaper navigation. Sol was the workshop pick for planning + reading large codebases. |
+| General reasoning + implementation that still needs reasoning | Plan with Grok 4.6 → build with Composer 2.5 | Plan **medium/high**. Build **low/medium**. | If decisions keep appearing mid-build, stay on Grok (or escalate). Do not force Composer through ambiguity. |
+| Writing / agreeing on a plan | Opus (or Grok 4.6) | **medium** → **high** if architecture tradeoffs matter | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
+
+Concrete picks:
+
+1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **Composer 2.5**, **low**.
+2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **Composer 2.5**, **medium**. If two wrong fixes: new chat + Grok plan, then Composer again.
+3. New to the monorepo — where should a billing webhook live / what breaks → **Ask** + **GPT 5.6 Sol** or **Grok 4.6**, **medium** (recon only). Then a short Opus/Grok plan before a Composer build.
+4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus**, **high**. Implement later with Composer against the agreed plan.
+5. Huge flaky race across web + RN + API; intermittent; two Composer loops already burned → **Fable**, **high**, debug/repro-first. After the root cause is pinned, drop to Composer for the surgical fix.
+
 ---
 
 ## 2. When to escalate
