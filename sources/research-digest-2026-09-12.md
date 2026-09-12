@@ -65,4 +65,7 @@ Prices, bench scores, fleet sizes (e.g. 15 → 200+ agents), and model rankings 
 
 - No invented workshop quotes.
 - Lingxi/Eric/Fatih/Boris content is **paraphrased** from linked posts and guides.
+<<<<<<< HEAD
 - Sam/Mark/Jarvis role mapping is **local convention** in these playbooks — adapt names and domains to your setup.
+=======
+>>>>>>> b06bf73 (docs: remove Peersyst and named-bot refs from eng-team-of-bots)

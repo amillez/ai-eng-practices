@@ -1,6 +1,10 @@
 # Eng team of bots
 
+<<<<<<< HEAD
 Distilled playbook for running **specialized engineering bots** that manage coding agents — illustrated with **Sam (AI practices)**, **Mark (RN)**, and **Jarvis (hub coordinator)** as one example split.
+=======
+Distilled playbook for running **specialized engineering bots** that manage coding agents.
+>>>>>>> b06bf73 (docs: remove Peersyst and named-bot refs from eng-team-of-bots)
 
 **Snapshot, not scripture.** Fleet sizes and product names are **as of September 2026**.
 
@@ -34,7 +38,7 @@ Focused bots stay sharper. Lingxi's fleet (names are his; use your own):
 
 | Bot role | Domain |
 | --- | --- |
-| Mobile shared / iOS | RN + native edges Mark cares about |
+| Mobile shared / iOS | RN + native client edges |
 | Desktop + CI/CD | Client builds, release hygiene |
 | Infra | Unclear ownership, env flakiness |
 | Android | Platform-specific surface |
@@ -42,6 +46,7 @@ Focused bots stay sharper. Lingxi's fleet (names are his; use your own):
 
 They *can* cross areas, but each carries **domain memory** — specs, design principles, test patterns. A harness bot should not own RN visual polish.
 
+<<<<<<< HEAD
 ### Example role split
 
 | Role | Bot posture |
@@ -49,6 +54,9 @@ They *can* cross areas, but each carries **domain memory** — specs, design pri
 | **Sam** | Owns this repo's playbooks/policies, skill regressions, model-pick reviews. |
 | **Mark** | Owns RN client quality, visual proof, `/react-native-best-practices`-class skills. |
 | **Jarvis (hub)** | Coordinator across projects: intake, routing, cross-domain handoffs in git. Does not write feature code. |
+=======
+Add a **hub coordinator** bot for cross-project intake, routing, and git-based handoffs — it plans and delegates; it does not write feature code.
+>>>>>>> b06bf73 (docs: remove Peersyst and named-bot refs from eng-team-of-bots)
 
 ---
 
@@ -103,7 +111,7 @@ Eric's own experiment ([multiple teams of Grok Bots](https://x.ai/bot/guides/how
 | **Scale pattern** | Thousands of subagents via coordinator | 200+ cloud agents via specialized bots |
 | **Our default** | Start here for repo work | Add when manual agent babysitting hurts |
 
-They compose: a Grok Bot can **create and manage** Cursor cloud agents. Jarvis (hub) might own cross-project routing; each Project owns repo context.
+They compose: a Grok Bot can **create and manage** Cursor cloud agents. A hub coordinator might own cross-project routing; each Project owns repo context.
 
 Decision guide: [cursor-projects.md](cursor-projects.md).
 
@@ -130,7 +138,7 @@ Decision guide: [cursor-projects.md](cursor-projects.md).
 
 ## Bot-ready defaults
 
-1. **Specialize** bots by domain (Sam / Mark / Jarvis split).
+1. **Specialize** bots by domain; add a hub coordinator for cross-cutting routing.
 2. Every dispatch includes **proof expectations**.
 3. **Ops loop**: postmortem → playbook/skill update.
 4. Prefer **Cursor Projects** for repo-scoped work; **Grok Bot** when fleet + Slack + proof monitoring is the bottleneck.
