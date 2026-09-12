@@ -24,7 +24,7 @@ Workshop notes and citations live under [`sources/`](sources/). Start with [Curs
 
 1. Open a PR against `main`. One topic per PR when you can.
 2. Say what changed, why, and which source it came from (talk, docs, lived practice).
-3. Mark any prices, evals, or model-quality claims as **as of \<date / source\>**. Do not present them as permanent.
+3. Mark any prices, evals, or model-quality claims as **as of [date / source]**. Do not present them as permanent.
 4. Keep the layout small: `playbooks/`, `policies/`, `sources/`. No extra scaffolding.
 
 ## For engineering bots
