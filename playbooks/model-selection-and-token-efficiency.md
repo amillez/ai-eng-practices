@@ -121,7 +121,7 @@ These are **spend multipliers**. Turn them with intent.
 
 | Knob | What it actually does | Default |
 | --- | --- | --- |
-| **Effort** | More agent loops / more work per turn → more tokens | Lowest that can finish a scoped task. Raise after the shot is clear, not before. |
+| **Effort** | More agent loops / more work per turn → more tokens | **Low** for mechanical, low-verification work. Raise after the shot is clear, not before. Do not raise effort to fix a vague prompt. |
 | **Fast** | **Queue priority**, not a smarter model | Off. Use sparingly when waiting is the bottleneck. |
 | **Auto router** | Cost / **Balance** / Intelligence | **Balance** as the recommended default. Cost when the work is routine. Intelligence when you want harder turns sent up. |
 | **Context / max** | Bigger window, more prefix + middle each turn | Normal until a complex refactor truly needs the extra room. |
@@ -129,6 +129,23 @@ These are **spend multipliers**. Turn them with intent.
 Workshop claim (snapshot): an **org-wide router policy** produced **~30–60% savings overnight**. That is a policy lever, not a reason to pick Intelligence on every personal chat.
 
 Auto may send a harder turn to a stronger model. That is a feature. Still do not combine Intelligence + Fast + max effort + Fable unless you can say why.
+
+---
+
+## Evals drift (CursorBench 4.0)
+
+**As of 10 September 2026** ([Lee Robinson](https://x.com/leerob/status/2098144600594465148), [CursorBench](https://cursor.com/cursorbench)):
+
+- **CursorBench 4.0** added harder long-horizon tasks: edit, refactor, investigation, intent understanding, managing jobs, design adherence.
+- **Scores dropped across the board** because the bench got harder — not necessarily because models got worse.
+- **Grok 4.6** scored lower on 4.0 than on 3.x (e.g. ~41% at Extra High on 4.0 vs higher on 3.2 — **snapshot**; check leaderboard for current numbers).
+- **Grok 4.7** was teased around the same window; revisit picks when it ships — do not pre-switch on hype.
+
+**What to do:**
+
+1. Revisit model defaults when **Cursor changes defaults** or **CursorBench major versions** ship — not on every minor release.
+2. Re-run [skill/plugin regression](skill-and-plugin-regression.md) on pinned skills after a bump.
+3. Judge models on **your repo's tasks**, not leaderboard alone. Benches drift; your test suite does not lie (if you have one).
 
 ---
 

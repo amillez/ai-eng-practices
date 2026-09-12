@@ -4,7 +4,12 @@ Standing policy for **all agents** pointed at this repo.
 
 Use imperative language. Follow this unless the **current chat** explicitly overrides for that one-off. Chat overrides win for one-off asks. Do not treat a one-off override as a new default.
 
-Primary source: [Cursor workshop — Model Selection & Token Efficiency](../sources/cursor-model-selection-token-efficiency.md). Heuristics and savings numbers are **as of the workshop**, not eternal.
+Primary sources:
+
+- [Cursor workshop — Model Selection & Token Efficiency](../sources/cursor-model-selection-token-efficiency.md)
+- [Research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
+
+Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 ---
 
@@ -36,6 +41,7 @@ Use this when you need a pick, not a philosophy. Leave **Fast** off by default. 
 | Reading / understanding a codebase | GPT 5.6 Sol or Grok 4.6 | **medium** | Prefer Ask mode (recon). Composer is also fine for cheaper navigation. Sol was the workshop pick for planning + reading large codebases. |
 | General reasoning + implementation that still needs reasoning | Plan with Grok 4.6 → build with Composer 2.5 | Plan **medium/high**. Build **low/medium**. | If decisions keep appearing mid-build, stay on Grok (or escalate). Do not force Composer through ambiguity. |
 | Writing / agreeing on a plan | Opus (or Grok 4.6) | **medium** → **high** if architecture tradeoffs matter | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
+| Mechanical chore (format, rename in known files, boilerplate with tests already green) | Composer 2.5 | **low** | Few edge cases, little verification needed. Lower effort before escalating model. |
 
 Concrete picks:
 
@@ -61,6 +67,14 @@ Escalate **one knob at a time**. Say why.
 
 - The task is correctly scoped and the model is the right class, but it needs more tool loops to finish.
 - Do not raise effort to compensate for a vague prompt. Clarify first.
+
+**Lower effort** when (cost lever — as of Sep 2026 signals from Thariq / jxnlco):
+
+- The task is mechanical, well-specified, and needs **less verification** or fewer edge cases (rename, format, straightforward refactor with tests).
+- The agent is over-verifying routine work — extra file reads, redundant tool loops, "speedrun cheating" at low effort is often what you want.
+- Do not raise effort to paper over ambiguity. Fix the prompt or plan first.
+
+Escalate **one knob at a time** (model, effort, context, Fast). De-escalate when the hard part is done.
 
 **Escalate context** when:
 
@@ -130,9 +144,51 @@ If spend looks wrong, inspect prompting and model class first. Workshop examples
 - Disable unused MCPs. Extra tool surface is extra prefix and extra chances to wander.
 - Do not paste huge files "for context." Point at them.
 
+### Custom Modes vs skills vs always-on rules
+
+| Mechanism | Behavior | Use for |
+| --- | --- | --- |
+| **Always-on rules** | Re-fed every turn as prefix. | Short defaults only — a few lines. |
+| **Skills** | Lazy-loaded when relevant (or invoked with `/`). | Playbooks, checklists, long how-tos. |
+| **Custom Mode** | A skill **pinned** for the chat ("always on" for this session). | Repeatable workflows: migration mode, review mode, gardening. |
+
+From `/`, pick a skill → **Use as Mode** (or ⌥⏎ / Alt+Enter). Do not duplicate a skill's body into always-on rules just to keep it loaded — that burns prefix every turn.
+
+Source: [Cursor changelog — Custom modes](https://cursor.com/changelog) (Aug 2026).
+
+After model bumps, re-eval top skills. See [playbooks/skill-and-plugin-regression.md](../playbooks/skill-and-plugin-regression.md).
+
 ---
 
-## 7. Overrides
+## 7. Production vs throwaway AI code
+
+Boris Cherny's frame (paraphrased, Sep 2026): **both modes are valid** — pick explicitly.
+
+| Mode | Bar | Examples |
+| --- | --- | --- |
+| **Throwaway / prototype** | Black box OK. Low blast radius. You will discard or replace soon. | Spikes, mockups, one-off scripts, "does the API work?" probes. |
+| **Production** | **Higher bar than human-written code.** Reviewable, owned, tested, maintainable. | Anything merged to `main`, shipped to users, or touched again in six months. |
+
+Production guardrails (pick what fits your stack):
+
+- Lint + tests + CI required before merge.
+- Automated review (Bugbot, security scan) on PRs.
+- Owner who can explain the change.
+- Fuzzing / e2e where blast radius warrants it.
+
+If production agent code misses the bar: escalate model or effort, invest in skills/rules, steer more — or have the agent pay down debt in the repo. Do not silently merge slop because it "mostly works."
+
+Source: [Boris Cherny on X](https://x.com/bcherny/status/2098217571153838124) (Sep 2026).
+
+---
+
+## 8. Research hygiene
+
+When researching **Anthropic / Claude tooling**, prefer primary builder accounts (e.g. [@ClaudeDevs](https://x.com/ClaudeDevs), shipping notes, official docs) over marketing accounts. Marketing posts lag product reality.
+
+---
+
+## 9. Overrides
 
 This policy applies to **all agents**. It is not scoped to a team, product, or bot flavor.
 
@@ -145,4 +201,8 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 ## Related
 
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
-- [Source note](../sources/cursor-model-selection-token-efficiency.md)
+- [Playbook: Cursor Projects](../playbooks/cursor-projects.md)
+- [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
+- [Playbook: Skill and plugin regression](../playbooks/skill-and-plugin-regression.md)
+- [Source: workshop](../sources/cursor-model-selection-token-efficiency.md)
+- [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
