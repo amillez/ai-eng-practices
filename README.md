@@ -14,7 +14,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 
 | Policy | Use when |
 | --- | --- |
-| [Agent use policy](policies/agent-use-policy.md) | Default operating rules for engineering agents unless a chat explicitly overrides |
+| [Agent use policy](policies/agent-use-policy.md) | Default operating rules for any agent unless a chat explicitly overrides |
 
 ## Sources
 
@@ -27,9 +27,9 @@ Workshop notes and citations live under [`sources/`](sources/). Start with [Curs
 3. Mark any prices, evals, or model-quality claims as **as of [date / source]**. Do not present them as permanent.
 4. Keep the layout small: `playbooks/`, `policies/`, `sources/`. No extra scaffolding.
 
-## For engineering bots
+## For agents
 
-Treat playbooks and policies in this repo as **standing policy** for TSCOB and personal engineering work.
+Treat playbooks and policies in this repo as **standing policy** for any agent pointed at them.
 
 - Follow them unless the current chat explicitly overrides for that one-off.
 - Prefer the latest merged `main` over memory of an older version.

@@ -1,6 +1,6 @@
 # Agent use policy
 
-Standing policy for **TSCOB + personal engineering bots** (including Grok Bot specialists and Cursor agents pointed at this repo).
+Standing policy for **all agents** pointed at this repo.
 
 Use imperative language. Follow this unless the **current chat** explicitly overrides for that one-off. Chat overrides win for one-off asks. Do not treat a one-off override as a new default.
 
@@ -114,7 +114,7 @@ If spend looks wrong, inspect prompting and model class first. Workshop examples
 
 ## 7. Overrides
 
-This policy is for **TSCOB + personal** engineering bots.
+This policy applies to **all agents**. It is not scoped to a team, product, or bot flavor.
 
 - A **chat override** wins for that ask only ("use Fable", "stay in this thread", "skip the plan").
 - Do not promote a chat override into standing policy. That takes a PR to this repo.
