@@ -24,6 +24,8 @@ For heavy coding / engineering agent work:
 
 Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex chooser on `agent-m1` is still TBD.
 
+**Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host, not Cursor cloud or other machines.
+
 ---
 
 ## 2. Default model posture
