@@ -13,54 +13,65 @@ Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 ---
 
-## 1. Default model posture
+## 1. Coding host routing
 
-- Default to **Auto → Balance**, or pick **Composer 2.5** when the task is discrete implementation / SWE-scoped coding.
+For heavy coding / engineering agent work:
+
+- **Primary host**: `agent-m1` (dedicated Mac) running **Claude Code + Codex only**. No Cursor installed.
+- **Cursor cloud fallback**: Use only when `agent-m1` is unavailable (offline / unreachable).
+  - Straightforward / super defined → **Composer**
+  - General code / light reasoning → **Grok 4.6**
+
+Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex chooser on `agent-m1` is still TBD.
+
+---
+
+## 2. Default model posture
+
 - Do not lock the session (or the org) to a single provider or a single frontier model.
 - Escalate model, effort, or context **deliberately**, with a reason you can state in one sentence.
 - Do not start on Fable, max effort, Fast, or max context "just in case."
 
-### Default picks (as of workshop)
+### Default picks
 
-| Situation | Default |
-| --- | --- |
-| Discrete coding / scoped SWE task | Composer 2.5 |
-| Unsure, mixed, or org default | Auto → Balance |
-| Planning / wide reasoning before a build | Grok 4.6 or Opus (or GPT 5.6 Sol when the job is planning + reading a large codebase) |
-| Highly complex, wide surface, gnarly debug, visual-heavy | Fable — only after a cheaper path failed or the surface is clearly too wide |
-| Writing / execution plans a human will read | Opus (sometimes better than Fable for this) |
+| Situation | Model | Notes |
+| --- | --- | --- |
+| Very direct / super defined | **GPT 5.6 Luna Max** | Mechanical, files + success criteria clear |
+| General code / some reasoning | **GPT 5.6 Sol** | Default for most implementation + light reasoning |
+| UI work | **Opus 5** | Product UI / visual taste |
+| Large reasoning, orchestration, very complex / wide surface | **Fable 5.1** | Escalate after cheaper paths fail; do not start here |
 
 ### Agent chooser examples
 
-Use this when you need a pick, not a philosophy. Leave **Fast** off by default. Escalate **one knob at a time**. De-escalate to Composer when the hard part is done.
+Use this when you need a pick, not a philosophy. Leave **Fast** off by default. Escalate **one knob at a time**. De-escalate when the hard part is done.
 
 | Situation | Model | Effort | Notes |
 | --- | --- | --- | --- |
-| Straightforward / super defined | Composer 2.5 | **low** (medium only if a few tool loops are needed) | Auto → Balance is OK if you are not picking. Files and success criteria are already clear. |
-| High complexity, wide surface | Fable | **high** (→ xhigh only if still thrashing after a clear plan) | Escalate after cheaper paths fail, or the surface is obviously huge / visual / gnarly. Do not start here. |
-| Reading / understanding a codebase | GPT 5.6 Sol or Grok 4.6 | **medium** | Prefer Ask mode (recon). Composer is also fine for cheaper navigation. Sol was the workshop pick for planning + reading large codebases. |
-| General reasoning + implementation that still needs reasoning | Plan with Grok 4.6 → build with Composer 2.5 | Plan **medium/high**. Build **low/medium**. | If decisions keep appearing mid-build, stay on Grok (or escalate). Do not force Composer through ambiguity. |
-| Writing / agreeing on a plan | Opus (or Grok 4.6) | **medium** → **high** if architecture tradeoffs matter | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
-| Mechanical chore (format, rename in known files, boilerplate with tests already green) | Composer 2.5 | **low** | Few edge cases, little verification needed. Lower effort before escalating model. |
+| Straightforward / super defined | **GPT 5.6 Luna Max** | **low** (medium only if a few tool loops are needed) | Files and success criteria are already clear. |
+| General reasoning + implementation | **GPT 5.6 Sol** | **medium** | Default for most implementation + light reasoning. |
+| UI work | **Opus 5** | **medium** → **high** if taste/architecture tradeoffs | Product UI / visual taste. |
+| High complexity, wide surface | **Fable 5.1** | **high** (→ xhigh only if still thrashing after a clear plan) | Escalate after cheaper paths fail, or the surface is obviously huge / visual / gnarly. Do not start here. |
+| Writing / agreeing on a plan | **Opus 5** | **medium** → **high** if architecture tradeoffs matter | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
+| Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 5.6 Luna Max** | **low** | Few edge cases, little verification needed. Lower effort before escalating model. |
 
 Concrete picks:
 
-1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **Composer 2.5**, **low**.
-2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **Composer 2.5**, **medium**. If two wrong fixes: new chat + Grok plan, then Composer again.
-3. New to the monorepo — where should a billing webhook live / what breaks → **Ask** + **GPT 5.6 Sol** or **Grok 4.6**, **medium** (recon only). Then a short Opus/Grok plan before a Composer build.
-4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus**, **high**. Implement later with Composer against the agreed plan.
-5. Huge flaky race across web + RN + API; intermittent; two Composer loops already burned → **Fable**, **high**, debug/repro-first. After the root cause is pinned, drop to Composer for the surgical fix.
+1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **GPT 5.6 Luna Max**, **low**.
+2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **GPT 5.6 Sol**, **medium**. If two wrong fixes: new chat + plan, then implement again.
+3. New to the monorepo — where should a billing webhook live / what breaks → **Ask** + **GPT 5.6 Sol**, **medium** (recon only). Then a short plan before the build.
+4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus 5**, **high**. Implement later against the agreed plan.
+5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1**, **high**, debug/repro-first. After the root cause is pinned, drop to Luna Max or Sol for the surgical fix.
 
 ---
 
-## 2. When to escalate
+## 3. When to escalate
 
 Escalate **one knob at a time**. Say why.
 
 **Escalate the model** when:
 
 - The task is wide, poorly bounded, or needs general reasoning across systems.
-- Composer (or Balance) is spinning: wrong guesses, missed files, or a plan that does not survive contact with the repo.
+- The current model is spinning: wrong guesses, missed files, or a plan that does not survive contact with the repo.
 - The human asked for a plan they will actually read, or for a hard architectural call.
 
 **Escalate effort** when:
@@ -87,11 +98,11 @@ Escalate **one knob at a time** (model, effort, context, Fast). De-escalate when
 - You have not scoped the files, success criteria, or repro.
 - You are only trying to go faster in the queue (that is Fast, not intelligence).
 
-De-escalate as soon as the hard part is done. After a strong-model plan, implement with Composer unless the remaining work still needs general reasoning.
+De-escalate as soon as the hard part is done. After a strong-model plan, implement with a lighter model (Luna Max for mechanical work, Sol for general implementation) unless the remaining work still needs complex reasoning.
 
 ---
 
-## 3. Context hygiene
+## 4. Context hygiene
 
 - **New chat per task.** Do not keep an eternal thread across unrelated jobs.
 - `@`-mention the files, folders, logs, and past chats that matter. Do not dump a whole repo or a 30k-line file into the prompt.
@@ -103,20 +114,20 @@ De-escalate as soon as the hard part is done. After a strong-model plan, impleme
 
 ---
 
-## 4. Plan before build (non-trivial work)
+## 5. Plan before build (non-trivial work)
 
 For anything that is not a small, direct, already-scoped change:
 
 1. **Recon** in Ask mode when the area is unfamiliar (read-only; safe).
 2. **Plan** with a strong general-reasoning model. Get the shot clear: files, approach, risks, success criteria.
-3. **Build** with Composer (or Balance) against that plan.
+3. **Build** with an appropriate model against that plan.
 4. Split a feature into subtasks. Do not ask one turn to "do the whole epic."
 
 If the human's ask is vague ("fix auth"), **stop and clarify** or enter Plan mode. Do not explore the repo by guessing.
 
 ---
 
-## 5. Cost visibility
+## 6. Cost visibility
 
 You are billed for **tokens in and out of the model**, not for most harness/tool actions (search, grep, and similar were called out as free in the workshop). Output tokens cost more than input. Cache reads are cheaper than fresh input.
 
@@ -136,7 +147,7 @@ If spend looks wrong, inspect prompting and model class first. Workshop examples
 
 ---
 
-## 6. Rules, skills, and MCP hygiene
+## 7. Rules, skills, and MCP hygiene
 
 - Keep always-apply rules **short**. They are prefix and are re-fed every turn.
 - Prefer **skills** for playbooks, checklists, and long how-tos. The body loads when relevant.
@@ -146,7 +157,7 @@ If spend looks wrong, inspect prompting and model class first. Workshop examples
 
 ---
 
-## 7. Production vs throwaway AI code
+## 8. Production vs throwaway AI code
 
 [Boris Cherny's frame](https://x.com/bcherny/status/2098217571153838124) (Sep 2026): **both modes are valid** — pick explicitly before the agent starts. Throwaway work (spikes, mockups, one-off probes) can be a black box with low blast radius. Anything merged to `main` or touched again in six months is **production** and needs a **higher bar than human-written code**: reviewable, owned, tested, CI + automated review where you have it.
 
@@ -154,13 +165,13 @@ If production agent output misses the bar, escalate model or effort, invest in s
 
 ---
 
-## 8. Research hygiene
+## 9. Research hygiene
 
 When researching **Anthropic / Claude tooling**, prefer primary builder accounts (e.g. [@ClaudeDevs](https://x.com/ClaudeDevs), shipping notes, official docs) over marketing accounts. Marketing posts lag product reality.
 
 ---
 
-## 9. Overrides
+## 10. Overrides
 
 This policy applies to **all agents**. It is not scoped to a team, product, or bot flavor.
 
