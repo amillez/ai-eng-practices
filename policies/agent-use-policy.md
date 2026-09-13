@@ -36,7 +36,7 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 | Situation | Model | Notes |
 | --- | --- | --- |
-| Very direct / super defined | **GPT 5.6 Luna Max** | Mechanical, files + success criteria clear |
+| Very direct / super defined | **GPT 5.6 Luna** | Mechanical, files + success criteria clear |
 | General code / some reasoning | **GPT 5.6 Sol** | Default for most implementation + light reasoning |
 | UI work | **Opus 5** | Product UI / visual taste |
 | Large reasoning, orchestration, very complex / wide surface | **Fable 5.1** | Escalate after cheaper paths fail; do not start here |
@@ -47,20 +47,20 @@ Use this when you need a pick, not a philosophy. Leave **Fast** off by default. 
 
 | Situation | Model | Effort | Notes |
 | --- | --- | --- | --- |
-| Straightforward / super defined | **GPT 5.6 Luna Max** | **low** (medium only if a few tool loops are needed) | Files and success criteria are already clear. |
-| General reasoning + implementation | **GPT 5.6 Sol** | **medium** | Default for most implementation + light reasoning. |
-| UI work | **Opus 5** | **medium** → **high** if taste/architecture tradeoffs | Product UI / visual taste. |
-| High complexity, wide surface | **Fable 5.1** | **high** (→ xhigh only if still thrashing after a clear plan) | Escalate after cheaper paths fail, or the surface is obviously huge / visual / gnarly. Do not start here. |
-| Writing / agreeing on a plan | **Opus 5** | **medium** → **high** if architecture tradeoffs matter | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
-| Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 5.6 Luna Max** | **low** | Few edge cases, little verification needed. Lower effort before escalating model. |
+| Straightforward / super defined | **GPT 5.6 Luna** | **max** | Files and success criteria are already clear. |
+| General reasoning + implementation | **GPT 5.6 Sol** | **medium** (→ **high** if still needs reasoning after a few loops) | Default for most implementation + light reasoning. |
+| UI work | **Opus 5** | **medium** (→ **high** if taste/architecture tradeoffs) | Product UI / visual taste. |
+| High complexity, wide surface | **Fable 5.1** | **medium** (→ **high** → **xhigh** only if still thrashing after a clear plan) | Escalate after cheaper paths fail, or the surface is obviously huge / visual / gnarly. Do not start here. |
+| Writing / agreeing on a plan | **Opus 5** | **medium** (→ **high** if architecture tradeoffs matter) | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
+| Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 5.6 Luna** | **max** | Few edge cases, little verification needed. Lower effort before escalating model. |
 
 Concrete picks:
 
-1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **GPT 5.6 Luna Max**, **low**.
+1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **GPT 5.6 Luna**, **max**.
 2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **GPT 5.6 Sol**, **medium**. If two wrong fixes: new chat + plan, then implement again.
 3. New to the monorepo — where should a billing webhook live / what breaks → **Ask** + **GPT 5.6 Sol**, **medium** (recon only). Then a short plan before the build.
-4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus 5**, **high**. Implement later against the agreed plan.
-5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1**, **high**, debug/repro-first. After the root cause is pinned, drop to Luna Max or Sol for the surgical fix.
+4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus 5**, **medium** (→ **high** if architecture tradeoffs). Implement later against the agreed plan.
+5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1**, **medium** (→ **high** if needed), debug/repro-first. After the root cause is pinned, drop to Luna (max) or Sol (medium) for the surgical fix.
 
 ---
 
@@ -98,7 +98,7 @@ Escalate **one knob at a time** (model, effort, context, Fast). De-escalate when
 - You have not scoped the files, success criteria, or repro.
 - You are only trying to go faster in the queue (that is Fast, not intelligence).
 
-De-escalate as soon as the hard part is done. After a strong-model plan, implement with a lighter model (Luna Max for mechanical work, Sol for general implementation) unless the remaining work still needs complex reasoning.
+De-escalate as soon as the hard part is done. After a strong-model plan, implement with a lighter model (Luna at max for mechanical work, Sol at medium for general implementation) unless the remaining work still needs complex reasoning.
 
 ---
 
