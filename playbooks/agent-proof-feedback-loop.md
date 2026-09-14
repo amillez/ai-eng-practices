@@ -100,6 +100,13 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `animate-expo` — building animations.
 - `apple-design` — building UIs.
 - `grill-me` — stress-test a plan or design before building.
+- **Expo** (`expo/skills`):
+  - `expo-native-ui` — building native UI.
+  - `expo-ui` — building native UI.
+  - `expo-dev-client` — build and distribute Expo development clients locally or via TestFlight for internal testing. For production TestFlight releases and store submission, use `eas-app-stores`.
+  - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup.
+- `react-native-best-practices` (`software-mansion-labs/skills`) — per skill description; use when writing, reviewing, or debugging ANY React Native or Expo code.
+- `uniwind` (`uni-stack/uniwind`) — per skill description; use when building or debugging Uniwind `className` styling in React Native.
 - `orchestrate-agents` — fan out large work into parallel isolated prompts (works with Claude Code and Codex workers).
 - **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
 
