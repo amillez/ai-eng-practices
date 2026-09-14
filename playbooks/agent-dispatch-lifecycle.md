@@ -25,6 +25,7 @@ Rules:
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
 2. **One agent per worktree.** Parallel work = `orchestrate-agents` with disjoint paths.
 3. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
+   - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
 4. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
    - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
 5. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.

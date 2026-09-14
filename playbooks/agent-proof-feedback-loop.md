@@ -8,7 +8,7 @@ A coding agent is not done when CI is green or files changed. It is done when it
 
 ## Choose proof by task type
 
-- **Visual / UI**: screenshots (before/after when useful). Prefer Argent skills: `argent-ios-simulator-setup` or `argent-android-emulator-setup` → `argent-react-native-app-workflow` → `argent-test-ui-flow` (or `argent-screenshot-diff`).
+- **Visual / UI**: screenshots (before/after when useful); screen recordings when a still cannot show the flow (animations, transitions, multi-step interactions). Prefer Argent skills: `argent-ios-simulator-setup` or `argent-android-emulator-setup` → `argent-react-native-app-workflow` → `argent-test-ui-flow` (or `argent-screenshot-diff`).
 - **Multi-platform apps** (Expo/RN and similar): verify on **every supported platform** named in the task (typically iOS + Android). iOS-only or Android-only is not done unless the task explicitly scoped one platform.
 - **Non-visual behavior**: logs, test output, CLI exit codes, network traces, profiler summaries — whatever a human would check.
 - **Do not** attach screenshots for purely backend/logic changes just for show. Do not claim "verified" without reading the proof.
@@ -47,11 +47,42 @@ Host: agent-m1 (primary) | Cursor cloud fallback — <reason>
 
 1. Launch with a [thorough prompt](#thorough-launch-prompt) — success criteria, skills, and expected proof stated up front.
 2. Implement.
-3. Collect proof (boot sim if needed; run flow or tests).
-4. **Inspect** proof (multimodal for screenshots; read logs/tests for non-visual).
+3. Collect proof (boot sim if needed; run flow or tests). [Host media](#proof-media-hosting) on the `media` branch.
+4. **Inspect** proof. Visual (screenshots/videos): hand off to a [Luna Max verifier](#visual-verification-luna-max-subagent). Non-visual (logs, tests, exit codes): the coding agent reads it directly.
 5. If mismatch: follow up and repeat until proof matches — or report the blocker with evidence.
 6. [Tear down](#teardown-after-proof) everything booted for the task.
 7. Package repeated unblock steps into a skill/playbook note (avoid re-discovering env flakiness).
+
+## Proof media hosting
+
+Proof media = **screenshots and videos** (screen recordings, before/after clips). Video is first-class proof for visual/UI flows when a still is insufficient.
+
+- **Do not** commit proof media on the PR/workstream branch.
+- Push media to a dedicated **`media`** branch in the **same repo** the PR targets. If it does not exist, create it as an orphan branch (unrelated to `main`; hosts media only).
+- Use a clear path: `proof/<pr-number-or-slug>/<file>`.
+- In the **PR description**, embed or link each asset with verification notes next to it.
+- **No raw URLs.** Repos may be private; `raw.githubusercontent.com` and other unauthenticated raw links break for reviewers. Use GitHub UI links:
+  - Images: `![before](https://github.com/<owner>/<repo>/blob/media/proof/<slug>/before.png?raw=true)` renders for logged-in viewers, or link the blob page.
+  - Videos: link the blob page `https://github.com/<owner>/<repo>/blob/media/proof/<slug>/flow.mp4` — GitHub plays common formats there.
+
+```bash
+# separate worktree; never touch the workstream branch
+git fetch origin media && git worktree add ../media-wt media \
+  || git worktree add --orphan -b media ../media-wt   # first time only
+mkdir -p ../media-wt/proof/<slug> && cp <files> ../media-wt/proof/<slug>/
+git -C ../media-wt add proof && git -C ../media-wt commit -m "Proof for <slug>" && git -C ../media-wt push -u origin media
+git worktree remove ../media-wt
+```
+
+## Visual verification: Luna Max subagent
+
+Do not spend a heavy coding-model turn (Claude Code / Codex on `agent-m1`, or heavy Cursor models) on multimodal inspection of screenshots or videos.
+
+- For visual proof, the eng bot (or the coding agent via spawn) launches a **Cursor cloud subagent: GPT 5.6 Luna, effort Max (reasoning `max`), Fast off**.
+- Its only job: inspect the media against the stated success criteria and report **pass/fail + specifics** (what matched, what didn't, which asset).
+- Give it the success criteria and the media links; nothing else to implement.
+- Non-visual proof (logs, tests, exit codes) stays with the coding agent — no Luna.
+- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Sol / Opus / Fable / Claude Code / Codex).
 
 ## Teardown after proof
 
