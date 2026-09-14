@@ -28,7 +28,9 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 - **Thorough launch prompt.** Every Claude Code / Codex / Cursor cloud launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
 - **Require proof.** Not done at green CI or changed files — done when the agent has produced and inspected task-relevant proof.
-- **Flexible evidence.** Screenshots for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
+- **Flexible evidence.** Screenshots or videos for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
+- **Proof media on `media` branch.** Never commit screenshots/videos to the PR branch. Link them in the PR body via GitHub blob URLs, not raw URLs. See [proof media hosting](../playbooks/agent-proof-feedback-loop.md#proof-media-hosting).
+- **Visual verification on Luna Max.** Inspect screenshots/videos with a Cursor cloud subagent (GPT 5.6 Luna, effort Max, Fast off) that reports pass/fail against the success criteria. Coding agents do not burn heavy turns on it; non-visual proof stays with the coding agent. See [visual verification](../playbooks/agent-proof-feedback-loop.md#visual-verification-luna-max-subagent).
 - **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
 - **Tear down after proof.** Shut down sims/emulators and dev servers the agent started. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
@@ -77,6 +79,7 @@ Use this when you need a pick, not a philosophy. Leave **Fast** off by default. 
 | High complexity, wide surface | **Fable 5.1** | **medium** (→ **high** → **xhigh** only if still thrashing after a clear plan) | Escalate after cheaper paths fail, or the surface is obviously huge / visual / gnarly. Do not start here. |
 | Writing / agreeing on a plan | **Opus 5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
 | Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 5.6 Luna** | **Max** (reasoning Max) | Few edge cases, little verification needed. Lower effort before escalating model. |
+| Visual proof verification (screenshots/videos) | **GPT 5.6 Luna** | **Max** (reasoning Max) | Cursor cloud subagent; verification-only, reports pass/fail. Never implements. |
 
 Concrete picks:
 
