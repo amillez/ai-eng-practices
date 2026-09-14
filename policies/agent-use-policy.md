@@ -32,6 +32,12 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 - **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
 
+**Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
+
+- **Worktree per agent.** Dispatch each workstream into its own `git worktree` on branch `agent/<bot>/<slug>`, from an up-to-date base. Agents never work in the `main` checkout.
+- **One agent per tree.** Parallel work uses separate worktrees with disjoint paths.
+- **Teardown after merge or abandon.** Remove the worktree and delete the local branch. No dirty or orphan trees left on disk.
+
 **Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host, not Cursor cloud or other machines.
 
 **Cursor cloud launches** (per eng-bot Mark's 1:1 feedback):
@@ -203,5 +209,6 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
 - [Playbook: Cursor Projects](../playbooks/cursor-projects.md)
 - [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
+- [Playbook: Agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)
 - [Source: workshop](../sources/cursor-model-selection-token-efficiency.md)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
