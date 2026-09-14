@@ -51,11 +51,17 @@ Host: agent-m1 (primary) | Cursor cloud fallback — <reason>
 5. If mismatch: follow up and repeat until proof matches — or report the blocker with evidence.
 6. Package repeated unblock steps into a skill/playbook note (avoid re-discovering env flakiness).
 
-## Skills to invoke (when applicable)
+## Skills allowlist
 
-Personal skill store on the agent host: `~/.agents/skills`.
+Only these skills are approved for launch prompts. Use each when its skill description matches the task, unless noted.
 
-- `argent-ios-simulator-setup` / `argent-android-emulator-setup` — boot and connect a device
-- `argent-react-native-app-workflow` — start the app, Metro, builds
-- `argent-test-ui-flow` — interact → screenshot → verify loops
-- `argent-screenshot-diff` — before/after visual comparison
+- **Argent** — all `argent-*` skills (device setup, interaction, UI flows, screenshot diff, profiling, recording, etc.); pick by description.
+- `animate-expo` — building animations.
+- `apple-design` — building UIs.
+- `grill-me` — stress-test a plan or design before building.
+- `orchestrate-agents` — fan out large work into parallel isolated prompts (works with Claude Code and Codex workers).
+- **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
+
+### Skill store
+
+Canonical install/update lives in the private repo [amillez/agent-skills](https://github.com/amillez/agent-skills): run `./scripts/install.sh` to install and `./scripts/update-upstream.sh` to pull upstream updates. Machines should not hand-duplicate skill folders.
