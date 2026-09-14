@@ -11,6 +11,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Model selection & token efficiency](playbooks/model-selection-and-token-efficiency.md) | Choosing a model, writing a prompt, or diagnosing spend / blurry context |
 | [Cursor Projects](playbooks/cursor-projects.md) | Deciding Project vs one-shot agent vs Grok Bot |
 | [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents |
+| [Agent proof feedback loop](playbooks/agent-proof-feedback-loop.md) | Deciding when a coding agent is done and what proof it must produce |
 
 ## Standing policies (for humans and bots)
 
