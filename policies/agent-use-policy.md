@@ -24,6 +24,14 @@ For heavy coding / engineering agent work:
 
 Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex chooser on `agent-m1` is still TBD.
 
+**Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
+
+- **Thorough launch prompt.** Every Claude Code / Codex / Cursor cloud launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
+- **Require proof.** Not done at green CI or changed files — done when the agent has produced and inspected task-relevant proof.
+- **Flexible evidence.** Screenshots for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
+- **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
+- **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
+
 **Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host, not Cursor cloud or other machines.
 
 **Cursor cloud launches** (per eng-bot Mark's 1:1 feedback):
