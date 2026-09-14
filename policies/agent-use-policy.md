@@ -39,6 +39,7 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 - **Worktree per agent.** Dispatch each workstream into its own `git worktree` on branch `agent/<bot>/<slug>`, from an up-to-date base. Agents never work in the `main` checkout.
 - **One agent per tree.** Parallel work uses separate worktrees with disjoint paths.
+- **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Promised pings need a finite watch, not a lone background Shell wake. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Teardown after merge or abandon.** Remove the worktree and delete the local branch. No dirty or orphan trees left on disk.
 
 **Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host, not Cursor cloud or other machines.
