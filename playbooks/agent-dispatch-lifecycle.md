@@ -42,9 +42,17 @@ intake → thorough prompt (skills + proof) → provision worktree → agent run
 
 Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `merged` | `blocked` | `discarded`
 
+## Babysit until merged
+
+1. **Own the workstream until a terminal status.** Terminal = `merged`, `discarded`, or abandoned after an explicit close. Agent idle or session settle is not done.
+2. **Arm a finite watch for session settle.** When you tell the user you will ping on finish or block, arm a finite watch (e.g. weekday `*/10` Europe/Madrid routine, or equivalent) that checks the Claude Code / Codex session on `agent-m1`, messages the user on settle, block, or deadline, then deletes itself. Required when promised; recommended for any long job. Do not rely on a lone background Shell wake.
+3. **After the PR opens, watch until merged or closed.** Prefer a GitHub PR-scoped listener (review, CI, comment, push, `pr-merged`, `pr-closed`) over polling. On merge or abandon: tear down worktree + sims, and notify the user of the terminal result when they would care.
+4. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
+5. **Keep status current.** Move through the statuses above; `blocked` is not terminal — report it with evidence and keep watching or close it out.
+
 ## Roles
 
-- **Eng bots (Mark / Sam):** write the prompt, pick skills and proof type, start the agent on `agent-m1`, follow up, verify proof, open the PR, tear down.
+- **Eng bots (Mark / Sam):** write the prompt, pick skills and proof type, start the agent on `agent-m1`, follow up, verify proof, open the PR, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
 - **Coding agent:** works only in its own workstream.
 - **Jarvis:** postmortems when the lifecycle breaks (merged without proof, orphan worktrees).
 
