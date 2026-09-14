@@ -26,6 +26,7 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 **Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
 
+- **Thorough launch prompt.** Every Claude Code / Codex / Cursor cloud launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
 - **Require proof.** Not done at green CI or changed files — done when the agent has produced and inspected task-relevant proof.
 - **Flexible evidence.** Screenshots for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
 - **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
