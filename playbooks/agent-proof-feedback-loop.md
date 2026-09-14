@@ -2,6 +2,8 @@
 
 Standing practice for eng work on `agent-m1` (Claude Code / Codex). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
 
+Related: pstack's prove-it-works and verification-skill pattern — see [Steal from pstack](steal-from-pstack.md).
+
 ## Rule
 
 A coding agent is not done when CI is green or files changed. It is done when it has **produced and inspected** task-relevant proof that the ask was met.

@@ -50,6 +50,8 @@ Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `m
 4. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
 5. **Keep status current.** Move through the statuses above; `blocked` is not terminal — report it with evidence and keep watching or close it out.
 
+Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack.md).
+
 ## Roles
 
 - **Eng bots (Mark / Sam):** write the prompt, pick skills and proof type, start the agent on `agent-m1`, follow up, verify proof, open the PR, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
