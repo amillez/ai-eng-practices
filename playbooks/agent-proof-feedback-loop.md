@@ -9,6 +9,7 @@ A coding agent is not done when CI is green or files changed. It is done when it
 ## Choose proof by task type
 
 - **Visual / UI**: screenshots (before/after when useful). Prefer Argent skills: `argent-ios-simulator-setup` or `argent-android-emulator-setup` → `argent-react-native-app-workflow` → `argent-test-ui-flow` (or `argent-screenshot-diff`).
+- **Multi-platform apps** (Expo/RN and similar): verify on **every supported platform** named in the task (typically iOS + Android). iOS-only or Android-only is not done unless the task explicitly scoped one platform.
 - **Non-visual behavior**: logs, test output, CLI exit codes, network traces, profiler summaries — whatever a human would check.
 - **Do not** attach screenshots for purely backend/logic changes just for show. Do not claim "verified" without reading the proof.
 
@@ -49,7 +50,16 @@ Host: agent-m1 (primary) | Cursor cloud fallback — <reason>
 3. Collect proof (boot sim if needed; run flow or tests).
 4. **Inspect** proof (multimodal for screenshots; read logs/tests for non-visual).
 5. If mismatch: follow up and repeat until proof matches — or report the blocker with evidence.
-6. Package repeated unblock steps into a skill/playbook note (avoid re-discovering env flakiness).
+6. [Tear down](#teardown-after-proof) everything booted for the task.
+7. Package repeated unblock steps into a skill/playbook note (avoid re-discovering env flakiness).
+
+## Teardown after proof
+
+Teardown is part of done — same bar as inspecting proof.
+
+- After proof is collected and inspected, shut down what you started: iOS Simulator / Android emulator, Metro/dev servers, watchers, temporary tunnels — anything booted for the task.
+- Prefer Argent/device skills to shut down cleanly (e.g. `stop-all-simulator-servers` scoped to the devices this session used). Otherwise quit the sim/emulator and kill leftover node/Metro processes for that workstream.
+- Do not leave sims or emulators running "for the next agent." The next workstream boots what it needs.
 
 ## Skills allowlist
 

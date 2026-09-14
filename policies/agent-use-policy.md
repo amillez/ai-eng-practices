@@ -31,6 +31,7 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 - **Flexible evidence.** Screenshots for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
 - **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
+- **Tear down after proof.** Shut down sims/emulators and dev servers the agent started. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
 
 **Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
 

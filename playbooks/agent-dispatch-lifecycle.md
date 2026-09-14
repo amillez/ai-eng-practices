@@ -26,6 +26,7 @@ Rules:
 2. **One agent per worktree.** Parallel work = `orchestrate-agents` with disjoint paths.
 3. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
 4. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
+   - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
 5. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.
 
 **Cursor cloud fallback:** use the cloud agent's branch/PR lifecycle (no local worktree). Same thorough prompt and proof rules.
@@ -52,3 +53,4 @@ Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `m
 - Auto-merge.
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.
+- Leave sims, emulators, or dev servers running after proof.
