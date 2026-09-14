@@ -13,6 +13,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents |
 | [Agent proof feedback loop](playbooks/agent-proof-feedback-loop.md) | Deciding when a coding agent is done and what proof it must produce |
 | [Agent dispatch lifecycle](playbooks/agent-dispatch-lifecycle.md) | Dispatching work to a coding agent: worktree, PR, teardown |
+| [Steal from pstack](playbooks/steal-from-pstack.md) | Deciding which pstack skills/playbooks to adopt, defer, or skip |
 
 ## Standing policies (for humans and bots)
 
