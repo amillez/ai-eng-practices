@@ -2,7 +2,7 @@
 
 Standing practice for eng work on `agent-m1` (Claude Code / Codex). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
 
-Related: pstack's prove-it-works and verification-skill pattern — see [Steal from pstack](steal-from-pstack.md). Checks that must fail closed: [Hard constraints & co-location](hard-constraints-and-co-location.md).
+Related: pstack's prove-it-works and verification-skill pattern — see [Steal from pstack](steal-from-pstack.md). Checks that must fail closed: [Hard constraints](hard-constraints.md).
 
 ## Rule
 
