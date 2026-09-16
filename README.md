@@ -15,6 +15,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Agent dispatch lifecycle](playbooks/agent-dispatch-lifecycle.md) | Dispatching work to a coding agent: worktree, PR, teardown |
 | [Steal from pstack](playbooks/steal-from-pstack.md) | Deciding which pstack skills/playbooks to adopt, defer, or skip |
 | [Hard constraints](playbooks/hard-constraints.md) | Encoding footguns in lint/CI instead of prose, so the proof loop fails closed |
+| [amillez-mode](playbooks/amillez-mode.md) | Remapping poteto / Cursor-first skill defaults onto our stack while keeping the craft bar |
 
 ## Standing policies (for humans and bots)
 

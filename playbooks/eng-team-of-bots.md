@@ -100,5 +100,6 @@ They compose: a Grok Bot can **create and manage** Cursor cloud agents. Decision
 
 - [Cursor Projects](cursor-projects.md)
 - [Agent use policy](../policies/agent-use-policy.md)
+- [amillez-mode](amillez-mode.md) — remap poteto / Cursor-first defaults for bot briefs
 - [Steal from pstack](steal-from-pstack.md) — Lauren Tan / pstack workshop takeaways (distinct from the GrokBot course above)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
