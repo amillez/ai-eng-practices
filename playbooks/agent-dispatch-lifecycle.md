@@ -49,12 +49,13 @@ Hardened after Mark's rn-bedrock PR #11 notes (background wakes missed `agent-m1
 1. **Own the workstream until a terminal status.** Terminal = merge, close, or abandon. Agent idle or session settle is not done.
 2. **Hop 1 — session settle: arm a finite settle-watch.** Do not rely on silent background Shell wakes alone. Arm a finite weekday `*/10` Europe/Madrid routine that checks the Claude Code / Codex session on `agent-m1`, **must message** the user on settle, block, or deadline, then deletes itself. See standing skill `agent-m1-completion-ping`.
 3. **Hop 2 — PR open: switch to GitHub listeners.** Prefer PR-scoped event listeners (review, CI, push, `pr-merged`, `pr-closed`) over polling. No Claude/Codex → Grok Bot webhook bridge for now.
-4. **Do not stop at settle.** While the PR is OPEN and review threads are unresolved, do not delete the settle-watch or stop babysitting just because the coding session finished.
-5. **Filter listener noise, keep watching.** Empty-body COMMENTED reviews and agent fix-ack replies on unresolved threads can wake as review-commented. Stay quiet on pure noise, but do not treat it as a hard failure that abandons babysit.
-6. **Apply Agustín's review comments as they appear.** No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close.
-7. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
-8. **Tear down in two stages.** Sims, emulators, and dev servers go when proof is done; PR listeners and worktree stay until terminal.
-9. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
+4. **Match the PR on every listener wake.** On every GitHub listener wake, confirm the event's PR number matches this workstream's `pr_number`; ignore cross-PR payloads (Mark: #19 wake hit #11 babysit).
+5. **Do not stop at settle.** While the PR is OPEN and review threads are unresolved, do not delete the settle-watch or stop babysitting just because the coding session finished.
+6. **Filter listener noise, keep watching.** Empty-body COMMENTED reviews and agent fix-ack replies on unresolved threads can wake as review-commented. Stay quiet on pure noise, but do not treat it as a hard failure that abandons babysit.
+7. **Apply Agustín's review comments as they appear.** No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close.
+8. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
+9. **Tear down in two stages.** Sims, emulators, and dev servers go when proof is done; PR listeners and worktree stay until terminal.
+10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
 
 Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack.md).
 
