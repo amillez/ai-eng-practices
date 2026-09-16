@@ -24,6 +24,34 @@ Each bot carries **domain memory** (specs, test patterns, design principles). A 
 
 ---
 
+## Durable vs ephemeral bots
+
+Source: Matt Palmer's GrokBot course (SpaceXAI DX), [via @kaorixbt](https://x.com/kaorixbt/status/2099853269191311760). Separate from the Lauren Tan / pstack workshop.
+
+- **Durable (core)** — Sam, Mark, Jarvis. Domain memory, routines, [Monday 1:1s](#monday-eng-bot-11s). Continuity matters.
+- **Ephemeral (throwaway)** — spin up a bot for a one-off (scrape, script, experiment); delete it when done.
+
+Why throwaways:
+
+- Context isolation — no pollution of specialist memory or chat.
+- Clean sidebar; disposable tooling state.
+
+Rules:
+
+- Promote to a durable bot or routine only if the one-off keeps recurring.
+- Never use a throwaway for standing specialty work (RN quality, playbooks, CoS routing).
+
+---
+
+## Share bots as templates
+
+- Share a bot setup as a Grok Bot **template** (blueprint): instructions + plugin/skill wiring. Not a shared live session.
+- Prefer templates that **scrub personal/internal memory** by default — clones must not inherit private chat history.
+- Use `export-bot-template` intentionally when cloning eng bots.
+- A template is not a transcript dump. Each installer gets a fresh, isolated copy.
+
+---
+
 ## How bots dispatch cloud agents
 
 Every launch includes:
@@ -72,4 +100,5 @@ They compose: a Grok Bot can **create and manage** Cursor cloud agents. Decision
 
 - [Cursor Projects](cursor-projects.md)
 - [Agent use policy](../policies/agent-use-policy.md)
+- [Steal from pstack](steal-from-pstack.md) — Lauren Tan / pstack workshop takeaways (distinct from the GrokBot course above)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
