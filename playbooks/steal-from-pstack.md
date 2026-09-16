@@ -8,6 +8,7 @@ What we adopt from poteto's pstack vs what we only link. pstack skills are plain
 - **Prove it works** — maps to [agent-proof-feedback-loop.md](agent-proof-feedback-loop.md). Real artifact evidence (sims, screens, logs), not "it compiles." Luna Max for visual verify; media on the `media` branch.
 - **Project verification skill pattern** — from `/create-verification-skill`: **Launch / Doctor / Drive / Evidence / Cleanup** plus a feature map. Next experiment: generate or hand-port this shape for Expo/RN apps (Favvy, asnt), using Argent for Drive and Evidence. Do not require the Cursor plugin.
 - **Worktree cleanup** — already required in dispatch teardown (plus sim/Metro teardown). Keep it explicit; use pstack's worktree-cleanup playbook as a checklist reference.
+- **Hard constraints** — reinforced by poteto's GrokBot workshop: enforce footguns in lint/CI so the proof loop fails closed. See [hard-constraints.md](hard-constraints.md).
 
 ## Steal selectively later
 
