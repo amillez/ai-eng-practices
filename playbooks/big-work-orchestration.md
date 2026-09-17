@@ -19,7 +19,7 @@ Small, already-scoped, single-worktree tasks stay on the normal dispatch path. D
 ## Default path
 
 1. **Eng bot intakes** the ask: success criteria, proof type, constraints, host pick.
-2. Eng bot dispatches a **dedicated orchestrator agent session** (preferred) on the chosen host — one workstream whose job is plan → fan-out → integrate, not feature code itself.
+2. Eng bot dispatches a **dedicated orchestrator agent session** (preferred) on the chosen host — on `agent-m1`, Claude Code **Opus 5 / xhigh**; job is plan → fan-out → integrate, not feature code itself.
 3. Orchestrator runs the pipeline below.
 4. Eng bot arms babysit on the resulting PR(s) per [dispatch lifecycle](agent-dispatch-lifecycle.md#babysit-until-merged).
 
@@ -78,8 +78,8 @@ On `agent-m1` (256GB host), prefer disk-conscious modes in this order:
 | Role | Owns |
 | --- | --- |
 | **Eng bot (Mark / Sam)** | Intake, host pick, launch orchestrator with a thorough prompt, arm babysit, verify final proof bar, merge/close decisions. |
-| **Orchestrator agent** | Plan, write isolated worker prompts via `orchestrate-agents`, fan-out, integrate, hand off prove. Does not personally implement every slice. |
-| **Worker agents** | Implement one slice each (disjoint paths); one agent per live worktree when parallel — or sequential on one tree under disk mode 1; return code + slice evidence. |
+| **Orchestrator agent** | On `agent-m1`: Claude Code running **Claude Opus 5** at **xhigh**. Plans, writes isolated worker prompts via `orchestrate-agents`, fans out / sequences workers per policy + disk modes, integrates, hands off prove. Does **not** implement every slice itself. |
+| **Worker agents** | Spawned by the orchestrator. Slice-appropriate Claude Code or Codex (log picks); thorough prompts, skills, disk modes. Not every worker is Opus 5 xhigh. Return code + slice evidence. |
 
 ## Host matrix
 
@@ -94,14 +94,17 @@ Do not use Cursor cloud as the default prove host for RN visual work. Do not use
 
 `orchestrate-agents` is **prompt fan-out only** — it writes isolated worker prompts; it does **not** launch models or sessions.
 
-Cross-harness fan-out is supported when the **launcher** (eng bot or orchestrator session) starts each worker on a harness that can run that provider:
+- **Orchestrator (agent-m1):** Claude Code running **Claude Opus 5** at **xhigh** (orchestration / large planning). Eng bot launches this dedicated session; the orchestrator then follows [agent-use-policy](../policies/agent-use-policy.md) + this playbook to spawn workers — it does not implement every slice itself.
+- **Workers:** slice-appropriate harness and cost — **not** every worker Opus 5 xhigh. Pick Claude Code vs Codex per slice (log until the Claude-vs-Codex chooser is locked), thorough prompts, skills, [disk modes](#worktrees-and-disk), then integrate; RN prove hops to `agent-m1` Argent; babysit handoff stays with the eng bot.
+
+Cross-harness fan-out: the **launcher** (eng bot or orchestrator session) starts each worker on a harness that can run that provider:
 
 | Host | Reality |
 | --- | --- |
-| **`agent-m1`** | Claude Code = Anthropic; Codex = OpenAI. A Claude Code session cannot natively spawn a Codex worker in-process (and vice versa) — start a **separate worktree/session** for that slice. Assign **harness/provider per slice** (Claude Code vs Codex) according to the canonical Claude-vs-Codex chooser **once that chooser is established** (still TBD in [agent-use-policy](../policies/agent-use-policy.md)). Do **not** treat Cursor/Grok Bot lane names as agent-m1 model picks. |
+| **`agent-m1`** | Orchestrator = Claude Code **Opus 5 / xhigh** (above). Workers = separate Claude Code and/or Codex sessions/worktrees. A Claude Code session cannot natively spawn a Codex worker in-process (and vice versa). Assign **harness/provider per slice** (Claude Code vs Codex) per [agent-use-policy](../policies/agent-use-policy.md) once the Claude-vs-Codex chooser is established (still TBD); log picks until then. Do **not** treat Cursor/Grok Bot lane names as worker model picks. |
 | **Cursor cloud** | Normal / fallback work: follow [agent-use-policy](../policies/agent-use-policy.md) (chooser + Cursor cloud launch rules). **Comparison experiment arm only:** Composer 2.5 + Grok 4.6 — see [Comparison experiment](#comparison-experiment). |
 
-**Rule:** the orchestrator assigns **host + harness (and, on Cursor, model/effort) per worker** by slice. Do **not** inherit the parent session's harness or model blindly.
+**Rule:** do **not** inherit the orchestrator's Opus 5 xhigh (or parent harness) blindly onto every worker. Assign host + harness (and, on Cursor, model/effort) per slice.
 
 Prove for sim-dependent RN still hops to `agent-m1` Argent regardless of which harness wrote the slice.
 
@@ -123,7 +126,7 @@ When Agustín asks for an A/B (Claude/Codex orchestration on `agent-m1` vs Curso
 
 | Arm | Host | What to run |
 | --- | --- | --- |
-| **A — agent-m1** | `agent-m1` Claude Code + Codex | Separate Claude Code and/or Codex sessions/worktrees per slice. Claude-vs-Codex assignment is part of the experiment and **must be logged** (chooser still TBD). Do not label slices with Cursor/Grok Bot lane names. |
+| **A — agent-m1** | `agent-m1` Claude Code + Codex | **Orchestrator:** Claude Code **Opus 5 / xhigh**. **Workers:** separate Claude Code and/or Codex sessions/worktrees per slice (not all Opus 5 xhigh); Claude-vs-Codex picks **must be logged** (chooser still TBD). Do not label workers with Cursor/Grok Bot lane names. |
 | **B — Cursor cloud** | Cursor cloud | **Composer 2.5** + **Grok 4.6** only. Do **not** use the standing Cursor/Grok Bot chooser lanes on this experiment arm. |
 
 Normal Cursor fallback (non-experiment) continues to follow [agent-use-policy](../policies/agent-use-policy.md) — do not restate those model names here.
@@ -133,7 +136,7 @@ Normal Cursor fallback (non-experiment) continues to follow [agent-use-policy](.
 1. **Same task brief** — identical goal, scope, constraints, skills list.
 2. **Same success criteria** — observable "done when…".
 3. **Same proof bar** — same proof type and inspect standard; state prove **location** explicitly. Sim-dependent RN visual proof still hops to `agent-m1` (Argent) for **both** arms; unit/typecheck/CI may stay on the arm that wrote the code.
-4. **Log host / harness / model / effort** for each arm (and Fast off unless explicitly requested). Arm A: log Claude Code vs Codex per slice. Arm B: must show Composer 2.5 and/or Grok 4.6 only.
+4. **Log host / harness / model / effort** for each arm (and Fast off unless explicitly requested). Arm A: orchestrator = Opus 5 xhigh; log Claude Code vs Codex per worker slice. Arm B: must show Composer 2.5 and/or Grok 4.6 only.
 5. **Do not** change the brief mid-flight on only one arm. Record blockers with evidence.
 
 Use this section so the experiment is comparable, not vibes.
@@ -145,7 +148,7 @@ Use this section so the experiment is comparable, not vibes.
 - Parallel workers sharing one working tree (use sequential-on-one-tree or separate worktrees — never both at once on the same checkout).
 - Running sim-dependent RN prove on Cursor cloud (no Mac sims/AVDs like `agent-m1`).
 - Eng bot acting as forever-orchestrator in chat instead of launching an orchestrator session.
-- Blindly inheriting the orchestrator's harness/model for every worker (or expecting Claude Code to spawn Codex in-process, or vice versa).
+- Blindly inheriting the orchestrator's harness/model for every worker — including running every worker as Opus 5 xhigh — or expecting Claude Code to spawn Codex in-process (or vice versa).
 - Parallel hardware / device validation.
 - Adopting Orca or Arena/Swarm wholesale before the eng-bot + `orchestrate-agents` path is proven.
 

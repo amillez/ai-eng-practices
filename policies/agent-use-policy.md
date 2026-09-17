@@ -39,7 +39,7 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 - **Worktree per agent.** Dispatch each workstream into its own `git worktree` on branch `agent/<bot>/<slug>`, from an up-to-date base. Agents never work in the `main` checkout.
 - **One agent per tree.** Parallel work uses separate worktrees with disjoint paths.
-- **Big work → orchestrator session.** Multi-surface / multi-package / parallelizable / multi-PR / more than one focused session: dispatch a dedicated orchestrator agent (plan → workers → integrate → prove → babysit). Do not collapse to one mega agent. See [big-work orchestration](../playbooks/big-work-orchestration.md).
+- **Big work → orchestrator session.** Multi-surface / multi-package / parallelizable / multi-PR / more than one focused session: dispatch a dedicated orchestrator agent (plan → workers → integrate → prove → babysit). Do not collapse to one mega agent. On `agent-m1`, orchestrator default is Claude Opus 5 / xhigh — workers follow policy by slice; see [big-work orchestration](../playbooks/big-work-orchestration.md).
 - **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Promised pings need a finite watch, not a lone background Shell wake. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Teardown after merge or abandon.** Remove the worktree and delete the local branch. No dirty or orphan trees left on disk.
 
