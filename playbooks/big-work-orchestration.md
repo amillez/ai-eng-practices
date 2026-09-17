@@ -103,7 +103,7 @@ Do not use Cursor cloud as the default prove host for RN visual work. Do not use
 | --- | --- |
 | **`agent-m1` Claude Code or Codex** | Work stays on agent-m1 and the harness can run the assigned model. Claude Code cannot spawn Codex in-process (and vice versa) — use a **separate** worktree/session. When both harnesses are used, **log** Claude Code vs Codex per slice. |
 | **Cursor cloud** | The chooser pick is a Cursor/Grok Bot lane that Claude Code / Codex cannot run — spawn that worker on Cursor cloud (pass model/effort/Fast explicitly per policy), **or** document the gap and escalate. Normal Cursor launches follow [agent-use-policy](../policies/agent-use-policy.md). |
-| **Comparison experiment arm B only** | Composer 2.5 + Grok 4.6 only — see [Comparison experiment](#comparison-experiment). Overrides the standing chooser for that arm. |
+| **Comparison experiment arm B only** | **Orchestrator:** Grok 4.6 at **xhigh**, **Fast off**. **Workers:** Grok 4.6 and/or Composer 2.5; log which is used. Do not use Luna, Sol, Opus, or Fable on this arm — see [Comparison experiment](#comparison-experiment). Overrides the standing chooser for that arm. |
 
 **Rule:** pick model + effort from policy first, then pick a host/harness that can run it. Do not collapse every worker onto the orchestrator's Opus 5 xhigh.
 
@@ -128,7 +128,7 @@ When Agustín asks for an A/B (Claude/Codex orchestration on `agent-m1` vs Curso
 | Arm | Host | What to run |
 | --- | --- | --- |
 | **A — agent-m1** | `agent-m1` (+ Cursor cloud only if a worker model cannot run there) | **Orchestrator:** Claude Code **Opus 5 / xhigh**. **Workers:** model + effort per slice from [agent-use-policy](../policies/agent-use-policy.md) chooser (not all Opus 5 xhigh); log model/effort/Fast and harness (Claude Code vs Codex) when both are used; hop a worker to Cursor cloud if the pick cannot run on agent-m1. |
-| **B — Cursor cloud** | Cursor cloud | **Composer 2.5** + **Grok 4.6** only. Do **not** use the standing chooser on this experiment arm. |
+| **B — Cursor cloud** | Cursor cloud | **Orchestrator:** **Grok 4.6 / xhigh**, with **Fast off** when launching. **Workers:** may use Grok 4.6 and/or Composer 2.5; log which is used. Do not use Luna, Sol, Opus, or Fable on this experiment arm. |
 
 Outside experiment arm B, Cursor launches (including Arm A workers hopped to cloud) follow [agent-use-policy](../policies/agent-use-policy.md).
 
@@ -137,7 +137,7 @@ Outside experiment arm B, Cursor launches (including Arm A workers hopped to clo
 1. **Same task brief** — identical goal, scope, constraints, skills list.
 2. **Same success criteria** — observable "done when…".
 3. **Same proof bar** — same proof type and inspect standard; state prove **location** explicitly. Sim-dependent RN visual proof still hops to `agent-m1` (Argent) for **both** arms; unit/typecheck/CI may stay on the arm that wrote the code.
-4. **Log host / harness / model / effort** for each arm (and Fast off unless explicitly requested). Arm A: orchestrator = Opus 5 xhigh; per worker log chooser model + effort (+ Claude Code vs Codex harness when used). Arm B: must show Composer 2.5 and/or Grok 4.6 only.
+4. **Log host / harness / model / effort** for each arm (and Fast off unless explicitly requested). Arm A: orchestrator = Opus 5 xhigh; per worker log chooser model + effort (+ Claude Code vs Codex harness when used). Arm B: must show **Grok 4.6 / xhigh** as the orchestrator with **Fast off**; Composer 2.5 may appear only when used as a worker, and workers must not use Luna, Sol, Opus, or Fable.
 5. **Do not** change the brief mid-flight on only one arm. Record blockers with evidence.
 
 Use this section so the experiment is comparable, not vibes.
