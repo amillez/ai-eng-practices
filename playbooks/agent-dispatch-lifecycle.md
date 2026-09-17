@@ -9,7 +9,7 @@ Standing stack: `agent-m1` running Claude Code / Codex is primary. Cursor cloud 
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion). Not Cursor Projects as primary.
-- **Big Task → orchestrator workstream** — when the ask is multi-surface, parallelizable, multi-PR, or >> one session, the eng bot may spawn an **orchestrator** workstream that fans out child workstreams (plan → workers → integrate → prove). See [big-work orchestration](big-work-orchestration.md).
+- **Big Task → orchestrator workstream** — when the ask is multi-surface, parallelizable, multi-PR, or more than one session, the eng bot may spawn an **orchestrator** workstream that fans out child workstreams (plan → workers → integrate → prove). See [big-work orchestration](big-work-orchestration.md).
 
 ## Worktrees on `agent-m1`
 

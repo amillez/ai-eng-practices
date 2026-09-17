@@ -84,16 +84,16 @@ Do not use Cursor cloud as the default prove host for RN visual work. Do not use
 
 `orchestrate-agents` is **prompt fan-out only** — it writes isolated worker prompts; it does **not** launch models or sessions.
 
-Cross-model fan-out is supported when the **launcher** (eng bot or orchestrator session) starts each worker on a harness that can run that model:
+Cross-harness fan-out is supported when the **launcher** (eng bot or orchestrator session) starts each worker on a harness that can run that provider:
 
-| Host | Cross-model reality |
+| Host | Reality |
 | --- | --- |
-| **`agent-m1`** | Claude Code sessions = Anthropic; Codex sessions = OpenAI. A Claude session cannot natively spawn a Codex / Sol worker inside itself — start a **separate Codex worktree/session** for that slice (and vice versa for a Codex orchestrator needing Claude/Opus). |
-| **Cursor cloud** | Normal / fallback work: different cloud agents **may** use different lanes (Fable / Opus / Sol / Luna) per the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples). **Comparison experiment arm only:** Composer 2.5 + Grok 4.6 — see [Comparison experiment](#comparison-experiment). |
+| **`agent-m1`** | Claude Code = Anthropic; Codex = OpenAI. A Claude Code session cannot natively spawn a Codex worker in-process (and vice versa) — start a **separate worktree/session** for that slice. Assign **harness/provider per slice** (Claude Code vs Codex) according to the canonical Claude-vs-Codex chooser **once that chooser is established** (still TBD in [agent-use-policy](../policies/agent-use-policy.md)). Do **not** treat Cursor/Grok Bot lane names as agent-m1 model picks. |
+| **Cursor cloud** | Normal / fallback work: follow [agent-use-policy](../policies/agent-use-policy.md) (chooser + Cursor cloud launch rules). **Comparison experiment arm only:** Composer 2.5 + Grok 4.6 — see [Comparison experiment](#comparison-experiment). |
 
-**Rule:** the orchestrator assigns **host + model + effort per worker** from the chooser by slice type. Do **not** inherit the parent model blindly.
+**Rule:** the orchestrator assigns **host + harness (and, on Cursor, model/effort) per worker** by slice. Do **not** inherit the parent session's harness or model blindly.
 
-Examples: UI / visual taste → Opus High (→ xhigh if needed); general code → Sol High; mechanical / super-defined → Luna Max; orchestration / wide planning itself may be Fable (escalate deliberately). Prove for sim-dependent RN still hops to `agent-m1` Argent regardless of which model wrote the slice.
+Prove for sim-dependent RN still hops to `agent-m1` Argent regardless of which harness wrote the slice.
 
 ## Out of scope / later
 
@@ -111,19 +111,19 @@ When Agustín asks for an A/B (Claude/Codex orchestration on `agent-m1` vs Curso
 
 ### Arms
 
-| Arm | Host | Models |
+| Arm | Host | What to run |
 | --- | --- | --- |
-| **A — agent-m1** | `agent-m1` Claude Code / Codex | Claude Code / Codex with chooser as applicable (Opus / Sol / etc. by slice; separate sessions for cross-provider). |
-| **B — Cursor cloud** | Cursor cloud | **Composer 2.5** + **Grok 4.6** only. Do **not** use Luna / Opus / Sol / Fable on this experiment arm. |
+| **A — agent-m1** | `agent-m1` Claude Code + Codex | Separate Claude Code and/or Codex sessions/worktrees per slice. Claude-vs-Codex assignment is part of the experiment and **must be logged** (chooser still TBD). Do not label slices with Cursor/Grok Bot lane names. |
+| **B — Cursor cloud** | Cursor cloud | **Composer 2.5** + **Grok 4.6** only. Do **not** use the standing Cursor/Grok Bot chooser lanes on this experiment arm. |
 
-Standing policy Luna / Sol / Opus / Fable still applies to normal Cursor fallback and other non-experiment work.
+Normal Cursor fallback (non-experiment) continues to follow [agent-use-policy](../policies/agent-use-policy.md) — do not restate those model names here.
 
 ### Fairness checklist
 
 1. **Same task brief** — identical goal, scope, constraints, skills list.
 2. **Same success criteria** — observable "done when…".
 3. **Same proof bar** — same proof type and inspect standard; state prove **location** explicitly. Sim-dependent RN visual proof still hops to `agent-m1` (Argent) for **both** arms; unit/typecheck/CI may stay on the arm that wrote the code.
-4. **Log host / model / effort** for each arm (and Fast off unless explicitly requested). Cursor arm must show Composer 2.5 and/or Grok 4.6 — never Luna/Opus/Sol/Fable.
+4. **Log host / harness / model / effort** for each arm (and Fast off unless explicitly requested). Arm A: log Claude Code vs Codex per slice. Arm B: must show Composer 2.5 and/or Grok 4.6 only.
 5. **Do not** change the brief mid-flight on only one arm. Record blockers with evidence.
 
 Use this section so the experiment is comparable, not vibes.
@@ -134,7 +134,7 @@ Use this section so the experiment is comparable, not vibes.
 - Parallel workers on the same files / overlapping paths.
 - Running sim-dependent RN prove on Cursor cloud (no Mac sims/AVDs like `agent-m1`).
 - Eng bot acting as forever-orchestrator in chat instead of launching an orchestrator session.
-- Blindly inheriting the orchestrator's model for every worker (or expecting Claude Code to spawn Codex/Sol in-process).
+- Blindly inheriting the orchestrator's harness/model for every worker (or expecting Claude Code to spawn Codex in-process, or vice versa).
 - Parallel hardware / device validation.
 - Adopting Orca or Arena/Swarm wholesale before the eng-bot + `orchestrate-agents` path is proven.
 
