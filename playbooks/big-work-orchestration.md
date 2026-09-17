@@ -2,7 +2,7 @@
 
 When eng bots (Mark / Sam) face large work, default to a **dedicated orchestrator agent session** — not one mega worker, and not the eng bot personally juggling N chats mid-stream.
 
-Standing stack: `agent-m1` (Claude Code / Codex) is primary. Cursor cloud is fallback or explicit A/B only. Fan-out uses `orchestrate-agents` ([amillez/agent-skills](https://github.com/amillez/agent-skills)) with worktree-per-worker ([agent dispatch lifecycle](agent-dispatch-lifecycle.md)). Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md).
+Standing stack: `agent-m1` (Claude Code / Codex) is primary. Cursor cloud is fallback or explicit A/B only. Fan-out uses `orchestrate-agents` ([amillez/agent-skills](https://github.com/amillez/agent-skills)) and the worktree rules in [agent dispatch lifecycle](agent-dispatch-lifecycle.md) (parallel workers never share one tree; see [Worktrees and disk](#worktrees-and-disk)). Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md).
 
 ## When work is "big"
 
@@ -28,7 +28,7 @@ Do **not** collapse big work into one mega agent that owns every file. Do **not*
 ## Pipeline
 
 ```text
-Plan (scout) → Workers (disjoint worktrees) → Integrate (orchestrator only)
+Plan (scout) → Workers (disjoint paths; disk modes below) → Integrate (orchestrator only)
   → Prove (proof loop; RN visual → agent-m1 Argent) → Babysit (dispatch lifecycle)
 ```
 
@@ -41,9 +41,19 @@ Plan (scout) → Workers (disjoint worktrees) → Integrate (orchestrator only)
 
 ### 2. Workers
 
-- One worker = one worktree = one branch (`agent/<bot>/<slug>`), per [dispatch lifecycle](agent-dispatch-lifecycle.md#worktrees-on-agent-m1).
-- Workers do not share files. If two slices need the same path, serialize or merge scopes in the plan.
+- Plan still uses `orchestrate-agents` with **disjoint path ownership** per slice. If two slices need the same path, serialize or merge scopes in the plan.
+- Pick a [worktree / disk mode](#worktrees-and-disk) before launch. Parallel workers must not share one working tree.
 - Workers return code + slice-level evidence (tests, typecheck, notes). They do not own end-to-end product proof unless the slice is the whole product ask.
+
+### Worktrees and disk
+
+**Hard rule:** parallel workers must **not** share one working tree. Same checkout = colliding git index, dirty files, locks, Metro/Pods, and half-applied edits. Do not claim parallel agents can safely share one worktree.
+
+On `agent-m1` (256GB host), prefer disk-conscious modes in this order:
+
+1. **Default under disk pressure / RN-sized repos:** one shared worktree, **sequential** workers — same tree, one agent at a time, still disjoint path ownership in the plan. Orchestrator still plans with `orchestrate-agents`; fan-out is **temporal**, not parallel. Saves N copies of `node_modules` / Pods.
+2. **Limited parallel:** at most **2** worktrees unless Agustín explicitly raises the cap. Prefer package-level cuts.
+3. **If using multiple worktrees:** git objects are already shared across worktrees; the expensive part is usually `node_modules` / CocoaPods / build artifacts. Mitigations: shared pnpm store, delete/teardown worktrees promptly after integrate, avoid copying derived artifacts into every tree, stay aware of Colima/Docker disk use. Branch naming stays `agent/<bot>/<slug>` per [dispatch lifecycle](agent-dispatch-lifecycle.md#worktrees-on-agent-m1).
 
 ### 3. Integrate (orchestrator only)
 
@@ -69,7 +79,7 @@ Plan (scout) → Workers (disjoint worktrees) → Integrate (orchestrator only)
 | --- | --- |
 | **Eng bot (Mark / Sam)** | Intake, host pick, launch orchestrator with a thorough prompt, arm babysit, verify final proof bar, merge/close decisions. |
 | **Orchestrator agent** | Plan, write isolated worker prompts via `orchestrate-agents`, fan-out, integrate, hand off prove. Does not personally implement every slice. |
-| **Worker agents** | One worktree each; implement their slice only; return code + slice evidence. |
+| **Worker agents** | Implement one slice each (disjoint paths); one agent per live worktree when parallel — or sequential on one tree under disk mode 1; return code + slice evidence. |
 
 ## Host matrix
 
@@ -132,6 +142,7 @@ Use this section so the experiment is comparable, not vibes.
 
 - Single mega session that owns the whole epic end-to-end without slices.
 - Parallel workers on the same files / overlapping paths.
+- Parallel workers sharing one working tree (use sequential-on-one-tree or separate worktrees — never both at once on the same checkout).
 - Running sim-dependent RN prove on Cursor cloud (no Mac sims/AVDs like `agent-m1`).
 - Eng bot acting as forever-orchestrator in chat instead of launching an orchestrator session.
 - Blindly inheriting the orchestrator's harness/model for every worker (or expecting Claude Code to spawn Codex in-process, or vice versa).
