@@ -89,7 +89,7 @@ Cross-model fan-out is supported when the **launcher** (eng bot or orchestrator 
 | Host | Cross-model reality |
 | --- | --- |
 | **`agent-m1`** | Claude Code sessions = Anthropic; Codex sessions = OpenAI. A Claude session cannot natively spawn a Codex / Sol worker inside itself — start a **separate Codex worktree/session** for that slice (and vice versa for a Codex orchestrator needing Claude/Opus). |
-| **Cursor cloud** | Different cloud agents **may** use different lanes (Fable / Opus / Sol / Luna) per the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples). |
+| **Cursor cloud** | Normal / fallback work: different cloud agents **may** use different lanes (Fable / Opus / Sol / Luna) per the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples). **Comparison experiment arm only:** Composer 2.5 + Grok 4.6 — see [Comparison experiment](#comparison-experiment). |
 
 **Rule:** the orchestrator assigns **host + model + effort per worker** from the chooser by slice type. Do **not** inherit the parent model blindly.
 
@@ -107,12 +107,23 @@ Do not wholesale-adopt Orca (or pstack Arena/Swarm) in this playbook. Optional c
 
 ## Comparison experiment
 
-When Agustín asks for an A/B (Claude/Codex orchestration on `agent-m1` vs Cursor cloud orchestration), Mark runs both fairly:
+When Agustín asks for an A/B (Claude/Codex orchestration on `agent-m1` vs Cursor cloud orchestration), Mark runs both fairly. This section is **only** for that experiment — it does not change standing [agent-use-policy](../policies/agent-use-policy.md) defaults for normal Cursor fallback.
+
+### Arms
+
+| Arm | Host | Models |
+| --- | --- | --- |
+| **A — agent-m1** | `agent-m1` Claude Code / Codex | Claude Code / Codex with chooser as applicable (Opus / Sol / etc. by slice; separate sessions for cross-provider). |
+| **B — Cursor cloud** | Cursor cloud | **Composer 2.5** + **Grok 4.6** only. Do **not** use Luna / Opus / Sol / Fable on this experiment arm. |
+
+Standing policy Luna / Sol / Opus / Fable still applies to normal Cursor fallback and other non-experiment work.
+
+### Fairness checklist
 
 1. **Same task brief** — identical goal, scope, constraints, skills list.
 2. **Same success criteria** — observable "done when…".
-3. **Same proof bar** — same proof type and inspect standard; state prove **location** explicitly (`agent-m1` Argent vs cloud-only non-visual).
-4. **Log host / model / effort** for each arm (and Fast off unless explicitly requested).
+3. **Same proof bar** — same proof type and inspect standard; state prove **location** explicitly. Sim-dependent RN visual proof still hops to `agent-m1` (Argent) for **both** arms; unit/typecheck/CI may stay on the arm that wrote the code.
+4. **Log host / model / effort** for each arm (and Fast off unless explicitly requested). Cursor arm must show Composer 2.5 and/or Grok 4.6 — never Luna/Opus/Sol/Fable.
 5. **Do not** change the brief mid-flight on only one arm. Record blockers with evidence.
 
 Use this section so the experiment is comparable, not vibes.
