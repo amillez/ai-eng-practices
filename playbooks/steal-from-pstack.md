@@ -18,7 +18,7 @@ What we adopt from poteto's pstack vs what we only link. pstack skills are plain
 ## Steal selectively later
 
 - **Shipping** — independent verify-then-land for contiguous stacks (a different agent verifies than the one that wrote). Useful when we stack PRs; not default until we run multi-PR stacks often.
-- **Arena / Swarm / Interrogate** — multi-model design and adversarial review. Map to our chooser (Sol / Opus / Fable / Luna) when needed; do not adopt pstack's panel defaults wholesale.
+- **Arena / Swarm / Interrogate** — multi-model design and adversarial review. Map to our chooser (Sol / Opus / Fable / Luna) when needed; do not adopt pstack's panel defaults wholesale. For structured multi-agent fan-out on our stack see [big-work-orchestration.md](big-work-orchestration.md) (Orca deferred).
 - **Automate-me / personal `*-mode`** — optional later: an Agustín-mode router on top of agent-use-policy. Not blocking.
 - **poteto-mode / unslop as separate skills** — craft bar stays in [design-grok-bot](https://github.com/amillez) / eng-bot skills for now; not ported as standalone skill bodies.
 

@@ -39,6 +39,7 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 - **Worktree per agent.** Dispatch each workstream into its own `git worktree` on branch `agent/<bot>/<slug>`, from an up-to-date base. Agents never work in the `main` checkout.
 - **One agent per tree.** Parallel work uses separate worktrees with disjoint paths.
+- **Big work → orchestrator session.** Multi-surface / multi-package / parallelizable / multi-PR / >> one focused session: dispatch a dedicated orchestrator agent (plan → workers → integrate → prove → babysit). Do not collapse to one mega agent. See [big-work orchestration](../playbooks/big-work-orchestration.md).
 - **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Promised pings need a finite watch, not a lone background Shell wake. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Teardown after merge or abandon.** Remove the worktree and delete the local branch. No dirty or orphan trees left on disk.
 
@@ -215,5 +216,6 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 - [Playbook: Cursor Projects](../playbooks/cursor-projects.md)
 - [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
 - [Playbook: Agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)
+- [Playbook: Big-work orchestration](../playbooks/big-work-orchestration.md)
 - [Source: workshop](../sources/cursor-model-selection-token-efficiency.md)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
