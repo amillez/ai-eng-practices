@@ -80,6 +80,21 @@ Plan (scout) → Workers (disjoint worktrees) → Integrate (orchestrator only)
 
 Do not use Cursor cloud as the default prove host for RN visual work. Do not use Cursor as the default coding host when `agent-m1` is up, except for an explicit comparison experiment (below).
 
+## Model assignment
+
+`orchestrate-agents` is **prompt fan-out only** — it writes isolated worker prompts; it does **not** launch models or sessions.
+
+Cross-model fan-out is supported when the **launcher** (eng bot or orchestrator session) starts each worker on a harness that can run that model:
+
+| Host | Cross-model reality |
+| --- | --- |
+| **`agent-m1`** | Claude Code sessions = Anthropic; Codex sessions = OpenAI. A Claude session cannot natively spawn a Codex / Sol worker inside itself — start a **separate Codex worktree/session** for that slice (and vice versa for a Codex orchestrator needing Claude/Opus). |
+| **Cursor cloud** | Different cloud agents **may** use different lanes (Fable / Opus / Sol / Luna) per the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples). |
+
+**Rule:** the orchestrator assigns **host + model + effort per worker** from the chooser by slice type. Do **not** inherit the parent model blindly.
+
+Examples: UI / visual taste → Opus High (→ xhigh if needed); general code → Sol High; mechanical / super-defined → Luna Max; orchestration / wide planning itself may be Fable (escalate deliberately). Prove for sim-dependent RN still hops to `agent-m1` Argent regardless of which model wrote the slice.
+
 ## Out of scope / later
 
 ### Orca CLI (deferred for v1)
@@ -108,6 +123,7 @@ Use this section so the experiment is comparable, not vibes.
 - Parallel workers on the same files / overlapping paths.
 - Running sim-dependent RN prove on Cursor cloud (no Mac sims/AVDs like `agent-m1`).
 - Eng bot acting as forever-orchestrator in chat instead of launching an orchestrator session.
+- Blindly inheriting the orchestrator's model for every worker (or expecting Claude Code to spawn Codex/Sol in-process).
 - Parallel hardware / device validation.
 - Adopting Orca or Arena/Swarm wholesale before the eng-bot + `orchestrate-agents` path is proven.
 
