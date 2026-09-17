@@ -26,7 +26,7 @@ A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude 
 
 1. **Goal / success criteria.** State what "done" looks like in observable terms. Not "fix the header" — "header title no longer truncates on iPhone SE; tapping back returns to Home."
 2. **Scope and constraints.** Name the files, packages, or areas in play. Say what is off-limits (no dependency bumps, no API changes, don't touch `ios/Podfile`, etc.).
-3. **Skills to invoke, by name.** List the skills this task needs (e.g. `argent-ios-simulator-setup`, `argent-react-native-app-workflow`, `argent-test-ui-flow`). Tell the agent it may pick additional skills when the task clearly needs them — and to say which ones it used.
+3. **Skills to invoke, by name.** List the skills this task needs, using the [skill chooser](#skill-chooser) below. Include **craft** skills (how to build it) as well as **proof** skills (how to show it works). Tell the agent it may pick additional skills when the task clearly needs them, and to say which ones it used.
 4. **Proof expected.** Spell out the exact evidence to return and inspect:
    - UI: before/after screenshots of named screens/states (or `argent-screenshot-diff` output).
    - Behavior: specific log lines, network requests, or profiler summaries.
@@ -35,12 +35,29 @@ A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude 
 
 Do not launch until all five are in the prompt. If you cannot state the proof expected, the task is not defined enough to launch.
 
+### Skill chooser
+
+Match the task to every row that fits and name the union of those skills in the prompt. Most UI tasks match more than one row.
+
+| Task smell | Required skills |
+| --- | --- |
+| RN UI, screens, native chrome (headers, tab bars, lists, forms) | `apple-design`, `react-native-best-practices` |
+| Motion, gestures, sheet feel, press feedback, transitions, haptics | `animate-expo`, `apple-design` |
+| Critiquing existing motion ("does this feel right?") | `review-animations` (+ `animate-expo` if also fixing) |
+| Building with `@expo/ui` / SwiftUI or Compose hosts | `expo-ui` and/or `expo-native-ui` |
+| Device proof (screenshots, flows, recordings) | Argent: `argent-ios-simulator-setup` / `argent-android-emulator-setup` → `argent-react-native-app-workflow` → `argent-test-ui-flow` (+ `argent-screen-recording` for motion) |
+| Uniwind `className` work | `uniwind` |
+
+**Proof skills alone are never enough for feel-sensitive UI.** If the task touches sheets, motion, native chrome, or feel, include the craft skills above as well as Argent. A launch prompt that names only Argent skills for a sheet or animation task is incomplete. `review-animations` is not auto-invoked (`disable-model-invocation: true` upstream), so name it explicitly when you want a critique pass.
+
+Example (bottom sheet with drag-to-dismiss): `Skills: expo-ui, animate-expo, apple-design, react-native-best-practices, argent-ios-simulator-setup, argent-android-emulator-setup, argent-react-native-app-workflow, argent-test-ui-flow, argent-screen-recording; review-animations for a final motion critique.`
+
 ### Template
 
 ```text
 Goal: <what done looks like, observable>
 Scope: <files/areas>. Constraints: <what not to touch / limits>
-Skills: <skill-a>, <skill-b>. Use other skills if the task clearly needs them; list any you add.
+Skills: <craft skills from chooser>, <proof skills>. Use other skills if the task clearly needs them; list any you add.
 Proof expected: <screenshots before/after of X | logs showing Y | run `<cmd>` and all pass>. Inspect the proof before reporting done; if it doesn't match, iterate or report the blocker with evidence.
 Host: agent-m1 (primary) | Cursor cloud fallback — <reason>
 ```
@@ -101,6 +118,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - **Argent** — all `argent-*` skills (device setup, interaction, UI flows, screenshot diff, profiling, recording, etc.); pick by description.
 - `animate-expo` — building animations.
 - `apple-design` — building UIs.
+- `review-animations` (Emil) — reviewing / critiquing existing motion against Emil's craft bar. **Not auto-invoked** (`disable-model-invocation: true` upstream): name it explicitly in launch prompts for critique passes.
 - `grill-me` — stress-test a plan or design before building.
 - **Expo** (`expo/skills`):
   - `expo-native-ui` — building native UI.
