@@ -44,13 +44,13 @@ Match the task to every row that fits and name the union of those skills in the 
 | RN UI, screens, native chrome (headers, tab bars, lists, forms) | `apple-design`, `react-native-best-practices` |
 | Motion, gestures, sheet feel, press feedback, transitions, haptics | `animate-expo`, `apple-design` |
 | Critiquing existing motion ("does this feel right?") | `review-animations` (+ `animate-expo` if also fixing) |
-| Building with `@expo/ui` / SwiftUI or Compose hosts | `expo-ui` and/or `expo-native-ui` |
+| Building with `@expo/ui` / SwiftUI or Compose hosts | `expo-native-ui` |
 | Device proof (screenshots, flows, recordings) | Argent: `argent-ios-simulator-setup` / `argent-android-emulator-setup` → `argent-react-native-app-workflow` → `argent-test-ui-flow` (+ `argent-screen-recording` for motion) |
 | Uniwind `className` work | `uniwind` |
 
 **Proof skills alone are never enough for feel-sensitive UI.** If the task touches sheets, motion, native chrome, or feel, include the craft skills above as well as Argent. A launch prompt that names only Argent skills for a sheet or animation task is incomplete. `review-animations` is not auto-invoked (`disable-model-invocation: true` upstream), so name it explicitly when you want a critique pass.
 
-Example (bottom sheet with drag-to-dismiss): `Skills: expo-ui, animate-expo, apple-design, react-native-best-practices, argent-ios-simulator-setup, argent-android-emulator-setup, argent-react-native-app-workflow, argent-test-ui-flow, argent-screen-recording; review-animations for a final motion critique.`
+Example (bottom sheet with drag-to-dismiss): `Skills: animate-expo, apple-design, react-native-best-practices, argent-ios-simulator-setup, argent-android-emulator-setup, argent-react-native-app-workflow, argent-test-ui-flow, argent-screen-recording; review-animations for a final motion critique.`
 
 ### Template
 
@@ -122,7 +122,6 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `grill-me` — stress-test a plan or design before building.
 - **Expo** (`expo/skills`):
   - `expo-native-ui` — building native UI.
-  - `expo-ui` — building native UI.
   - `expo-dev-client` — build and distribute Expo development clients locally or via TestFlight for internal testing. For production TestFlight releases and store submission, use `eas-app-stores`.
   - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup.
 - `react-native-best-practices` (`software-mansion-labs/skills`) — per skill description; use when writing, reviewing, or debugging ANY React Native or Expo code.
