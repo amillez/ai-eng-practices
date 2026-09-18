@@ -24,6 +24,8 @@ For heavy coding / engineering agent work:
 
 Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex chooser on `agent-m1` is still TBD.
 
+**Cursor My Machines (`worker=agent-m1`):** only when the repo remote is registered via `--worker-dir` on LaunchAgent `com.cursor.agent-worker.agent-m1`. Do not route unregistered repos to that worker. Register with skill `register-worker-dir`, or use Claude Code / Codex on `agent-m1` / managed Cursor cloud without claiming sim/Argent proof. See [Cursor self-hosted prove host](../playbooks/big-work-orchestration.md#cursor-self-hosted-prove-host-agent-m1).
+
 **Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
 
 - **Thorough launch prompt.** Every Claude Code / Codex / Cursor cloud launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).

@@ -67,6 +67,8 @@ On `agent-m1` (256GB host), prefer disk-conscious modes in this order:
 - **RN / mobile visual proof (sims/AVDs):** the prove hop **must** run on `agent-m1` with Argent. Cursor cloud VMs cannot run Mac sims/AVDs the way `agent-m1` can.
 - Non-visual proof (unit tests, typecheck, CI) may stay on Cursor cloud when that host ran the code slices.
 - If plan/workers/integrate ran on Cursor cloud for an RN visual task, **return prove to `agent-m1`** (Argent) before calling the work done.
+- **Prove before PR.** Collect and inspect task-relevant proof before opening (or claiming ready) the PR. Do not open a prove-empty PR and backfill later.
+- **Sim mutex on `agent-m1`:** one prove owner at a time for Argent/sim work; max **2** sims host-wide. Do not fan out parallel sim proves on the same host.
 
 ### 5. Babysit
 
@@ -89,6 +91,15 @@ On `agent-m1` (256GB host), prefer disk-conscious modes in this order:
 | **Cursor cloud** | Code slices (plan / workers / integrate) when `agent-m1` is down, or when an explicit A/B comparison experiment requests it. **Prove hop:** sim-dependent RN/visual proof returns to `agent-m1`; unit/typecheck/CI can stay on cloud. |
 
 Do not use Cursor cloud as the default prove host for RN visual work. Do not use Cursor as the default coding host when `agent-m1` is up, except for an explicit comparison experiment (below).
+
+### Cursor self-hosted prove host (`agent-m1`)
+
+`agent-m1` also runs a **Cursor My Machines** worker (`worker=agent-m1`) with `--computer-use` for sims/UI. That path is separate from Claude Code / Codex on the same Mac.
+
+- **Routing requires registration.** The repo's git remote must be registered via `--worker-dir` on LaunchAgent `com.cursor.agent-worker.agent-m1`. Unregistered remotes must **not** be dispatched with `worker=agent-m1`.
+- **If not registered:** do not send Cursor cloud / My Machines work to `worker=agent-m1`. Clone under `~/agent-work/<repo>`, add `--worker-dir`, then `launchctl kickstart -k gui/$(id -u)/com.cursor.agent-worker.agent-m1`, then dispatch. Until registered: use Claude Code / Codex on `agent-m1`, or managed Cursor cloud **without** claiming sim/Argent proof.
+- **Never** claim Argent / sim proof from managed Cursor cloud for an unregistered project.
+- Recipe: skill `register-worker-dir` in [amillez/agent-skills](https://github.com/amillez/agent-skills) (also mirrored as a Grok Bot skill).
 
 ## Model assignment
 
@@ -148,6 +159,8 @@ Use this section so the experiment is comparable, not vibes.
 - Parallel workers on the same files / overlapping paths.
 - Parallel workers sharing one working tree (use sequential-on-one-tree or separate worktrees — never both at once on the same checkout).
 - Running sim-dependent RN prove on Cursor cloud (no Mac sims/AVDs like `agent-m1`).
+- Dispatching `worker=agent-m1` for a repo whose remote is not registered via `--worker-dir`, or claiming Argent/sim proof from managed cloud for an unregistered project.
+- Parallel sim proves on `agent-m1` (break the one-prove-owner / max-2-sims mutex) or opening a PR before prove.
 - Eng bot acting as forever-orchestrator in chat instead of launching an orchestrator session.
 - Blindly inheriting Opus 5 xhigh (or the orchestrator's harness) for every worker, skipping the agent-use-policy chooser, or expecting Claude Code to spawn Codex in-process (or vice versa).
 - Parallel hardware / device validation.
@@ -159,4 +172,5 @@ Use this section so the experiment is comparable, not vibes.
 - [Agent proof feedback loop](agent-proof-feedback-loop.md) — thorough launch, Argent, Luna Max, media branch
 - [Agent use policy](../policies/agent-use-policy.md) — host routing defaults
 - Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills)
+- Skill: `register-worker-dir` in [amillez/agent-skills](https://github.com/amillez/agent-skills) — register a repo for Cursor My Machines `worker=agent-m1`
 - [Steal from pstack](steal-from-pstack.md) — Arena/Swarm deferred; Orca deferred here

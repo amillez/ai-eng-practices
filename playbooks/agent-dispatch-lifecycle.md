@@ -33,6 +33,8 @@ Rules:
 
 **Cursor cloud fallback:** use the cloud agent's branch/PR lifecycle (no local worktree). Same thorough prompt and proof rules.
 
+**Cursor My Machines (`worker=agent-m1`):** only for repos whose git remote is registered via `--worker-dir` on LaunchAgent `com.cursor.agent-worker.agent-m1`. Unregistered → do not route `worker=agent-m1`; register first (`register-worker-dir`) or stay on Claude Code / Codex / managed cloud without sim proof. See [Cursor self-hosted prove host](big-work-orchestration.md#cursor-self-hosted-prove-host-agent-m1).
+
 ## Lifecycle
 
 ```text
