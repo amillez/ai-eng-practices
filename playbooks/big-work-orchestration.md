@@ -1,152 +1,205 @@
 # Big-work orchestration
 
-When eng bots (Mark / Sam) face large work, default to a **dedicated orchestrator agent session** — not one mega worker, and not the eng bot personally juggling N chats mid-stream.
+When eng bots (Mark / Sam) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code / Codex** workers inside **Orca** orchestration. Cursor coding / Cursor cloud A/B arms are **historical/abandoned** (Agustín 2026-09-18). Do **not** resurrect Cursor as a coding host — even if Orca's CLI accepts `--agent cursor`, we do not use it.
 
-Standing stack: `agent-m1` (Claude Code / Codex) **only**. Cursor coding / Cursor cloud A/B arms are **historical/abandoned** (Agustín 2026-09-18). Fan-out uses `orchestrate-agents` ([amillez/agent-skills](https://github.com/amillez/agent-skills)) and the worktree rules in [agent dispatch lifecycle](agent-dispatch-lifecycle.md) (parallel workers never share one tree; see [Worktrees and disk](#worktrees-and-disk)). Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md).
+Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktree / babysit rules: [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
-## When work is "big"
+**Docs (cite):**
+- [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
+- [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
 
-Treat the ask as big (and use this playbook) when any of these hold:
+**Lesson from the Mark trial (2026-09-18):** do **not** collapse big work into one mega-agent; do **not** skip the [size gate](#size-gate); prove-before-PR still stands; keep the sim mutex / max 2 concurrent sims. Large work uses **Orca** (not deferred) with a **Fable 5.1 High** coordinator.
 
-- Multi-surface or multi-package (e.g. RN + API + shared package).
-- Clearly parallelizable slices with disjoint paths.
-- Likely multi-PR or stacked landings.
-- Estimated effort is well beyond one focused coding session.
-- The eng bot (or human) asked for a "big" / large feature / epic-sized change.
+## Size gate
 
-Small, already-scoped, single-worktree tasks stay on the normal dispatch path. Do not over-orchestrate a rename.
+**Decide once at intake** — eng bot (or human), before any launch:
 
-## Default path
+| Gate | Condition | Action |
+| --- | --- | --- |
+| **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna / Sol / Opus on Claude Code / Codex). **No Orca Run. No orchestrator layer.** |
+| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with a **Fable 5.1 High** coordinator. Coordinator decomposes via Orca tasks/workers (`plan → workers → integrate → prove → babysit`). Workers get **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …` — not all Fable. |
 
-1. **Eng bot intakes** the ask: success criteria, proof type, constraints, host pick.
-2. Eng bot dispatches a **dedicated orchestrator agent session** (preferred) on the chosen host — on `agent-m1`, Claude Code **Opus 5 / xhigh**; job is plan → fan-out → integrate, not feature code itself.
-3. Orchestrator runs the pipeline below.
+### Small examples (direct agent — no Orca)
+
+- Rename a prop in one component folder → **Luna** (Codex) Max.
+- Fix a known auth bug in one package → **Sol** (Codex) High.
+- One UI polish PR in a single app surface → **Opus** (Claude Code) High.
+- Mechanical chore with tests already green → **Luna** Max.
+
+### Needs-orch examples (Orca + Fable 5.1 High coordinator)
+
+- RN + API + shared package feature with disjoint paths.
+- Parallelizable cuts across two+ packages that should land as one coherent PR (or a short stack).
+- Epic-sized ask where blast radius is unclear until scout.
+- Multi-PR / multi-session landing that needs integrate + prove coordination.
+
+Do **not** over-orchestrate a rename. Do **not** skip the gate and send everything to one mega session "to save hops."
+
+## Prerequisites (needs orch only)
+
+On `agent-m1`, before creating a Run:
+
+1. **Orca runtime up:** `orca status --json` succeeds ([CLI overview](https://www.onorca.dev/docs/cli/overview)).
+2. **Orchestration enabled:** Settings → Experimental → orchestration on ([Orchestration](https://www.onorca.dev/docs/cli/orchestration)).
+3. **Skills installed** for the coordinator (and workers that need them):
+   - `orca skills install --skill orca-cli` (or `npx skills add https://github.com/stablyai/orca --skill orca-cli`)
+   - Install / refresh the **orchestration** skill (`orca skills get orchestration --full` after install).
+4. **Amillez plugin** ensured on the target project path (Grok Bot / ensure-project) before coding workers touch the tree.
+5. Prefer `orca skills get orchestration --full` when flags drift — command surface evolves with the app.
+
+Grok Bot still: ensure amillez plugin, kick off / babysit PR, human pings. Grok Bot does **not** replace Orca for the multi-agent DAG.
+
+## Default path (needs orch)
+
+1. **Eng bot intakes** the ask: success criteria, proof type, constraints; applies the [size gate](#size-gate).
+2. Eng bot (or a kickoff hop) verifies [prerequisites](#prerequisites-needs-orch-only), then launches a **Fable 5.1 High** coordinator session that owns the Orca Run (see [Model assignment](#model-assignment)).
+3. Coordinator runs the [supervised Orca loop](#preferred-supervised-orca-loop) below and picks **worker `--agent` / `--model` / `--effort` per slice** from the chooser.
 4. Eng bot arms babysit on the resulting PR(s) per [dispatch lifecycle](agent-dispatch-lifecycle.md#babysit-until-merged).
 
-Do **not** collapse big work into one mega agent that owns every file. Do **not** keep the eng bot as a forever-orchestrator inside Slack/chat while spinning workers by hand unless the work is tiny enough that a single workstream is clearly enough.
+Do **not** collapse big work into one mega agent that owns every file. Do **not** keep the eng bot as a forever-orchestrator inside Slack/chat while spinning workers by hand unless the size gate said **small**.
 
-## Pipeline
+## Preferred supervised Orca loop
+
+Cite: [Orchestration — preferred supervised loop](https://www.onorca.dev/docs/cli/orchestration).
 
 ```text
-Plan (scout) → Workers (disjoint paths; disk modes below) → Integrate (orchestrator only)
-  → Prove (proof loop; RN visual → agent-m1 Argent) → Babysit (dispatch lifecycle)
+run-create → task-create (+ deps as needed) → worker-start (claude|codex + model + effort + worktree)
+  → check --wait (worker_done / escalation / question) → integrate → prove → babysit
 ```
 
-### 1. Plan (scout)
+Concrete shape (coordinator drives these):
 
-- Recon the repo: surfaces, packages, ownership boundaries, risks.
-- Slice into **disjoint** worker scopes (paths/packages that do not collide).
-- Write one isolated prompt per worker (goal, scope, constraints, skills, proof expected for that slice). Use `orchestrate-agents`.
-- Hardware / device validation is **never** parallel — schedule it after integrate (or as a single later hop).
+```bash
+orca orchestration run-create --objective "<thorough objective>" --json
+orca orchestration task-create --spec "<isolated worker spec>" --task-title "<slice>" --json
+orca orchestration worker-start \
+  --task <taskId> \
+  --worktree new-child \   # or: current — never two agents on one checkout
+  --name <slug> \
+  --agent claude \         # or: codex — NEVER cursor for coding
+  --model <opaque-model-id> \
+  --effort high \
+  --setup run \
+  --json
 
-### 2. Workers
+orca orchestration check --wait --types worker_done,escalation,question --timeout-ms 900000 --json
+orca orchestration check --ack <deliveryId> --wait --types worker_done,escalation,question --timeout-ms 900000 --json
+```
 
-- Plan still uses `orchestrate-agents` with **disjoint path ownership** per slice. If two slices need the same path, serialize or merge scopes in the plan.
-- Pick a [worktree / disk mode](#worktrees-and-disk) before launch. Parallel workers must not share one working tree.
-- Workers return code + slice-level evidence (tests, typecheck, notes). They do not own end-to-end product proof unless the slice is the whole product ask.
+Notes from Orca docs:
 
-### Worktrees and disk
+- A **Run** is a durable namespace + coordinator inbox — it does not schedule workers by itself.
+- A **Task** has spec, dependencies, status (`pending` → `ready` → `dispatched` → `completed`/`failed`/`blocked`).
+- **Dispatch** is one attempt; completion authority is `worker_done` with `--outcome succeeded|failed` plus `taskId` + `dispatchId`.
+- Do **not** use retired `orca orchestration run` / `run-stop` / `coordinator-start` — use Run + `worker-start`.
+- After accepted `worker_done`, `worker-release` (or `worker-retain` if debugging). Prefer `worker-read` over leaving dead terminals open.
+- Decision gates (`gate-create` / `gate-resolve`) and `ask` for blocking questions — do not rely on local TUI prompts for cross-agent decisions.
 
-**Hard rule:** parallel workers must **not** share one working tree. Same checkout = colliding git index, dirty files, locks, Metro/Pods, and half-applied edits. Do not claim parallel agents can safely share one worktree.
+### Pipeline mapping
 
-On `agent-m1` (256GB host), prefer disk-conscious modes in this order:
+| Stage | Who | How |
+| --- | --- | --- |
+| **Plan (scout)** | Fable 5.1 High coordinator | Recon blast radius; cut disjoint scopes; `task-create` with precise specs; assign chooser model/effort per task. |
+| **Workers** | Claude Code / Codex via Orca | `worker-start --agent claude\|codex --model … --effort …`; disk modes below. |
+| **Integrate** | Coordinator only | Merge outputs, resolve conflicts, re-run unit/typecheck; not a parallel task. |
+| **Prove** | Prove hop on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
+| **Babysit** | Eng bot (Grok) | Until `merged`\|`discarded`; PR listeners — does not replace Orca during the Run. |
 
-1. **Default under disk pressure / RN-sized repos:** one shared worktree, **sequential** workers — same tree, one agent at a time, still disjoint path ownership in the plan. Orchestrator still plans with `orchestrate-agents`; fan-out is **temporal**, not parallel. Saves N copies of `node_modules` / Pods.
-2. **Limited parallel:** at most **2** worktrees unless Agustín explicitly raises the cap. Prefer package-level cuts.
-3. **If using multiple worktrees:** git objects are already shared across worktrees; the expensive part is usually `node_modules` / CocoaPods / build artifacts. Mitigations: shared pnpm store, delete/teardown worktrees promptly after integrate, avoid copying derived artifacts into every tree, stay aware of Colima/Docker disk use. Branch naming stays `agent/<bot>/<slug>` per [dispatch lifecycle](agent-dispatch-lifecycle.md#worktrees-on-agent-m1).
+## Worktrees and disk
 
-### 3. Integrate (orchestrator only)
+**Hard rule:** parallel workers must **not** share one working tree. Same checkout = colliding git index, dirty files, locks, Metro/Pods. Map to Orca: do not start two `--worktree current` workers on the same checkout; use `new-child` (or sequential reuse of one tree).
 
-- Only the orchestrator merges worker outputs, resolves conflicts, and lands a coherent branch/PR set.
-- Re-run unit/typecheck/CI at the integration boundary before claiming integrate-done.
-- Prefer one reviewable PR (or a short explicit stack) over a pile of half-integrated branches.
+On `agent-m1`, prefer disk-conscious modes in this order:
 
-### 4. Prove
+1. **Default under disk pressure / RN-sized repos:** one shared worktree, **sequential** workers — `worker-start … --worktree current` one at a time (or release then reuse). Fan-out is **temporal**. Saves N copies of `node_modules` / Pods.
+2. **Limited parallel:** at most **2** worktrees (`new-child`) unless Agustín explicitly raises the cap. Prefer package-level cuts.
+3. **If using multiple worktrees:** tear down / `worker-release` promptly after integrate; shared pnpm store where possible; stay aware of Colima/Docker disk. Branch naming stays `agent/<bot>/<slug>` when creating git branches outside Orca's naming, per [dispatch lifecycle](agent-dispatch-lifecycle.md#worktrees-on-agent-m1).
 
-- Follow [agent proof feedback loop](agent-proof-feedback-loop.md): thorough criteria, inspect proof, Luna-role (Codex) for visual media, media on `media` branch.
-- **RN / mobile visual proof (sims/AVDs):** the prove hop **must** run on `agent-m1` with Argent.
-- Non-visual proof (unit tests, typecheck, CI) also runs on `agent-m1` (Claude Code / Codex).
-- **Prove before PR.** Collect and inspect task-relevant proof before opening (or claiming ready) the PR. Do not open a prove-empty PR and backfill later.
-- **Sim mutex on `agent-m1`:** one prove owner at a time for Argent/sim work; max **2** sims host-wide. Do not fan out parallel sim proves on the same host.
+Hardware / device validation is **never** parallel — schedule after integrate (or as a single later hop).
 
-### 5. Babysit
+## Prove
+
+- Follow [agent proof feedback loop](agent-proof-feedback-loop.md).
+- **RN / mobile visual proof:** prove hop **must** run on `agent-m1` with Argent (Orca emulator bridge is optional assist — Argent remains the RN proof path).
+- **Prove before PR.** Do not open a prove-empty PR and backfill later.
+- **Sim mutex on `agent-m1`:** one prove owner at a time for Argent/sim work; max **2** sims host-wide.
+
+## Babysit
 
 - Eng bot owns the workstream(s) until `merged` | `discarded`, per [babysit until merged](agent-dispatch-lifecycle.md#babysit-until-merged).
-- A big Task may spawn an orchestrator workstream that fans out child workstreams; babysit covers the parent PR (and children if they land separately) until terminal.
+- A large Task may spawn an Orca Run + coordinator workstream that fans out child Dispatches; babysit covers the parent PR (and children if they land separately) until terminal.
 
 ## Roles
 
 | Role | Owns |
 | --- | --- |
-| **Eng bot (Mark / Sam)** | Intake, host pick, launch orchestrator with a thorough prompt, arm babysit, verify final proof bar, merge/close decisions. |
-| **Orchestrator agent** | On `agent-m1`: Claude Code running **Claude Opus 5** at **xhigh**. Plans and fans out; writes isolated prompts via `orchestrate-agents`; assigns each worker **model + effort** from [agent-use-policy](../policies/agent-use-policy.md); applies [disk modes](#worktrees-and-disk); integrates; hands off prove. Does **not** implement every slice itself. |
-| **Worker agents** | Spawned by the orchestrator on a host/harness that can run the assigned model. Slice-appropriate chooser pick (not Opus 5 xhigh by default); thorough prompts, skills, disk modes. Return code + slice evidence. |
+| **Eng bot (Mark / Sam / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge/close. Does **not** replace Orca for the multi-agent DAG. |
+| **Coordinator (Fable 5.1 High)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, integrate, hand off prove. Does **not** implement every slice itself. |
+| **Worker agents** | Claude Code or Codex Dispatches. Slice-appropriate chooser pick; return `worker_done` with evidence. **No Cursor.** |
 
 ## Host matrix
 
 | Host | Use for |
 | --- | --- |
-| **`agent-m1` (Claude Code / Codex)** | **Only coding host** — full pipeline: plan, workers, integrate, prove (including Argent RN sims/AVDs). |
-| **Cursor cloud / My Machines** | **Abandoned** (Agustín 2026-09-18). Do not dispatch coding work there. Historical A/B Cursor arm docs below are archive-only. |
-
-Prove everything on `agent-m1`. Do not use Cursor as a coding or prove host.
+| **`agent-m1` + Orca + Claude Code / Codex** | **Only coding path** — small direct agents; large Orca Runs; prove (including Argent). |
+| **Cursor cloud / My Machines / `--agent cursor`** | **Abandoned** for coding. Do not dispatch. |
 
 ## Model assignment
 
-`orchestrate-agents` is **prompt fan-out only** — it writes isolated worker prompts; it does **not** launch models or sessions.
+### Coordinator label: Fable 5.1 High
 
-- **Orchestrator (agent-m1):** Claude Code running **Claude Opus 5** at **xhigh**. Plans and fans out; does **not** implement every slice. Eng bot launches this session; the orchestrator then spawns workers per [agent-use-policy](../policies/agent-use-policy.md) + this playbook.
-- **Workers:** assign **model + effort per slice** from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna Max / Sol High / Opus High→xhigh / Fable→Opus; escalate one knob at a time; Claude vs Codex per chooser TBD). Do **not** inherit Opus 5 xhigh for every worker. Thorough prompts, skills, [disk modes](#worktrees-and-disk); integrate; RN prove hops to `agent-m1` Argent; babysit handoff stays with the eng bot.
+- **Policy label:** **Fable 5.1 High** — standing name for the large-work Orca coordinator (Agustín 2026-09-18). Prefer this name in prompts, PR titles, and bot messages.
+- **Harness:** Claude Code on `agent-m1` (Fable-class model at **High** effort), driving the Orca CLI. If the installed harness only exposes Opus as nearest: **Fable 5.1 High** → Claude Code Fable/Opus-equivalent at **High**. Still say **Fable 5.1 High** — do not silently rename to "Opus 5 xhigh."
+- Plans / fans out via Orca; does **not** implement every slice.
 
-**Host / harness must run the assigned model.** The launcher starts each worker on `agent-m1` where that model actually runs:
+### Workers
 
-| Where | When |
-| --- | --- |
-| **`agent-m1` Claude Code or Codex** | Only coding path. Claude Code cannot spawn Codex in-process (and vice versa) — use a **separate** worktree/session. When both harnesses are used, **log** Claude Code vs Codex per slice. Map policy labels (Luna/Sol/Opus/Fable) per [agent-use-policy](../policies/agent-use-policy.md#1-coding-host-routing). If a historical Cursor-only lane has no Claude/Codex equivalent, **skip that lane** and pick the nearest Sol/Opus equivalent. |
-| **Cursor cloud / comparison arm B** | **Abandoned** — see [Comparison experiment (historical)](#comparison-experiment-historicalabandoned). |
+- Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna Max / Sol High / Opus High→xhigh).
+- Do **not** inherit Fable 5.1 High for every worker.
+- `--model` / `--effort` apply to Claude and Codex launches only (Orca docs); we never pass Cursor.
 
-**Rule:** pick model + effort from policy first, then pick Claude Code vs Codex on `agent-m1`. Do not collapse every worker onto the orchestrator's Opus xhigh. Claude vs Codex chooser remains TBD.
+**Rule:** apply the [size gate](#size-gate) first. Small → direct agent, no Orca Run. Large → Fable 5.1 High coordinator inside Orca, then chooser-per-slice workers.
 
-Prove for sim-dependent RN stays on `agent-m1` Argent.
+## Prompt fan-out skill
+
+`orchestrate-agents` (amillez/agent-skills) still helps the coordinator write isolated task specs. **Runtime ownership, `worker_done`, and the DAG live in Orca** — the skill does not replace `run-create` / `worker-start` / `check --wait`.
 
 ## Out of scope / later
 
-### Orca CLI (deferred for v1)
-
-[Orca](https://onorca.dev) (stablyai/orca) offers structured Runs / Tasks / Dispatches / `worker_done` / DAGs. **Defer for v1.**
-
-We get orchestration from eng-bot intake + `orchestrate-agents` + worktrees first. Revisit Orca only if we need a **durable DAG / `worker_done` runtime** beyond what Claude Code / Codex session tools already provide.
-
-Do not wholesale-adopt Orca (or pstack Arena/Swarm) in this playbook. Optional cross-link: [Steal from pstack](steal-from-pstack.md) (Arena/Swarm deferred).
+- Federated workers (`--on <remote>`) — optional; default stays local `agent-m1`.
+- Wholesale Arena/Swarm from pstack — still deferred; see [Steal from pstack](steal-from-pstack.md).
+- Do not use retired Orca commands (`orchestration run`, `run-stop`, `coordinator-start`).
 
 ## Comparison experiment (historical/abandoned)
 
-**Abandoned 2026-09-18.** Cursor is removed from the coding workflow. Do **not** run Arm B (Cursor cloud) or hop workers to Cursor. Standing path is Arm A only: prove on `agent-m1` with Claude Code / Codex.
+**Abandoned 2026-09-18.** Cursor removed from the coding workflow. Standing path: `agent-m1` + Claude Code / Codex, with **Orca** for large multi-agent work. Do not resurrect the A/B experiment.
 
-Archive of the old A/B framing (do not execute):
-
-| Arm | Host | What was run |
+| Arm | Host | Status |
 | --- | --- | --- |
-| **A — agent-m1** | `agent-m1` | Orchestrator: Claude Code Opus / xhigh. Workers: chooser per slice (Claude/Codex). |
-| **B — Cursor cloud** | Cursor cloud | Orchestrator: Grok 4.6 / xhigh, Fast off. Workers: Grok and/or Composer. **Do not use.** |
+| **A — agent-m1** | `agent-m1` Claude/Codex (+ Orca for large) | **Current** — orch label **Fable 5.1 High**. |
+| **B — Cursor cloud** | Cursor cloud | **Do not use.** |
 
 ## Anti-patterns
 
-- Single mega session that owns the whole epic end-to-end without slices.
-- Parallel workers on the same files / overlapping paths.
-- Parallel workers sharing one working tree (use sequential-on-one-tree or separate worktrees — never both at once on the same checkout).
-- Dispatching coding work to Cursor cloud, Cursor My Machines, or any Cursor coding host (abandoned).
-- Claiming Argent/sim proof from anywhere other than `agent-m1` Claude Code / Codex + Argent.
-- Parallel sim proves on `agent-m1` (break the one-prove-owner / max-2-sims mutex) or opening a PR before prove.
-- Eng bot acting as forever-orchestrator in chat instead of launching an orchestrator session.
-- Blindly inheriting Opus 5 xhigh (or the orchestrator's harness) for every worker, skipping the agent-use-policy chooser, or expecting Claude Code to spawn Codex in-process (or vice versa).
-- Parallel hardware / device validation.
-- Adopting Orca or Arena/Swarm wholesale before the eng-bot + `orchestrate-agents` path is proven.
+- Skipping the [size gate](#size-gate) — Orca Run for a rename, or one mega-agent for an epic.
+- Using Orca without runtime up / Experimental orchestration enabled / skills installed.
+- Collapsing large work into one mega session outside Orca (Mark trial lesson).
+- Parallel workers on the same checkout (`--worktree current` twice).
+- More than 2 parallel worktrees under disk pressure without an explicit raise.
+- `--agent cursor` or any Cursor coding host.
+- Claiming Argent/sim proof from anywhere other than `agent-m1`.
+- Parallel sim proves or opening a PR before prove.
+- Eng bot juggling N chats as forever-orchestrator instead of an Orca Run when the gate says large.
+- Stamping Fable 5.1 High on every worker; silently renaming the coordinator to Opus xhigh.
+- Treating `orchestrate-agents` prompt text as a substitute for Orca Dispatches / `worker_done`.
+- Retired `orca orchestration run` instead of `run-create` + `worker-start`.
 
 ## Related
 
 - [Agent dispatch lifecycle](agent-dispatch-lifecycle.md) — worktrees, babysit, teardown
 - [Agent proof feedback loop](agent-proof-feedback-loop.md) — thorough launch, Argent, Luna Max, media branch
-- [Agent use policy](../policies/agent-use-policy.md) — host routing defaults
-- Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills)
-- [Steal from pstack](steal-from-pstack.md) — Arena/Swarm deferred; Orca deferred here
+- [Agent use policy](../policies/agent-use-policy.md) — host routing + chooser
+- [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
+- [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
+- Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills) (spec writing; Orca owns the Run)
+- [Steal from pstack](steal-from-pstack.md) — Arena/Swarm deferred
