@@ -31,8 +31,8 @@ Policy keeps the workshop role names (Luna / Sol / Opus / Fable) as **labels**. 
 | --- | --- | --- | --- |
 | **Luna** | Mechanical / straightforward / visual-verify | **Codex** | Lightest GPT-class Codex model available; effort Max / high reasoning when verifying |
 | **Sol** | General implementation + light reasoning | **Codex** (preferred) or Claude Code Sonnet-class if Codex unavailable | Default coding worker |
-| **Opus** | UI / plans humans read / orchestration | **Claude Code** | Claude Opus (orchestrator default: Opus / xhigh) |
-| **Fable** | Huge / gnarly escalate | **Claude Code** Opus at highest effort, or skip if already on Opus xhigh and still thrashing — replan / split | Do not invent a Cursor-only frontier model |
+| **Opus** | UI / plans humans read | **Claude Code** | Claude Opus (High default; xhigh when needed) |
+| **Fable 5.1 High** | Large-work **Orca coordinator** default; also huge / gnarly escalate | **Claude Code** Fable-class at **High**, driving Orca CLI. If harness only exposes Opus as nearest: **Fable 5.1 High** → Claude Code Fable/Opus-equivalent at High. Prefer the Fable 5.1 High label. Escalate effort or replan/split if still thrashing | No Cursor; do not silently rename orch to Opus xhigh |
 | **Composer / Grok (Cursor lanes)** | Historical Cursor coding lanes | **Skip** — no Cursor coding host | Nearest: Sol→Codex general; Composer-like discrete SWE→Codex Sol-equivalent |
 
 Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
@@ -57,7 +57,7 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 
 - **Worktree per agent.** Dispatch each workstream into its own `git worktree` on branch `agent/<bot>/<slug>`, from an up-to-date base. Agents never work in the `main` checkout.
 - **One agent per tree.** Parallel work uses separate worktrees with disjoint paths.
-- **Big work → orchestrator session.** Multi-surface / multi-package / parallelizable / multi-PR / more than one focused session: dispatch a dedicated orchestrator agent (plan → workers → integrate → prove → babysit). Do not collapse to one mega agent. On `agent-m1`, orchestrator default is Claude Opus / xhigh via Claude Code; workers get **model + effort per slice** from this policy's chooser — see [big-work orchestration](../playbooks/big-work-orchestration.md).
+- **Size gate before launch.** **Small** (single surface/package, one PR, clear blast radius, one focused session) → dispatch the **corresponding agent directly** (Luna/Sol/Opus from this chooser on Claude Code / Codex). **No Orca Run. No orchestrator.** **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius, or more than one focused session) → **Orca** Run on `agent-m1` with a **Fable 5.1 High** coordinator (Fable-class at High; if nearest is Opus: **Fable 5.1 High** → Claude Code Fable/Opus-equivalent at High — keep the Fable label). Prerequisites: `orca status --json`, Settings → Experimental orchestration, skills `orca-cli` + `orchestration`. Preferred loop: `run-create` → `task-create` → `worker-start --agent claude|codex --model … --effort … --worktree new-child|current` → `check --wait`. Workers get **model + effort per slice** from this chooser — not all Fable. Grok Bot still ensures amillez plugin + babysits PRs; it does not replace Orca for the DAG. Do not collapse to one mega agent; do not skip the gate; do not use Cursor. See [big-work orchestration](../playbooks/big-work-orchestration.md) · [Orca orchestration docs](https://www.onorca.dev/docs/cli/orchestration).
 - **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Promised pings need a finite watch, not a lone background Shell wake. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Teardown after merge or abandon.** Remove the worktree and delete the local branch. No dirty or orphan trees left on disk.
 
@@ -85,7 +85,7 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 | Very direct / super defined | **Luna** | Codex | Mechanical, files + success criteria clear |
 | General code / some reasoning | **Sol** | Codex (or Claude Sonnet-class) | Default for most implementation + light reasoning. Effort **High** by default; **xhigh** when needed |
 | UI work | **Opus** | Claude Code | Product UI / visual taste. Effort **High** by default; **xhigh** when needed |
-| Large reasoning, orchestration, very complex / wide surface | **Fable** → **Opus xhigh** | Claude Code | Escalate after cheaper paths fail; do not start here. No Cursor-only Fable lane. |
+| Large-work orchestration (needs orch) | **Fable 5.1 High** coordinator inside **Orca** | Claude Code + Orca CLI | Size gate → Orca Run. Workers: `worker-start --agent claude|codex` + chooser model/effort. No Cursor. |
 
 ### Agent chooser examples
 
@@ -96,7 +96,7 @@ Use this when you need a pick, not a philosophy. Leave queue-priority / Fast kno
 | Straightforward / super defined | **Luna** | **Max** | Codex | Files and success criteria are already clear. |
 | General reasoning + implementation | **Sol** | **High** (→ **xhigh** if still needs reasoning after a few loops) | Codex | Default for most implementation + light reasoning. |
 | UI work | **Opus** | **High** (→ **xhigh** if taste/architecture tradeoffs) | Claude Code | Product UI / visual taste. |
-| High complexity, wide surface | **Fable** → **Opus** | **medium** → **high** → **xhigh** | Claude Code | Escalate after cheaper paths fail. No separate Cursor Fable. |
+| Large-work orchestration / high complexity wide surface | **Fable 5.1 High** (Orca coordinator) or escalate Fable-class | **High** (coordinator default); escalate effort one knob at a time if thrashing | Claude Code + Orca | Keep **Fable 5.1 High** label. Workers via Orca `--agent claude|codex` + chooser — not all Fable. No Cursor. |
 | Writing / agreeing on a plan | **Opus** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
 | Mechanical chore (format, rename in known files, boilerplate with tests already green) | **Luna** | **Max** | Codex | Few edge cases, little verification needed. |
 | Visual proof verification (screenshots/videos) | **Luna** | **Max** | Codex | Verification-only session on agent-m1; reports pass/fail. Never implements. Not a Cursor cloud subagent. |

@@ -9,7 +9,7 @@ Standing stack: `agent-m1` running Claude Code / Codex **only**. Dispatch = Grok
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion). Cursor Projects are out of scope for coding.
-- **Big Task → orchestrator workstream** — when the ask is multi-surface, parallelizable, multi-PR, or more than one session, the eng bot may spawn an **orchestrator** workstream that fans out child workstreams (plan → workers → integrate → prove). See [big-work orchestration](big-work-orchestration.md).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Luna/Sol/Opus) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks a **Fable 5.1 High** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude/Codex → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on `agent-m1`
 
@@ -25,7 +25,7 @@ Rules:
 
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
 2. **Ensure amillez plugin before coding.** On the worktree (or project) path, run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-project.sh`. If the project is new or the pack is missing, install (link skills + rules). If already present, continue — refresh only when policy/skills changed or a human asks. **Grok Bot dispatch prompts to Claude/Codex must include this ensure step** on the target path first.
-3. **One agent per worktree.** Parallel work = `orchestrate-agents` with disjoint paths. Parallel workers must not share one tree; under disk pressure prefer sequential workers on one worktree — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
+3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
 5. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
@@ -43,7 +43,7 @@ intake → thorough prompt (skills + proof) → provision worktree
 
 Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `merged` | `blocked` | `discarded`
 
-For big work, a parent orchestrator workstream may fan out child workstreams before integrate/prove; babysit still owns the landing PR(s) until terminal. See [big-work orchestration](big-work-orchestration.md).
+When the size gate says large/needs-orch, a parent **Orca Run** with a **Fable 5.1 High** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
 
 ## Babysit until merged
 
