@@ -24,17 +24,19 @@ Layout:
 Rules:
 
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
-2. **One agent per worktree.** Parallel work = `orchestrate-agents` with disjoint paths. Parallel workers must not share one tree; under disk pressure prefer sequential workers on one worktree — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
-3. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
+2. **Ensure amillez plugin before coding.** On the worktree (or project) path, run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-project.sh`. If the project is new or the pack is missing, install (link skills + rules). If already present, continue — refresh only when policy/skills changed or a human asks. **Grok Bot dispatch prompts to Claude/Codex must include this ensure step** on the target path first.
+3. **One agent per worktree.** Parallel work = `orchestrate-agents` with disjoint paths. Parallel workers must not share one tree; under disk pressure prefer sequential workers on one worktree — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
+4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
-4. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
+5. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
    - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
-5. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.
+6. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.
 
 ## Lifecycle
 
 ```text
-intake → thorough prompt (skills + proof) → provision worktree → agent runs
+intake → thorough prompt (skills + proof) → provision worktree
+  → ensure amillez plugin → agent runs
   → collect & inspect proof → open PR → bot reviews
   → merge | changes-requested | abandon → teardown worktree
 ```
