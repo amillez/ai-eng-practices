@@ -2,13 +2,13 @@
 
 How bots dispatch work to coding agents: projects, worktrees, and teardown.
 
-Standing stack: `agent-m1` running Claude Code / Codex is primary. Cursor cloud is fallback only when `agent-m1` is down (see [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing)).
+Standing stack: `agent-m1` running Claude Code / Codex **only**. Dispatch = Grok Bot → agent-m1 Claude/Codex session → proof → PR → teardown. No Cursor cloud / My Machines coding path (see [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing)).
 
 ## Units
 
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
-- **Project** (optional) — multi-task effort; thin tracker later (Notion). Not Cursor Projects as primary.
+- **Project** (optional) — multi-task effort; thin tracker later (Notion). Cursor Projects are out of scope for coding.
 - **Big Task → orchestrator workstream** — when the ask is multi-surface, parallelizable, multi-PR, or more than one session, the eng bot may spawn an **orchestrator** workstream that fans out child workstreams (plan → workers → integrate → prove). See [big-work orchestration](big-work-orchestration.md).
 
 ## Worktrees on `agent-m1`
@@ -30,10 +30,6 @@ Rules:
 4. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
    - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
 5. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.
-
-**Cursor cloud fallback:** use the cloud agent's branch/PR lifecycle (no local worktree). Same thorough prompt and proof rules.
-
-**Cursor My Machines (`worker=agent-m1`):** only for repos whose git remote is registered via `--worker-dir` on LaunchAgent `com.cursor.agent-worker.agent-m1`. Unregistered → do not route `worker=agent-m1`; register first (`register-worker-dir`) or stay on Claude Code / Codex / managed cloud without sim proof. See [Cursor self-hosted prove host](big-work-orchestration.md#cursor-self-hosted-prove-host-agent-m1).
 
 ## Lifecycle
 
@@ -72,7 +68,8 @@ Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack
 
 ## Do not
 
-- Use full Cursor Projects / Orca DAGs as the primary path.
+- Use Cursor cloud, Cursor Projects, My Machines, or `register-worker-dir` for coding.
+- Use Orca DAGs as the primary path.
 - Auto-merge.
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.

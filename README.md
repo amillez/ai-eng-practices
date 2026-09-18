@@ -2,6 +2,8 @@
 
 Living, opinionated practices for AI-assisted software engineering.
 
+**Coding host (2026-09-18):** `agent-m1` running **Claude Code + Codex only**. Cursor cloud / Composer / My Machines are out of the coding workflow. Grok Bot remains the chat/control plane. See [agent use policy](policies/agent-use-policy.md).
+
 This repo is a small set of playbooks and standing policies. Prefer checklists and decision guides over essays. Keep advice cost-aware and anti-hype. When a number comes from a talk or eval, treat it as a snapshot, not eternal truth.
 
 ## Playbooks
@@ -9,7 +11,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | Playbook | Use when |
 | --- | --- |
 | [Model selection & token efficiency](playbooks/model-selection-and-token-efficiency.md) | Choosing a model, writing a prompt, or diagnosing spend / blurry context |
-| [Cursor Projects](playbooks/cursor-projects.md) | Deciding Project vs one-shot agent vs Grok Bot |
+| [Cursor Projects](playbooks/cursor-projects.md) | **Historical** — Cursor Projects vs Grok Bot; coding host is Claude/Codex |
 | [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents |
 | [Agent proof feedback loop](playbooks/agent-proof-feedback-loop.md) | Deciding when a coding agent is done and what proof it must produce |
 | [Agent dispatch lifecycle](playbooks/agent-dispatch-lifecycle.md) | Dispatching work to a coding agent: worktree, PR, teardown |
@@ -47,4 +49,4 @@ Treat playbooks and policies in this repo as **standing policy** for any agent p
 - Follow them unless the current chat explicitly overrides for that one-off.
 - Prefer the latest merged `main` over memory of an older version.
 - Do not invent workshop quotes. Paraphrase practices; cite the source note.
-- If a playbook and a live Cursor UI label disagree, use Cursor's current spelling in the product and keep the playbook's intent.
+- Model role labels (Luna/Sol/Opus/Fable) map to Claude Code / Codex per [agent use policy](policies/agent-use-policy.md); skip Cursor-only lanes.

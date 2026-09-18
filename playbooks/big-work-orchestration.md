@@ -2,7 +2,7 @@
 
 When eng bots (Mark / Sam) face large work, default to a **dedicated orchestrator agent session** — not one mega worker, and not the eng bot personally juggling N chats mid-stream.
 
-Standing stack: `agent-m1` (Claude Code / Codex) is primary. Cursor cloud is fallback or explicit A/B only. Fan-out uses `orchestrate-agents` ([amillez/agent-skills](https://github.com/amillez/agent-skills)) and the worktree rules in [agent dispatch lifecycle](agent-dispatch-lifecycle.md) (parallel workers never share one tree; see [Worktrees and disk](#worktrees-and-disk)). Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md).
+Standing stack: `agent-m1` (Claude Code / Codex) **only**. Cursor coding / Cursor cloud A/B arms are **historical/abandoned** (Agustín 2026-09-18). Fan-out uses `orchestrate-agents` ([amillez/agent-skills](https://github.com/amillez/agent-skills)) and the worktree rules in [agent dispatch lifecycle](agent-dispatch-lifecycle.md) (parallel workers never share one tree; see [Worktrees and disk](#worktrees-and-disk)). Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md).
 
 ## When work is "big"
 
@@ -63,10 +63,9 @@ On `agent-m1` (256GB host), prefer disk-conscious modes in this order:
 
 ### 4. Prove
 
-- Follow [agent proof feedback loop](agent-proof-feedback-loop.md): thorough criteria, inspect proof, Luna Max for visual media, media on `media` branch.
-- **RN / mobile visual proof (sims/AVDs):** the prove hop **must** run on `agent-m1` with Argent. Cursor cloud VMs cannot run Mac sims/AVDs the way `agent-m1` can.
-- Non-visual proof (unit tests, typecheck, CI) may stay on Cursor cloud when that host ran the code slices.
-- If plan/workers/integrate ran on Cursor cloud for an RN visual task, **return prove to `agent-m1`** (Argent) before calling the work done.
+- Follow [agent proof feedback loop](agent-proof-feedback-loop.md): thorough criteria, inspect proof, Luna-role (Codex) for visual media, media on `media` branch.
+- **RN / mobile visual proof (sims/AVDs):** the prove hop **must** run on `agent-m1` with Argent.
+- Non-visual proof (unit tests, typecheck, CI) also runs on `agent-m1` (Claude Code / Codex).
 - **Prove before PR.** Collect and inspect task-relevant proof before opening (or claiming ready) the PR. Do not open a prove-empty PR and backfill later.
 - **Sim mutex on `agent-m1`:** one prove owner at a time for Argent/sim work; max **2** sims host-wide. Do not fan out parallel sim proves on the same host.
 
@@ -87,38 +86,28 @@ On `agent-m1` (256GB host), prefer disk-conscious modes in this order:
 
 | Host | Use for |
 | --- | --- |
-| **`agent-m1` (Claude Code / Codex)** | **Primary full pipeline** — plan, workers, integrate, prove (including Argent RN sims/AVDs). |
-| **Cursor cloud** | Code slices (plan / workers / integrate) when `agent-m1` is down, or when an explicit A/B comparison experiment requests it. **Prove hop:** sim-dependent RN/visual proof returns to `agent-m1`; unit/typecheck/CI can stay on cloud. |
+| **`agent-m1` (Claude Code / Codex)** | **Only coding host** — full pipeline: plan, workers, integrate, prove (including Argent RN sims/AVDs). |
+| **Cursor cloud / My Machines** | **Abandoned** (Agustín 2026-09-18). Do not dispatch coding work there. Historical A/B Cursor arm docs below are archive-only. |
 
-Do not use Cursor cloud as the default prove host for RN visual work. Do not use Cursor as the default coding host when `agent-m1` is up, except for an explicit comparison experiment (below).
-
-### Cursor self-hosted prove host (`agent-m1`)
-
-`agent-m1` also runs a **Cursor My Machines** worker (`worker=agent-m1`) with `--computer-use` for sims/UI. That path is separate from Claude Code / Codex on the same Mac.
-
-- **Routing requires registration.** The repo's git remote must be registered via `--worker-dir` on LaunchAgent `com.cursor.agent-worker.agent-m1`. Unregistered remotes must **not** be dispatched with `worker=agent-m1`.
-- **If not registered:** do not send Cursor cloud / My Machines work to `worker=agent-m1`. Clone under `~/agent-work/<repo>`, add `--worker-dir`, then `launchctl kickstart -k gui/$(id -u)/com.cursor.agent-worker.agent-m1`, then dispatch. Until registered: use Claude Code / Codex on `agent-m1`, or managed Cursor cloud **without** claiming sim/Argent proof.
-- **Never** claim Argent / sim proof from managed Cursor cloud for an unregistered project.
-- Recipe: skill `register-worker-dir` in [amillez/agent-skills](https://github.com/amillez/agent-skills) (also mirrored as a Grok Bot skill).
+Prove everything on `agent-m1`. Do not use Cursor as a coding or prove host.
 
 ## Model assignment
 
 `orchestrate-agents` is **prompt fan-out only** — it writes isolated worker prompts; it does **not** launch models or sessions.
 
 - **Orchestrator (agent-m1):** Claude Code running **Claude Opus 5** at **xhigh**. Plans and fans out; does **not** implement every slice. Eng bot launches this session; the orchestrator then spawns workers per [agent-use-policy](../policies/agent-use-policy.md) + this playbook.
-- **Workers:** assign **model + effort per slice** from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna Max / Sol High / Opus High→xhigh / Fable; Fast off; escalate one knob at a time). Do **not** inherit Opus 5 xhigh for every worker. Thorough prompts, skills, [disk modes](#worktrees-and-disk); integrate; RN prove hops to `agent-m1` Argent; babysit handoff stays with the eng bot.
+- **Workers:** assign **model + effort per slice** from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna Max / Sol High / Opus High→xhigh / Fable→Opus; escalate one knob at a time; Claude vs Codex per chooser TBD). Do **not** inherit Opus 5 xhigh for every worker. Thorough prompts, skills, [disk modes](#worktrees-and-disk); integrate; RN prove hops to `agent-m1` Argent; babysit handoff stays with the eng bot.
 
-**Host / harness must run the assigned model.** The launcher starts each worker where that model actually runs:
+**Host / harness must run the assigned model.** The launcher starts each worker on `agent-m1` where that model actually runs:
 
 | Where | When |
 | --- | --- |
-| **`agent-m1` Claude Code or Codex** | Work stays on agent-m1 and the harness can run the assigned model. Claude Code cannot spawn Codex in-process (and vice versa) — use a **separate** worktree/session. When both harnesses are used, **log** Claude Code vs Codex per slice. |
-| **Cursor cloud** | The chooser pick is a Cursor/Grok Bot lane that Claude Code / Codex cannot run — spawn that worker on Cursor cloud (pass model/effort/Fast explicitly per policy), **or** document the gap and escalate. Normal Cursor launches follow [agent-use-policy](../policies/agent-use-policy.md). |
-| **Comparison experiment arm B only** | **Orchestrator:** Grok 4.6 at **xhigh**, **Fast off**. **Workers:** Grok 4.6 and/or Composer 2.5; log which is used. Do not use Luna, Sol, Opus, or Fable on this arm — see [Comparison experiment](#comparison-experiment). Overrides the standing chooser for that arm. |
+| **`agent-m1` Claude Code or Codex** | Only coding path. Claude Code cannot spawn Codex in-process (and vice versa) — use a **separate** worktree/session. When both harnesses are used, **log** Claude Code vs Codex per slice. Map policy labels (Luna/Sol/Opus/Fable) per [agent-use-policy](../policies/agent-use-policy.md#1-coding-host-routing). If a historical Cursor-only lane has no Claude/Codex equivalent, **skip that lane** and pick the nearest Sol/Opus equivalent. |
+| **Cursor cloud / comparison arm B** | **Abandoned** — see [Comparison experiment (historical)](#comparison-experiment-historicalabandoned). |
 
-**Rule:** pick model + effort from policy first, then pick a host/harness that can run it. Do not collapse every worker onto the orchestrator's Opus 5 xhigh.
+**Rule:** pick model + effort from policy first, then pick Claude Code vs Codex on `agent-m1`. Do not collapse every worker onto the orchestrator's Opus xhigh. Claude vs Codex chooser remains TBD.
 
-Prove for sim-dependent RN still hops to `agent-m1` Argent regardless of which host wrote the slice.
+Prove for sim-dependent RN stays on `agent-m1` Argent.
 
 ## Out of scope / later
 
@@ -130,36 +119,24 @@ We get orchestration from eng-bot intake + `orchestrate-agents` + worktrees firs
 
 Do not wholesale-adopt Orca (or pstack Arena/Swarm) in this playbook. Optional cross-link: [Steal from pstack](steal-from-pstack.md) (Arena/Swarm deferred).
 
-## Comparison experiment
+## Comparison experiment (historical/abandoned)
 
-When Agustín asks for an A/B (Claude/Codex orchestration on `agent-m1` vs Cursor cloud orchestration), Mark runs both fairly. This section is **only** for that experiment — it does not change standing [agent-use-policy](../policies/agent-use-policy.md) defaults for normal Cursor fallback.
+**Abandoned 2026-09-18.** Cursor is removed from the coding workflow. Do **not** run Arm B (Cursor cloud) or hop workers to Cursor. Standing path is Arm A only: prove on `agent-m1` with Claude Code / Codex.
 
-### Arms
+Archive of the old A/B framing (do not execute):
 
-| Arm | Host | What to run |
+| Arm | Host | What was run |
 | --- | --- | --- |
-| **A — agent-m1** | `agent-m1` (+ Cursor cloud only if a worker model cannot run there) | **Orchestrator:** Claude Code **Opus 5 / xhigh**. **Workers:** model + effort per slice from [agent-use-policy](../policies/agent-use-policy.md) chooser (not all Opus 5 xhigh); log model/effort/Fast and harness (Claude Code vs Codex) when both are used; hop a worker to Cursor cloud if the pick cannot run on agent-m1. |
-| **B — Cursor cloud** | Cursor cloud | **Orchestrator:** **Grok 4.6 / xhigh**, with **Fast off** when launching. **Workers:** may use Grok 4.6 and/or Composer 2.5; log which is used. Do not use Luna, Sol, Opus, or Fable on this experiment arm. |
-
-Outside experiment arm B, Cursor launches (including Arm A workers hopped to cloud) follow [agent-use-policy](../policies/agent-use-policy.md).
-
-### Fairness checklist
-
-1. **Same task brief** — identical goal, scope, constraints, skills list.
-2. **Same success criteria** — observable "done when…".
-3. **Same proof bar** — same proof type and inspect standard; state prove **location** explicitly. Sim-dependent RN visual proof still hops to `agent-m1` (Argent) for **both** arms; unit/typecheck/CI may stay on the arm that wrote the code.
-4. **Log host / harness / model / effort** for each arm (and Fast off unless explicitly requested). Arm A: orchestrator = Opus 5 xhigh; per worker log chooser model + effort (+ Claude Code vs Codex harness when used). Arm B: must show **Grok 4.6 / xhigh** as the orchestrator with **Fast off**; Composer 2.5 may appear only when used as a worker, and workers must not use Luna, Sol, Opus, or Fable.
-5. **Do not** change the brief mid-flight on only one arm. Record blockers with evidence.
-
-Use this section so the experiment is comparable, not vibes.
+| **A — agent-m1** | `agent-m1` | Orchestrator: Claude Code Opus / xhigh. Workers: chooser per slice (Claude/Codex). |
+| **B — Cursor cloud** | Cursor cloud | Orchestrator: Grok 4.6 / xhigh, Fast off. Workers: Grok and/or Composer. **Do not use.** |
 
 ## Anti-patterns
 
 - Single mega session that owns the whole epic end-to-end without slices.
 - Parallel workers on the same files / overlapping paths.
 - Parallel workers sharing one working tree (use sequential-on-one-tree or separate worktrees — never both at once on the same checkout).
-- Running sim-dependent RN prove on Cursor cloud (no Mac sims/AVDs like `agent-m1`).
-- Dispatching `worker=agent-m1` for a repo whose remote is not registered via `--worker-dir`, or claiming Argent/sim proof from managed cloud for an unregistered project.
+- Dispatching coding work to Cursor cloud, Cursor My Machines, or any Cursor coding host (abandoned).
+- Claiming Argent/sim proof from anywhere other than `agent-m1` Claude Code / Codex + Argent.
 - Parallel sim proves on `agent-m1` (break the one-prove-owner / max-2-sims mutex) or opening a PR before prove.
 - Eng bot acting as forever-orchestrator in chat instead of launching an orchestrator session.
 - Blindly inheriting Opus 5 xhigh (or the orchestrator's harness) for every worker, skipping the agent-use-policy chooser, or expecting Claude Code to spawn Codex in-process (or vice versa).
@@ -172,5 +149,4 @@ Use this section so the experiment is comparable, not vibes.
 - [Agent proof feedback loop](agent-proof-feedback-loop.md) — thorough launch, Argent, Luna Max, media branch
 - [Agent use policy](../policies/agent-use-policy.md) — host routing defaults
 - Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills)
-- Skill: `register-worker-dir` in [amillez/agent-skills](https://github.com/amillez/agent-skills) — register a repo for Cursor My Machines `worker=agent-m1`
 - [Steal from pstack](steal-from-pstack.md) — Arena/Swarm deferred; Orca deferred here

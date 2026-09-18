@@ -1,5 +1,7 @@
 # Model selection & token efficiency
 
+> **Coding host note (2026-09-18):** standing coding path is **agent-m1 Claude Code + Codex only**. This playbook keeps workshop heuristics (Composer/Grok/Cursor harness language) as cost/prompt craft. Map role labels to Claude/Codex per [agent-use-policy](../policies/agent-use-policy.md); do not treat Composer / Cursor cloud as an active coding path.
+
 Opinionated playbook for humans and engineering bots. Distilled from Cursor's workshop **[Model Selection & Token Efficiency](https://www.youtube.com/watch?v=KcshxSB3sNY)** (Santi Garza, SpaceX AI field engineer; live session 25 August 2026, ~1 hour).
 
 **Snapshot, not scripture.** Prices, quality/$, router savings, and "N× cheaper" examples are **as of the workshop**. They drift. Check [Models & pricing](https://cursor.com/docs/models-and-pricing) for live rates. Model names below use Cursor's common spellings (Grok, Fable, Opus, Composer, GPT 5.6 Sol / Luna). Spoken names on the recording may differ.

@@ -17,12 +17,12 @@ A coding agent is not done when CI is green or files changed. It is done when it
 
 ## Host
 
-- Primary: `agent-m1` with simulators/AVDs already provisioned. Requires **Argent CLI + MCP** (`@swmansion/argent`) — skills alone are not enough.
-- Cursor cloud fallback only if `agent-m1` is down (see [agent use policy](../policies/agent-use-policy.md)). Screenshot loops are weaker there without a private worker.
+- **Only:** `agent-m1` with simulators/AVDs already provisioned. Requires **Argent CLI + MCP** (`@swmansion/argent`) — skills alone are not enough.
+- No Cursor cloud coding / prove fallback (see [agent use policy](../policies/agent-use-policy.md)).
 
 ## Thorough launch prompt
 
-A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude Code, Codex, or a Cursor cloud agent**, write the launch prompt so the agent can close the loop on its own. Every launch prompt **must** include:
+A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude Code or Codex** on agent-m1, write the launch prompt so the agent can close the loop on its own. Every launch prompt **must** include:
 
 1. **Goal / success criteria.** State what "done" looks like in observable terms. Not "fix the header" — "header title no longer truncates on iPhone SE; tapping back returns to Home."
 2. **Scope and constraints.** Name the files, packages, or areas in play. Say what is off-limits (no dependency bumps, no API changes, don't touch `ios/Podfile`, etc.).
@@ -31,7 +31,7 @@ A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude 
    - UI: before/after screenshots of named screens/states (or `argent-screenshot-diff` output).
    - Behavior: specific log lines, network requests, or profiler summaries.
    - Logic: the test command to run and the pass criteria (e.g. `yarn test src/cart` — all green, new test covers the empty-cart case).
-5. **Host routing (when relevant).** Note `agent-m1` as primary (Claude Code / Codex with Argent + provisioned sims/AVDs). If falling back to Cursor cloud, say so and adjust proof expectations accordingly.
+5. **Host routing.** Note `agent-m1` (Claude Code / Codex with Argent + provisioned sims/AVDs). Claude vs Codex per chooser TBD.
 
 Do not launch until all five are in the prompt. If you cannot state the proof expected, the task is not defined enough to launch.
 
@@ -59,7 +59,7 @@ Goal: <what done looks like, observable>
 Scope: <files/areas>. Constraints: <what not to touch / limits>
 Skills: <craft skills from chooser>, <proof skills>. Use other skills if the task clearly needs them; list any you add.
 Proof expected: <screenshots before/after of X | logs showing Y | run `<cmd>` and all pass>. Inspect the proof before reporting done; if it doesn't match, iterate or report the blocker with evidence.
-Host: agent-m1 (primary) | Cursor cloud fallback — <reason>
+Host: agent-m1 — Claude Code | Codex — <pick + reason>
 ```
 
 ## Loop
@@ -95,13 +95,13 @@ git worktree remove ../media-wt
 
 ## Visual verification: Luna Max subagent
 
-Do not spend a heavy coding-model turn (Claude Code / Codex on `agent-m1`, or heavy Cursor models) on multimodal inspection of screenshots or videos.
+Do not spend a heavy coding-model turn (Claude Code / Codex on `agent-m1`) on multimodal inspection of screenshots or videos.
 
-- For visual proof, the eng bot (or the coding agent via spawn) launches a **Cursor cloud subagent: GPT 5.6 Luna, effort Max (reasoning `max`), Fast off**.
+- For visual proof, the eng bot (or the coding agent via spawn) launches a **Codex Luna-role session on agent-m1**, effort Max — verification-only.
 - Its only job: inspect the media against the stated success criteria and report **pass/fail + specifics** (what matched, what didn't, which asset).
 - Give it the success criteria and the media links; nothing else to implement.
 - Non-visual proof (logs, tests, exit codes) stays with the coding agent — no Luna.
-- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Sol / Opus / Fable / Claude Code / Codex).
+- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Sol / Opus / Fable-role → Opus). Not a Cursor cloud subagent.
 
 ## Teardown after proof
 

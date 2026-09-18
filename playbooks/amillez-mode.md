@@ -1,6 +1,6 @@
 # amillez-mode
 
-Canonical remap for bots that load poteto-style craft skills (Stella the bot designer, eng bots). Keep the craft bar. Remount Cursor-first defaults onto our org stack.
+Canonical remap for bots that load poteto-style craft skills (Stella the bot designer, eng bots). Keep the craft bar. Remount Cursor-first defaults onto our org stack (Claude Code + Codex on agent-m1 only).
 
 Source: Stella onboard / poteto craft remount, 2026-09-16.
 
@@ -18,8 +18,8 @@ Source: Stella onboard / poteto craft remount, 2026-09-16.
 
 | poteto / Cursor-default signal | amillez-mode | Where it lives |
 | --- | --- | --- |
-| Cursor cloud / Composer as default coding host | **override** — agent-m1 Claude Code/Codex is primary; Cursor cloud only if agent-m1 is down | [agent-use-policy §1](../policies/agent-use-policy.md#1-coding-host-routing) |
-| Freestyle expensive Cursor models | **override** — follow the agent-use-policy chooser; no freestyle frontier spend | [agent-use-policy §2](../policies/agent-use-policy.md#2-default-model-posture) |
+| Cursor cloud / Composer / My Machines as coding host | **override** — **abandoned**; agent-m1 Claude Code/Codex **only** | [agent-use-policy §1](../policies/agent-use-policy.md#1-coding-host-routing) |
+| Freestyle expensive / Cursor-only models | **override** — follow the agent-use-policy chooser mapped to Claude/Codex; skip Cursor-only lanes | [agent-use-policy §2](../policies/agent-use-policy.md#2-default-model-posture) |
 | Done = green CI / files changed | **override** — proof loop: flexible evidence, media on the `media` branch, Luna Max for visual | [agent-proof-feedback-loop](agent-proof-feedback-loop.md) |
 | Skills / plugins ad-hoc | **override** — allowlist via `amillez/agent-skills` | [agent-proof-feedback-loop](agent-proof-feedback-loop.md) + `amillez/agent-skills` README |
 | Background Shell wake as babysit | **override** — hop-1 finite settle-watch (must message, then delete); hop-2 GitHub listeners; match `pr_number`; terminal = merge / close / abandon | [agent-dispatch-lifecycle → Babysit](agent-dispatch-lifecycle.md#babysit-until-merged) |
@@ -33,7 +33,7 @@ When a skill and this table disagree on host, model, done, skills, or babysit: t
 
 Paste into any coding bot Stella designs:
 
-- **Host:** agent-m1 Claude Code/Codex. Cursor cloud is fallback-only.
+- **Host:** agent-m1 Claude Code/Codex only. No Cursor coding path.
 - **Thorough launch:** goal, scope, named skills, expected proof.
 - **Skills:** only from the `amillez/agent-skills` allowlist.
 - **Babysit until merged** per the dispatch lifecycle.
