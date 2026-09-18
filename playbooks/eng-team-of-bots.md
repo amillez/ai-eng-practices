@@ -1,6 +1,6 @@
 # Eng team of bots
 
-How **we** run specialized engineering bots that manage cloud agents.
+How **we** run specialized engineering bots that dispatch coding agents on `agent-m1` (Claude Code / Codex).
 
 **Snapshot, not scripture** — fleet patterns as of September 2026.
 
@@ -52,7 +52,9 @@ Rules:
 
 ---
 
-## How bots dispatch cloud agents
+## How bots dispatch coding agents
+
+Coding agents run on **agent-m1** (Claude Code / Codex only). Cursor cloud dispatch is abandoned (2026-09-18).
 
 Every launch includes:
 
@@ -77,14 +79,16 @@ Same retro loop as [plan lifecycle in git](cursor-projects.md#plan-lifecycle) �
 
 ---
 
-## Cursor Project vs Grok Bot
+## Cursor Project vs Grok Bot (historical)
+
+Cursor Projects are **not** a coding path. Prefer Grok Bot → agent-m1 Claude/Codex.
 
 | | Cursor Project | Grok Bot routine |
 | --- | --- | --- |
 | **Best at** | Repo-scoped multi-PR work with human + Cursor | Standing loops, Slack intake, proof monitoring |
-| **Our default** | Features, migrations, gardening in git | Eng-bot fleets that babysit cloud agents |
+| **Our default** | **Abandoned for coding** | Eng-bot fleets that babysit agent-m1 Claude/Codex sessions |
 
-They compose: a Grok Bot can **create and manage** Cursor cloud agents. Decision guide: [cursor-projects.md](cursor-projects.md).
+They do **not** compose for coding anymore: Grok Bot dispatches **Claude Code / Codex on agent-m1**, not Cursor cloud agents. Historical decision guide: [cursor-projects.md](cursor-projects.md).
 
 ---
 

@@ -1,5 +1,8 @@
 # Cursor Projects — decision guide
 
+> **Historical / abandoned for coding (2026-09-18).** Coding work runs on `agent-m1` via Claude Code + Codex only. Grok Bot remains the control plane. Keep this page as context for older notes; do not start Cursor Projects or Cursor cloud agents for eng coding.
+
+
 When to use a **one-shot cloud agent**, a **Cursor Project**, or a **Grok Bot routine**.
 
 **Snapshot, not scripture** — product names as of September 2026. Harness details: [Cursor changelog](https://cursor.com/changelog).

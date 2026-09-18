@@ -1,6 +1,6 @@
 # Steal from pstack
 
-What we adopt from poteto's pstack vs what we only link. pstack skills are plain `SKILL.md` files, so the ideas port to Claude Code / Codex without installing the Cursor plugin. Do **not** wholesale-install pstack on `agent-m1`.
+What we adopt from poteto's pstack vs what we only link. pstack skills are plain `SKILL.md` files, so the ideas port to Claude Code / Codex without installing the Cursor plugin (Cursor plugin trial is **not** required; Cursor coding is abandoned). Do **not** wholesale-install pstack on `agent-m1`.
 
 ## Adopt into our stack (now / next)
 
@@ -8,7 +8,7 @@ What we adopt from poteto's pstack vs what we only link. pstack skills are plain
 - **Prove it works** — maps to [agent-proof-feedback-loop.md](agent-proof-feedback-loop.md). Real artifact evidence (sims, screens, logs), not "it compiles." Luna Max for visual verify; media on the `media` branch.
 - **Project verification skill pattern** — **Adopted (now)** into `amillez/agent-skills` `first-party/` as `create-verification-skill` + `maintain-verification-skill`, with an **amillez-mode overlay** (not a wholesale pstack install):
   - Keep: interview repo → generate `verify-<app>` → feature map shape → prove before handoff → maintain-loop rigor. Evidence dry-run nuance: some dry-runs still touch network/browser — observe what they skip, do not trust the name.
-  - Overlay: default output under project-local `.claude/skills/verify-<app>/` and/or `.codex/skills/verify-<app>/` on agent-m1; `.cursor/skills/verify-<app>/` only for Cursor cloud fallback; generate/prove on agent-m1; Argent for Expo/RN; screenshots/videos → `media` branch + Luna Max verify ([agent-proof-feedback-loop](agent-proof-feedback-loop.md), [agent-use-policy](../policies/agent-use-policy.md), [amillez-mode](amillez-mode.md)).
+  - Overlay: default output under project-local `.claude/skills/verify-<app>/` and/or `.codex/skills/verify-<app>/` on agent-m1 only (never `.cursor/skills/`); generate/prove on agent-m1; Argent for Expo/RN; screenshots/videos → `media` branch + Luna Max (Codex) verify ([agent-proof-feedback-loop](agent-proof-feedback-loop.md), [agent-use-policy](../policies/agent-use-policy.md), [amillez-mode](amillez-mode.md)).
   - **Bot designer (Stella):** day-one wiring for coding bots on driveable apps — point at create + maintain; skip for pure library/docs/non-coding bots. Host stays agent-m1-first in the bot brief.
   - Next use: generate for Expo/RN apps (Favvy, asnt) via Argent Drive/Evidence. Do not require the Cursor plugin.
 - **`setup-pstack` → thin `setup-amillez-models`** — **Adopted (now)** as a policy pointer only (`first-party/setup-amillez-models`). Points at [agent-use-policy](../policies/agent-use-policy.md) chooser (Luna Max / Sol High / Opus High / Fable). Does **not** write `~/.cursor/rules/pstack-models.mdc` or wholesale-copy pstack role maps. Optional offer to run `/create-verification-skill`. Stella: day-one wiring for coding bots.

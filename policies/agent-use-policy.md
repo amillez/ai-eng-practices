@@ -17,22 +17,33 @@ Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 For heavy coding / engineering agent work:
 
-- **Primary host**: `agent-m1` (dedicated Mac) running **Claude Code + Codex only**. No Cursor installed.
-- **Cursor cloud fallback**: Use only when `agent-m1` is unavailable (offline / unreachable).
-  - Straightforward / super defined → **Composer**
-  - General code / light reasoning → **Grok 4.6**
+- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code + Codex only**. No Cursor installed. No Cursor cloud coding path. No Cursor My Machines / self-hosted Cursor worker / `register-worker-dir`.
+- **Grok Bot** remains the chat/control plane (intake, dispatch, babysit, proof orchestration). It does **not** code on Cursor.
+- **Claude vs Codex chooser** on `agent-m1` is still **TBD** — bot orchestrators pick Claude vs Codex per that chooser when it lands; until then, pick the harness that can run the assigned model role (below).
 
-Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex chooser on `agent-m1` is still TBD.
+Do **not** use Cursor Composer, Cursor cloud agents, Cursor Projects as a coding host, or Fast-mode Cursor notes as a coding path.
 
-**Cursor My Machines (`worker=agent-m1`):** only when the repo remote is registered via `--worker-dir` on LaunchAgent `com.cursor.agent-worker.agent-m1`. Do not route unregistered repos to that worker. Register with skill `register-worker-dir`, or use Claude Code / Codex on `agent-m1` / managed Cursor cloud without claiming sim/Argent proof. See [Cursor self-hosted prove host](../playbooks/big-work-orchestration.md#cursor-self-hosted-prove-host-agent-m1).
+**Model role labels → Claude Code / Codex (as of 2026-09-18):**
+
+Policy keeps the workshop role names (Luna / Sol / Opus / Fable) as **labels**. Map each label to what Claude Code or Codex can actually run. If a lane cannot run on either harness, use the nearest equivalent or skip that lane.
+
+| Policy label | Intent | Run on | Concrete pick (nearest) |
+| --- | --- | --- | --- |
+| **Luna** | Mechanical / straightforward / visual-verify | **Codex** | Lightest GPT-class Codex model available; effort Max / high reasoning when verifying |
+| **Sol** | General implementation + light reasoning | **Codex** (preferred) or Claude Code Sonnet-class if Codex unavailable | Default coding worker |
+| **Opus** | UI / plans humans read / orchestration | **Claude Code** | Claude Opus (orchestrator default: Opus / xhigh) |
+| **Fable** | Huge / gnarly escalate | **Claude Code** Opus at highest effort, or skip if already on Opus xhigh and still thrashing — replan / split | Do not invent a Cursor-only frontier model |
+| **Composer / Grok (Cursor lanes)** | Historical Cursor coding lanes | **Skip** — no Cursor coding host | Nearest: Sol→Codex general; Composer-like discrete SWE→Codex Sol-equivalent |
+
+Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 
 **Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
 
-- **Thorough launch prompt.** Every Claude Code / Codex / Cursor cloud launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
+- **Thorough launch prompt.** Every Claude Code / Codex launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
 - **Require proof.** Not done at green CI or changed files — done when the agent has produced and inspected task-relevant proof.
 - **Flexible evidence.** Screenshots or videos for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
 - **Proof media on `media` branch.** Never commit screenshots/videos to the PR branch. Link them in the PR body via GitHub blob URLs, not raw URLs. See [proof media hosting](../playbooks/agent-proof-feedback-loop.md#proof-media-hosting).
-- **Visual verification on Luna Max.** Inspect screenshots/videos with a Cursor cloud subagent (GPT 5.6 Luna, effort Max, Fast off) that reports pass/fail against the success criteria. Coding agents do not burn heavy turns on it; non-visual proof stays with the coding agent. See [visual verification](../playbooks/agent-proof-feedback-loop.md#visual-verification-luna-max-subagent).
+- **Visual verification (Luna role).** Inspect screenshots/videos with a **Codex Luna-equivalent** session (effort Max) that reports pass/fail against the success criteria — not a Cursor cloud subagent. Coding agents do not burn heavy turns on it; non-visual proof stays with the coding agent. See [visual verification](../playbooks/agent-proof-feedback-loop.md#visual-verification-luna-max-subagent).
 - **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
 - **Tear down after proof.** Shut down sims/emulators and dev servers the agent started. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
@@ -41,18 +52,17 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 - **Worktree per agent.** Dispatch each workstream into its own `git worktree` on branch `agent/<bot>/<slug>`, from an up-to-date base. Agents never work in the `main` checkout.
 - **One agent per tree.** Parallel work uses separate worktrees with disjoint paths.
-- **Big work → orchestrator session.** Multi-surface / multi-package / parallelizable / multi-PR / more than one focused session: dispatch a dedicated orchestrator agent (plan → workers → integrate → prove → babysit). Do not collapse to one mega agent. On `agent-m1`, orchestrator default is Claude Opus 5 / xhigh; workers get **model + effort per slice** from this policy's chooser — see [big-work orchestration](../playbooks/big-work-orchestration.md).
+- **Big work → orchestrator session.** Multi-surface / multi-package / parallelizable / multi-PR / more than one focused session: dispatch a dedicated orchestrator agent (plan → workers → integrate → prove → babysit). Do not collapse to one mega agent. On `agent-m1`, orchestrator default is Claude Opus / xhigh via Claude Code; workers get **model + effort per slice** from this policy's chooser — see [big-work orchestration](../playbooks/big-work-orchestration.md).
 - **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Promised pings need a finite watch, not a lone background Shell wake. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Teardown after merge or abandon.** Remove the worktree and delete the local branch. No dirty or orphan trees left on disk.
 
-**Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host, not Cursor cloud or other machines.
+**Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host.
 
-**Cursor cloud launches** (per eng-bot Mark's 1:1 feedback):
+**Claude Code / Codex launches** (eng-bot Mark's launch discipline, adapted):
 
-- **Never omit model, effort, or Fast.** Account or team defaults are not the Agent chooser. Omitting `model` so it falls through to Sonnet (or any non-chooser default) is a policy violation.
-- **Always pass Fast `false`** unless the human explicitly asks for Fast.
-- **Map effort to the launch param.** Cursor cloud often exposes effort as `reasoning`, not a separate effort field. "Max effort" = `reasoning: max`.
-- **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up a **multi-repo environment up front**. Do not expect the agent to invent trees without clone/ref access.
+- **Never omit model or effort.** Harness defaults are not the Agent chooser.
+- **Fast / queue-priority knobs:** leave off unless the human explicitly asks (historical Cursor Fast — not a coding path).
+- **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up clone/ref access up front on `agent-m1`. Do not expect the agent to invent trees without access.
 
 ---
 
@@ -60,38 +70,38 @@ Do not use Cursor as the default path when `agent-m1` is up. The Claude vs Codex
 
 - Do not lock the session (or the org) to a single provider or a single frontier model.
 - Escalate model, effort, or context **deliberately**, with a reason you can state in one sentence.
-- Do not start on Fable, max effort, Fast, or max context "just in case."
+- Do not start on Fable-role / Opus xhigh, max effort, or max context "just in case."
 
 ### Default picks
 
-| Situation | Model | Notes |
-| --- | --- | --- |
-| Very direct / super defined | **GPT 5.6 Luna** | Mechanical, files + success criteria clear |
-| General code / some reasoning | **GPT 5.6 Sol** | Default for most implementation + light reasoning. Effort **High** by default; **xhigh** when needed |
-| UI work | **Opus 5** | Product UI / visual taste. Effort **High** by default; **xhigh** when needed |
-| Large reasoning, orchestration, very complex / wide surface | **Fable 5.1** | Escalate after cheaper paths fail; do not start here |
+| Situation | Model (role) | Harness | Notes |
+| --- | --- | --- | --- |
+| Very direct / super defined | **Luna** | Codex | Mechanical, files + success criteria clear |
+| General code / some reasoning | **Sol** | Codex (or Claude Sonnet-class) | Default for most implementation + light reasoning. Effort **High** by default; **xhigh** when needed |
+| UI work | **Opus** | Claude Code | Product UI / visual taste. Effort **High** by default; **xhigh** when needed |
+| Large reasoning, orchestration, very complex / wide surface | **Fable** → **Opus xhigh** | Claude Code | Escalate after cheaper paths fail; do not start here. No Cursor-only Fable lane. |
 
 ### Agent chooser examples
 
-Use this when you need a pick, not a philosophy. Leave **Fast** off by default. Escalate **one knob at a time**. De-escalate when the hard part is done.
+Use this when you need a pick, not a philosophy. Leave queue-priority / Fast knobs off by default. Escalate **one knob at a time**. De-escalate when the hard part is done.
 
-| Situation | Model | Effort | Notes |
-| --- | --- | --- | --- |
-| Straightforward / super defined | **GPT 5.6 Luna** | **Max** (reasoning Max) | Files and success criteria are already clear. |
-| General reasoning + implementation | **GPT 5.6 Sol** | **High** (reasoning High; → **xhigh** if still needs reasoning after a few loops) | Default for most implementation + light reasoning. |
-| UI work | **Opus 5** | **High** (→ **xhigh** if taste/architecture tradeoffs) | Product UI / visual taste. |
-| High complexity, wide surface | **Fable 5.1** | **medium** (→ **high** → **xhigh** only if still thrashing after a clear plan) | Escalate after cheaper paths fail, or the surface is obviously huge / visual / gnarly. Do not start here. |
-| Writing / agreeing on a plan | **Opus 5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
-| Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 5.6 Luna** | **Max** (reasoning Max) | Few edge cases, little verification needed. Lower effort before escalating model. |
-| Visual proof verification (screenshots/videos) | **GPT 5.6 Luna** | **Max** (reasoning Max) | Cursor cloud subagent; verification-only, reports pass/fail. Never implements. |
+| Situation | Model (role) | Effort | Harness | Notes |
+| --- | --- | --- | --- | --- |
+| Straightforward / super defined | **Luna** | **Max** | Codex | Files and success criteria are already clear. |
+| General reasoning + implementation | **Sol** | **High** (→ **xhigh** if still needs reasoning after a few loops) | Codex | Default for most implementation + light reasoning. |
+| UI work | **Opus** | **High** (→ **xhigh** if taste/architecture tradeoffs) | Claude Code | Product UI / visual taste. |
+| High complexity, wide surface | **Fable** → **Opus** | **medium** → **high** → **xhigh** | Claude Code | Escalate after cheaper paths fail. No separate Cursor Fable. |
+| Writing / agreeing on a plan | **Opus** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
+| Mechanical chore (format, rename in known files, boilerplate with tests already green) | **Luna** | **Max** | Codex | Few edge cases, little verification needed. |
+| Visual proof verification (screenshots/videos) | **Luna** | **Max** | Codex | Verification-only session on agent-m1; reports pass/fail. Never implements. Not a Cursor cloud subagent. |
 
 Concrete picks:
 
-1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **GPT 5.6 Luna**, **Max effort / reasoning Max**.
-2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **GPT 5.6 Sol**, **High** (→ **xhigh** if needed). If two wrong fixes: new chat + plan, then implement again.
-3. New to the monorepo — where should a billing webhook live / what breaks → **Ask** + **GPT 5.6 Sol**, **High** (recon only). Then a short plan before the build.
-4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus 5**, **High** (→ **xhigh** if architecture tradeoffs). Implement later against the agreed plan.
-5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1**, **medium** (→ **high** if needed), debug/repro-first. After the root cause is pinned, drop to Luna (Max effort / reasoning Max) or Sol (High) for the surgical fix.
+1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **Luna** (Codex), **Max effort**.
+2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **Sol** (Codex), **High** (→ **xhigh** if needed). If two wrong fixes: new chat + plan, then implement again.
+3. New to the monorepo — where should a billing webhook live / what breaks → **Ask** + **Sol** (Codex), **High** (recon only). Then a short plan before the build.
+4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus** (Claude Code), **High** (→ **xhigh** if architecture tradeoffs). Implement later against the agreed plan.
+5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Opus** (Claude Code) as Fable-role, **medium** (→ **high** if needed), debug/repro-first. After the root cause is pinned, drop to Luna Max (Codex) or Sol High (Codex) for the surgical fix.
 
 ---
 
@@ -116,7 +126,7 @@ Escalate **one knob at a time**. Say why.
 - The agent is over-verifying routine work — extra file reads, redundant tool loops, "speedrun cheating" at low effort is often what you want.
 - Do not raise effort to paper over ambiguity. Fix the prompt or plan first.
 
-Escalate **one knob at a time** (model, effort, context, Fast). De-escalate when the hard part is done.
+Escalate **one knob at a time** (model, effort, context). De-escalate when the hard part is done. Queue-priority / Fast knobs are not a coding path.
 
 **Escalate context** when:
 
@@ -140,7 +150,7 @@ De-escalate as soon as the hard part is done. After a strong-model plan, impleme
 - Paste only the relevant error lines, not the giant log.
 - One task per turn. State success criteria ("done when…").
 - If the thread has been compacted repeatedly or the agent is acting on blurry memory, **start a fresh chat**. Optionally `@` the old chat as a pointer, or carry a short written summary of decisions — not the whole transcript.
-- Always-on rules ride every turn — keep them **short**; put long procedure in **skills** (lazy-loaded). Custom Modes pin a skill for one chat; see [Cursor changelog](https://cursor.com/changelog) if you need harness details.
+- Always-on rules ride every turn — keep them **short**; put long procedure in **skills** (lazy-loaded). Prefer Claude Code / Codex project skills over always-on rules.
 - Do not enable MCPs you are not using. Audit unused ones.
 
 ---
@@ -166,13 +176,10 @@ Do **not** freestyle this combo without a stated need:
 
 - frontier / most expensive model
 - plus max effort
-- plus Fast
 - plus a fat always-on prompt
 - plus an eternal chat
 
-Fast is **queue priority**, not a smarter model. Use it sparingly.
-
-Workshop claim (snapshot): an org-wide Auto router policy saved **30–60% overnight**. Prefer Balance as the org default unless a chat or owner says otherwise.
+Workshop claim (snapshot, Cursor-era): an org-wide Auto router policy saved **30–60% overnight**. On agent-m1, prefer the chooser defaults above; do not invent a Cursor Balance/Auto coding path.
 
 If spend looks wrong, inspect prompting and model class first. Workshop examples: ~10–12× from a vague vs specific prompt on the same model; ~175× when that stacks with the wrong expensive model. Each lever is modest (~12–15%); they compound.
 
@@ -215,7 +222,7 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 ## Related
 
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
-- [Playbook: Cursor Projects](../playbooks/cursor-projects.md)
+- [Playbook: Cursor Projects](../playbooks/cursor-projects.md) — **historical**; coding host is Claude/Codex on agent-m1
 - [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
 - [Playbook: Agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)
 - [Playbook: Big-work orchestration](../playbooks/big-work-orchestration.md)
