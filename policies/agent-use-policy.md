@@ -48,6 +48,11 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
 - **Tear down after proof.** Shut down sims/emulators and dev servers the agent started. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
 
+**Amillez plugin before coding** (see [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-project.sh`):
+
+- **Before coding on a repo checkout on `agent-m1`:** run amillez plugin ensure (`./scripts/ensure-project.sh <project-path>` from the agent-skills checkout, or `AMILLEZ_SKILLS_ROOT`). If the project is **new** or the pack is **missing**, install (link skills + rules). If already present, continue (refresh only when policy/skills changed or a human asks / `--force`).
+- **Grok Bot dispatch prompts** to Claude Code / Codex **must include**: ensure amillez plugin on the target project path first.
+
 **Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
 
 - **Worktree per agent.** Dispatch each workstream into its own `git worktree` on branch `agent/<bot>/<slug>`, from an up-to-date base. Agents never work in the `main` checkout.
@@ -60,6 +65,7 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 
 **Claude Code / Codex launches** (eng-bot Mark's launch discipline, adapted):
 
+- **Ensure amillez plugin first.** Every dispatch prompt must tell the coding agent (or the bot must run it before launch) to run `agent-skills` `scripts/ensure-project.sh` on the target checkout/worktree path. New or missing pack → install; already present → continue.
 - **Never omit model or effort.** Harness defaults are not the Agent chooser.
 - **Fast / queue-priority knobs:** leave off unless the human explicitly asks (historical Cursor Fast — not a coding path).
 - **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up clone/ref access up front on `agent-m1`. Do not expect the agent to invent trees without access.

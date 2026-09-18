@@ -17,7 +17,7 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 | Gate | Condition | Action |
 | --- | --- | --- |
 | **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna / Sol / Opus on Claude Code / Codex). **No Orca Run. No orchestrator layer.** |
-| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with a **Fable 5.1 High** coordinator. Coordinator decomposes via Orca tasks/workers (`plan → workers → integrate → prove → babysit`). Workers get **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …` — not all Fable. |
+| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with a **Fable 5.1 High** coordinator. Coordinator only plans, dispatches, waits, and routes decisions (`plan → workers → integrate → prove → babysit` as **worker tasks**). Workers get **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …` — not all Fable. Coordinator does **not** implement, integrate, or validate. |
 
 ### Small examples (direct agent — no Orca)
 
@@ -64,7 +64,7 @@ Cite: [Orchestration — preferred supervised loop](https://www.onorca.dev/docs/
 
 ```text
 run-create → task-create (+ deps as needed) → worker-start (claude|codex + model + effort + worktree)
-  → check --wait (worker_done / escalation / question) → integrate → prove → babysit
+  → check --wait (worker_done / escalation / question) → worker tasks for integrate + prove → babysit
 ```
 
 Concrete shape (coordinator drives these):
@@ -101,7 +101,7 @@ Notes from Orca docs:
 | --- | --- | --- |
 | **Plan (scout)** | Fable 5.1 High coordinator | Recon blast radius; cut disjoint scopes; `task-create` with precise specs; assign chooser model/effort per task. |
 | **Workers** | Claude Code / Codex via Orca | `worker-start --agent claude\|codex --model … --effort …`; disk modes below. |
-| **Integrate** | Coordinator only | Merge outputs, resolve conflicts, re-run unit/typecheck; not a parallel task. |
+| **Integrate** | Worker task (delegated) | Merge outputs, resolve conflicts, re-run unit/typecheck. Coordinator does **not** integrate — dispatch an integrate worker (often sequential `--worktree current`). |
 | **Prove** | Prove hop on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
 | **Babysit** | Eng bot (Grok) | Until `merged`\|`discarded`; PR listeners — does not replace Orca during the Run. |
 
@@ -134,7 +134,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 | Role | Owns |
 | --- | --- |
 | **Eng bot (Mark / Sam / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge/close. Does **not** replace Orca for the multi-agent DAG. |
-| **Coordinator (Fable 5.1 High)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, integrate, hand off prove. Does **not** implement every slice itself. |
+| **Coordinator (Fable 5.1 High)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
 | **Worker agents** | Claude Code or Codex Dispatches. Slice-appropriate chooser pick; return `worker_done` with evidence. **No Cursor.** |
 
 ## Host matrix
