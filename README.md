@@ -19,6 +19,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Steal from pstack](playbooks/steal-from-pstack.md) | Deciding which pstack skills/playbooks to adopt, defer, or skip |
 | [Hard constraints](playbooks/hard-constraints.md) | Encoding footguns in lint/CI instead of prose, so the proof loop fails closed |
 | [amillez-mode](playbooks/amillez-mode.md) | Remapping poteto / Cursor-first skill defaults onto our stack while keeping the craft bar |
+| [MCP vs CLI](playbooks/mcp-vs-cli.md) | Choosing MCP connectors vs CLI/`curl` for service integrations |
 
 ## Standing policies (for humans and bots)
 
@@ -34,6 +35,7 @@ Workshop notes and citations live under [`sources/`](sources/).
 | --- | --- |
 | [Cursor: Model Selection & Token Efficiency](sources/cursor-model-selection-token-efficiency.md) | Workshop (Aug 2026) |
 | [Research digest 2026-09-12](sources/research-digest-2026-09-12.md) | Projects, Grok Bot fleets, evals drift, policy updates |
+| [Friday digest 2026-09-18](sources/friday-digest-2026-09-18.md) | Prefer MCP over CLI for most integrations (propose #5) |
 
 ## How to propose updates
 
