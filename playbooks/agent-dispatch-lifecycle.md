@@ -71,7 +71,7 @@ Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack
 ## Do not
 
 - Use Cursor cloud, Cursor Projects, My Machines, or `register-worker-dir` for coding.
-- Use Orca DAGs as the primary path.
+- Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Auto-merge.
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.

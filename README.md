@@ -12,7 +12,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | --- | --- |
 | [Model selection & token efficiency](playbooks/model-selection-and-token-efficiency.md) | Choosing a model, writing a prompt, or diagnosing spend / blurry context |
 | [Cursor Projects](playbooks/cursor-projects.md) | **Historical** — Cursor Projects vs Grok Bot; coding host is Claude/Codex |
-| [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents |
+| [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized eng bots that dispatch/babysit agent-m1 Claude Code / Codex |
 | [Agent proof feedback loop](playbooks/agent-proof-feedback-loop.md) | Deciding when a coding agent is done and what proof it must produce |
 | [Agent dispatch lifecycle](playbooks/agent-dispatch-lifecycle.md) | Dispatching work to a coding agent: worktree, PR, teardown |
 | [Big-work orchestration](playbooks/big-work-orchestration.md) | Large features: orchestrator session → workers → integrate → prove → babysit |

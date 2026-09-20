@@ -44,7 +44,7 @@ On `agent-m1`, before creating a Run:
 3. **Skills installed** for the coordinator (and workers that need them):
    - `orca skills install --skill orca-cli` (or `npx skills add https://github.com/stablyai/orca --skill orca-cli`)
    - Install / refresh the **orchestration** skill (`orca skills get orchestration --full` after install).
-4. **Amillez plugin** ensured on the target project path (Grok Bot / ensure-project) before coding workers touch the tree.
+4. **Amillez plugin** ensured on the **host** before coding workers touch the tree: run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` (thin alias `ensure-project.sh` — it ignores any project path). Default installs **core+mobile** to `~/.claude` / `~/.agents` — **not** `~/.codex`, and **not** into the worktree/project tree. Already present → continue; refresh only when policy/skills changed or a human asks (`--force`).
 5. Prefer `orca skills get orchestration --full` when flags drift — command surface evolves with the app.
 
 Grok Bot still: ensure amillez plugin, kick off / babysit PR, human pings. Grok Bot does **not** replace Orca for the multi-agent DAG.
