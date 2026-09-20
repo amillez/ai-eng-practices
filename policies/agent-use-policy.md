@@ -48,10 +48,10 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
 - **Tear down after proof.** Shut down sims/emulators and dev servers the agent started. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
 
-**Amillez plugin before coding** (see [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-project.sh`):
+**Amillez plugin before coding** (see [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh`):
 
-- **Before coding on a repo checkout on `agent-m1`:** run amillez plugin ensure (`./scripts/ensure-project.sh <project-path>` from the agent-skills checkout, or `AMILLEZ_SKILLS_ROOT`). If the project is **new** or the pack is **missing**, install (link skills + rules). If already present, continue (refresh only when policy/skills changed or a human asks / `--force`).
-- **Grok Bot dispatch prompts** to Claude Code / Codex **must include**: ensure amillez plugin on the target project path first.
+- **Before coding on `agent-m1`:** run amillez plugin **host** ensure (`./scripts/ensure-install.sh` from the agent-skills checkout, or `AMILLEZ_SKILLS_ROOT`; thin alias `ensure-project.sh`). If the pack is **missing**, install at **user root** (skills + user rules + `~/.amillez-plugin.json`) — do **not** link/copy the plugin into the project/worktree. If already present, continue (refresh only when policy/skills changed or a human asks / `--force`). Project skills (e.g. `verify-*`) stay in-repo.
+- **Grok Bot dispatch prompts** to Claude Code / Codex **must include**: ensure amillez plugin on the **host** first (not a per-project path link).
 
 **Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
 
@@ -65,7 +65,7 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 
 **Claude Code / Codex launches** (eng-bot Mark's launch discipline, adapted):
 
-- **Ensure amillez plugin first.** Every dispatch prompt must tell the coding agent (or the bot must run it before launch) to run `agent-skills` `scripts/ensure-project.sh` on the target checkout/worktree path. New or missing pack → install; already present → continue.
+- **Ensure amillez plugin first.** Every dispatch prompt must tell the coding agent (or the bot must run it before launch) to run `agent-skills` `scripts/ensure-install.sh` (host install). Missing pack → install at user root; already present → continue. Do not install the plugin into the project tree.
 - **Never omit model or effort.** Harness defaults are not the Agent chooser.
 - **Fast / queue-priority knobs:** leave off unless the human explicitly asks (historical Cursor Fast — not a coding path).
 - **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up clone/ref access up front on `agent-m1`. Do not expect the agent to invent trees without access.
