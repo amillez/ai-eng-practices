@@ -48,11 +48,10 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
 - **Tear down after proof.** Shut down sims/emulators and dev servers the agent started. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
 
-**Amillez plugin before coding** (see [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh`; companion [agent-skills#9](https://github.com/amillez/agent-skills/pull/9)):
+**Amillez plugin before coding** (see [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh`; companion [agent-skills#10](https://github.com/amillez/agent-skills/pull/10)):
 
-- **Before coding on `agent-m1`:** run amillez plugin **host** ensure (`./scripts/ensure-install.sh` from the agent-skills checkout, or `AMILLEZ_SKILLS_ROOT`; thin alias `ensure-project.sh`). Default = **core only** at **`~/.claude` / `~/.agents`** (skills + user rules `amillez-models.md` + stamp). **No `~/.codex`** — Codex uses `~/.agents`. If the pack is **missing**, install core at user root — do **not** link/copy the plugin into the project/worktree. If already present, continue (refresh only when policy/skills changed or a human asks / `--force`). Optional device Argent: `--groups core,argent` (UI drive tooling) — not the mobile skill dump.
-- **Project mobile/native skills** (Expo, Uniwind, vision-camera, Nitro/Codex native set, …) are **curated and committed** in-repo (`.claude/skills` + `.agents/skills`) when the stack needs them — use `agent-skills` `scripts/add-project-skills.sh` / `suggest-project-skills.sh`. Bots/agents add **missing skills for the stack**, not the whole mobile set. Project `verify-*` skills stay in-repo the same way.
-- **Grok Bot dispatch prompts** to Claude Code / Codex **must include**: ensure amillez **core** plugin on the **host** first (not a per-project path link); then ensure any needed project skills are present in the worktree (commit them if added).
+- **Before coding on `agent-m1`:** run amillez plugin **host** ensure (`./scripts/ensure-install.sh` from the agent-skills checkout, or `AMILLEZ_SKILLS_ROOT`; thin alias `ensure-project.sh`). Default = **core+mobile** at **`~/.claude` / `~/.agents`** (skills + user rules `amillez-models.md` + stamp). **No `~/.codex`** — Codex uses `~/.agents`. If the pack is **missing**, install core+mobile at user root — do **not** link/copy the plugin into the project/worktree. If already present, continue (refresh only when policy/skills changed or a human asks / `--force`). Optionally also commit selected stack skills into the project for teammates (e.g. `uniwind`) even though they are on the device (`add-project-skills.sh`) — not a dump of the whole mobile set. Project `verify-*` stay in-repo.
+- **Grok Bot dispatch prompts** to Claude Code / Codex **must include**: ensure amillez **core+mobile** plugin on the **host** first (not a per-project path link).
 
 **Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
 
@@ -66,7 +65,7 @@ Bot orchestrators (Grok Bots) still pick **Claude vs Codex** per chooser TBD.
 
 **Claude Code / Codex launches** (eng-bot Mark's launch discipline, adapted):
 
-- **Ensure amillez core plugin first.** Every dispatch prompt must tell the coding agent (or the bot must run it before launch) to run `agent-skills` `scripts/ensure-install.sh` (host **core** at `~/.claude` / `~/.agents`; no `~/.codex`). Missing pack → install core at user root; already present → continue. Do not install the device plugin into the project tree. For RN/Expo/native work, add only the curated project skills the app needs (`add-project-skills.sh`) — not the whole mobile set.
+- **Ensure amillez plugin first.** Every dispatch prompt must tell the coding agent (or the bot must run it before launch) to run `agent-skills` `scripts/ensure-install.sh` (host **core+mobile** at `~/.claude` / `~/.agents`; no `~/.codex`). Missing pack → install at user root; already present → continue. Do not install the device plugin into the project tree. Optionally also commit selected stack skills for teammates (e.g. `uniwind`) via `add-project-skills.sh` even though they are on the device.
 - **Never omit model or effort.** Harness defaults are not the Agent chooser.
 - **Fast / queue-priority knobs:** leave off unless the human explicitly asks (historical Cursor Fast — not a coding path).
 - **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up clone/ref access up front on `agent-m1`. Do not expect the agent to invent trees without access.

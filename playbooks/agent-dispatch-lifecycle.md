@@ -24,7 +24,7 @@ Layout:
 Rules:
 
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
-2. **Ensure amillez core plugin before coding.** On the **host** (user root), run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` (thin alias: `ensure-project.sh`). Default installs **core only** to `~/.claude` / `~/.agents` + user rules + stamp — **not** `~/.codex`, **not** into the worktree/project tree. If already present, continue — refresh only when policy/skills changed or a human asks (`--force`). Optional host Argent: `--groups core,argent`. Project mobile/native skills are curated + committed in-repo when needed (`add-project-skills.sh` / `suggest-project-skills.sh`) — bots add missing stack skills, not the whole mobile set. Project `verify-*` stay in-repo. **Grok Bot dispatch prompts to Claude/Codex must include this host ensure step** first.
+2. **Ensure amillez plugin before coding.** On the **host** (user root), run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` (thin alias: `ensure-project.sh`). Default installs **core+mobile** to `~/.claude` / `~/.agents` + user rules + stamp — **not** `~/.codex`, **not** into the worktree/project tree. If already present, continue — refresh only when policy/skills changed or a human asks (`--force`). Optionally also commit selected stack skills into the project for teammates (e.g. `uniwind`) even though they are on the device — use `add-project-skills.sh`; do not dump the whole mobile set. Project `verify-*` stay in-repo. **Grok Bot dispatch prompts to Claude/Codex must include this host ensure step** first.
 3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
@@ -36,7 +36,7 @@ Rules:
 
 ```text
 intake → thorough prompt (skills + proof) → provision worktree
-  → ensure amillez core (host) + curated project skills if needed → agent runs
+  → ensure amillez core+mobile (host) → agent runs
   → collect & inspect proof → open PR → bot reviews
   → merge | changes-requested | abandon → teardown worktree
 ```
