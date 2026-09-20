@@ -250,7 +250,7 @@ If usage exploded, do not start by "the model got worse." Walk the levers: vague
 
 If you are an agent reading this as policy, also follow [policies/agent-use-policy.md](../policies/agent-use-policy.md). Short version:
 
-1. Balance or Composer unless told otherwise.
+1. Pick model + effort per slice from the [agent-use-policy](../policies/agent-use-policy.md) chooser on `agent-m1` Claude Code / Codex — Composer/Balance is not the coding path.
 2. New chat per task; `@` anchors; no novel-length pastes.
 3. Plan before build when the work is not small and obvious.
 4. Escalate one knob at a time; de-escalate to Composer to implement.
