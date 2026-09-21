@@ -18,6 +18,7 @@ A coding agent is not done when CI is green or files changed. It is done when it
 ## Host
 
 - **Only:** `agent-m1` with simulators/AVDs already provisioned. Requires **Argent CLI + MCP** (`@swmansion/argent`) — skills alone are not enough.
+- **iOS sims:** prefer [SimSlim](simslim-ios-simulators.md) on named agent devices (`simslim on <udid>`). Re-enable categories the app needs with `--except` (e.g. `--except photos` for the photo picker, `--except store` for push/StoreKit). Keep concurrent iOS sims at **2** until a slim Argent smoke is green.
 - No Cursor cloud coding / prove fallback (see [agent use policy](../policies/agent-use-policy.md)).
 
 ## Thorough launch prompt

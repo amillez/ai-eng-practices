@@ -14,6 +14,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Cursor Projects](playbooks/cursor-projects.md) | **Historical** — Cursor Projects vs Grok Bot; coding host is Claude/Codex |
 | [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized bots that manage cloud agents |
 | [Agent proof feedback loop](playbooks/agent-proof-feedback-loop.md) | Deciding when a coding agent is done and what proof it must produce |
+- [SimSlim iOS simulators (agent-m1)](playbooks/simslim-ios-simulators.md) — slim named sims; `--except` for Photos/push/etc.
 | [Agent dispatch lifecycle](playbooks/agent-dispatch-lifecycle.md) | Dispatching work to a coding agent: worktree, PR, teardown |
 | [Big-work orchestration](playbooks/big-work-orchestration.md) | Large features: orchestrator session → workers → integrate → prove → babysit |
 | [Steal from pstack](playbooks/steal-from-pstack.md) | Deciding which pstack skills/playbooks to adopt, defer, or skip |
