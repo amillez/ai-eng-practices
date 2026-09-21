@@ -39,6 +39,7 @@ Do **not** over-orchestrate a rename. Do **not** skip the gate and send everythi
 
 On `agent-m1`, before creating a Run:
 
+0. **One-time host gate (first large orch):** Orca installed on `agent-m1` (brew cask + open the app) so `orca status --json` can succeed. Skip once the host already has it.
 1. **Orca runtime up:** `orca status --json` succeeds ([CLI overview](https://www.onorca.dev/docs/cli/overview)).
 2. **Orchestration enabled:** Settings → Experimental → orchestration on ([Orchestration](https://www.onorca.dev/docs/cli/orchestration)).
 3. **Skills installed** for the coordinator (and workers that need them):
@@ -46,6 +47,8 @@ On `agent-m1`, before creating a Run:
    - Install / refresh the **orchestration** skill (`orca skills get orchestration --full` after install).
 4. **Amillez plugin** ensured on the **host** before coding workers touch the tree: run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` (thin alias `ensure-project.sh` — it ignores any project path). Default installs **core+mobile** to `~/.claude` / `~/.agents` — **not** `~/.codex`, and **not** into the worktree/project tree. Already present → continue; refresh only when policy/skills changed or a human asks (`--force`).
 5. Prefer `orca skills get orchestration --full` when flags drift — command surface evolves with the app.
+
+> **Coordinate with #30:** open PR #30 rewrites item 4 to host `ensure-install.sh` (thin alias `ensure-project.sh` ignores project path). Do not land conflicting ensure wording here until #30 merges — then item 4 should match [dispatch lifecycle ensure SoT](agent-dispatch-lifecycle.md#worktrees-on-agent-m1).
 
 Grok Bot still: ensure amillez plugin, kick off / babysit PR, human pings. Grok Bot does **not** replace Orca for the multi-agent DAG.
 
@@ -94,6 +97,7 @@ Notes from Orca docs:
 - Do **not** use retired `orca orchestration run` / `run-stop` / `coordinator-start` — use Run + `worker-start`.
 - After accepted `worker_done`, `worker-release` (or `worker-retain` if debugging). Prefer `worker-read` over leaving dead terminals open.
 - Decision gates (`gate-create` / `gate-resolve`) and `ask` for blocking questions — do not rely on local TUI prompts for cross-agent decisions.
+- **`worker-start` readiness flake:** expect ~one readiness failure on a real run. **Retry the same `worker-start` once** with the same `--agent` / `--model` / `--effort` before escalating. Cite: Mark Monday 1:1 2026-09-21 — `run_8b5682528e23` on rn-bedrock PR #34.
 
 ### Pipeline mapping
 
