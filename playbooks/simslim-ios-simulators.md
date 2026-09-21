@@ -96,6 +96,18 @@ simslim off <udid>
 4. Run Argent / Expo prove as usual.
 5. Tear down sims when proof is done ([teardown](agent-proof-feedback-loop.md#teardown-after-proof)). Slim overrides can stay; next boot remains slim.
 
+## Argent smoke (2026-09-21)
+
+Mark: **PASS** on slim `agent-iPhone-17-iOS26` (`0DFFA3DE-…`).
+
+- `simslim verify` matched 170/170 before prove and with the app running.
+- App: rn-bedrock `examples/grok-bot` via `expo run:ios` on that UDID.
+- Argent: list / screenshot / describe + gesture into Settings (Home AX + Settings sheet).
+- `--except` not needed for that flow (no Photos / push / StoreKit).
+- Teardown: Argent device servers stopped, app terminated, sim shut down.
+
+Keep concurrent cap at **2** until a dual-slim idle + prove memory note exists; do not raise from a single-sim smoke alone.
+
 ## Concurrent cap
 
 - **Current:** max **2** concurrent iOS sims (unchanged until slim Argent smoke is green).
