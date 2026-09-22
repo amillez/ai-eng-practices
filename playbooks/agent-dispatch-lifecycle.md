@@ -9,7 +9,7 @@ Standing stack: `agent-m1` running Claude Code / Codex **only**. Dispatch = Grok
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion). Cursor Projects are out of scope for coding.
-- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Luna/Sol/Opus) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude/Codex → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Luna/Sol/Opus) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude/Codex → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on `agent-m1`
 
@@ -43,7 +43,7 @@ intake → thorough prompt (skills + proof) → provision worktree
 
 Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `merged` | `blocked` | `discarded`
 
-When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
+When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5.5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
 
 ## Babysit until merged
 

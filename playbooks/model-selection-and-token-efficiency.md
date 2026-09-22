@@ -4,7 +4,9 @@
 
 Opinionated playbook for humans and engineering bots. Distilled from Cursor's workshop **[Model Selection & Token Efficiency](https://www.youtube.com/watch?v=KcshxSB3sNY)** (Santi Garza, SpaceX AI field engineer; live session 25 August 2026, ~1 hour).
 
-**Snapshot, not scripture.** Prices, quality/$, router savings, and "N× cheaper" examples are **as of the workshop**. They drift. Check [Models & pricing](https://cursor.com/docs/models-and-pricing) for live rates. Model names below use Cursor's common spellings (Grok, Fable, Opus, Composer, GPT 5.6 Sol / Luna). Spoken names on the recording may differ.
+**Snapshot, not scripture.** Prices, quality/$, router savings, and "N× cheaper" examples are **as of the workshop**. They drift. Check [Models & pricing](https://cursor.com/docs/models-and-pricing) for live rates. Model names below use Cursor's common spellings (Grok, Fable, Opus, Composer, GPT 6 Sol / Luna). Spoken names on the recording may differ.
+
+**Current Grok Bot / Cursor lanes (2026-09-22):** **Opus 5.5** (UI / plans / orch coordinator at xhigh) and **GPT 6 Sol** (general code). Workshop table below still reflects talk-era names where noted.
 
 Standing bot rules: [policies/agent-use-policy.md](../policies/agent-use-policy.md). Source note: [sources/cursor-model-selection-token-efficiency.md](../sources/cursor-model-selection-token-efficiency.md).
 
@@ -96,7 +98,7 @@ Two families:
 | **Grok 4.6** | Strong **quality/$** (Pareto). Good general reasoning **and** coding. A default "smart" pick when Composer is not enough. | You already know the edit is local and specified — use Composer. |
 | **Fable** (Claude Fable) | Highly complex / wide surface / gnarly debugging / visual-heavy. Expensive. Escalate here on purpose. | Everyday tickets, "always on", or first attempt at a small task. |
 | **Opus** (Claude Opus) | Strong **writer / execution / plans you will actually read**. Sometimes better than Fable for those. | You only need a cheap implementer. |
-| **GPT 5.6 Sol** | Planning + reading codebases (per the talk). | Routine implementation (Composer) or quality/$ vs Grok. |
+| **GPT 6 Sol** | Planning + reading codebases (per the talk). | Routine implementation (Composer) or quality/$ vs Grok. |
 | **GPT 5.6 Luna** | Cheaper GPT-class option. Workshop take: **weaker quality/$** vs Grok / Composer. | You care about Pareto quality/$. Prefer Grok or Composer. |
 
 ### Quick chooser
