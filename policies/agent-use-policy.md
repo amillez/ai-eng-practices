@@ -210,6 +210,8 @@ When both a dedicated MCP / connector and an ad-hoc CLI/`curl` path exist for th
 
 **Prefer MCP** when a connector exists (Notion, GitHub, Slack, X, etc.), when auth / pagination / structured results matter, or when bots should stay on the sanctioned tool surface (`GetDynamicTools` → `CallDynamicTool`) instead of scraping or inventing HTTP.
 
+**Only exception:** a paid MCP with no credits left (e.g. X once credits run out) falls back to the web for that job; return to the MCP when credits are back.
+
 **Prefer CLI** when no MCP exists; for CLI-native host tooling (`git`, `gh` for forge ops already done that way, Orca CLI, Argent CLI on `agent-m1`, package managers); or for one-off scripts / pipes / batch shell MCP does not cover well.
 
 **Anti-patterns:** signed-in browser or invented HTTP when an MCP exists; dual-pathing MCP + CLI for the same mutation without a reason; enabling unused MCPs (see §7).
