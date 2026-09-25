@@ -24,13 +24,42 @@ Layout:
 Rules:
 
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
-2. **Ensure amillez plugin before coding.** On the **host** (user root), run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` (thin alias: `ensure-project.sh`). Default installs **core+mobile** to `~/.claude` / `~/.agents` + user rules + stamp — **not** `~/.codex`, **not** into the worktree/project tree. If already present, continue — refresh only when policy/skills changed or a human asks (`--force`). Optionally also commit selected stack skills into the project for teammates (e.g. `uniwind`) even though they are on the device — do not dump the whole mobile set. Project `verify-*` stay in-repo. **Grok Bot dispatch prompts to Claude/Codex must include this host ensure step** first.
+2. **Ensure amillez plugin before coding (SoT).** On the **host** (user root), run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` → **core+mobile** at `~/.claude` + `~/.agents` (+ user rules + stamp). **No `~/.codex`.** **Not** into the worktree/project tree. `ensure-project.sh` is a **thin alias that ignores any project path** — do **not** treat it as per-project plugin install into the worktree. If already present, continue — refresh only when policy/skills changed or a human asks (`--force`). Optionally also commit selected stack skills into the project for teammates (e.g. `uniwind`) even though they are on the device — do not dump the whole mobile set. Project `verify-*` stay in-repo. **Grok Bot dispatch prompts to Claude/Codex must include this host ensure step** first. (Host-ensure wording in [big-work orchestration](big-work-orchestration.md) is fixed in open #30 — coordinate, don't conflict.)
 3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
 5. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
    - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
 6. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.
+
+## Executor vs parent on `agent-m1`
+
+Grok Bot **executor** Task subagents cannot pass `machineId` to Shell — their Shell runs on the **box**, not on `agent-m1`.
+
+- **Parent** Grok Bot must run `agent-m1` Shell/Read with `machineId` (agent-m1 = `cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`), or any machine-aware path.
+- Do **not** delegate “launch Claude on agent-m1” / worktree create on m1 to an executor that expects Shell-with-`machineId`.
+- Executors remain fine for `gh` / API / box work that does not need the Mac.
+
+## Canonical Claude Code background launch on `agent-m1`
+
+Recipe (parent Shell with `machineId`, after host ensure + worktree provision):
+
+```bash
+# Prefer positional prompt — do NOT use -p/--print (conflicts with attachable --bg)
+claude --bg --dangerously-skip-permissions \
+  --model <opaque-model-id> --effort <effort> \
+  "<thorough launch prompt>"
+
+# Capture session id
+claude agents --json
+```
+
+Rules:
+
+- Permissions bypass (`--dangerously-skip-permissions`) **only** on trusted `agent-m1`.
+- Prefer explicit `--model` / `--effort` when the CLI supports them so Sol High (etc.) is not “host default mystery.”
+- Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
+- **Post-upgrade stall:** if `--bg` sits on the startup dialog (`needs: open session`), unblock with `claude respawn <id>` (then re-check `claude agents --json`). Do not relaunch a duplicate session blindly.
 
 ## Lifecycle
 
@@ -71,8 +100,15 @@ Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack
 ## Do not
 
 - Use Cursor cloud, Cursor Projects, My Machines, or `register-worker-dir` for coding.
-- Use Orca DAGs as the primary path.
+- Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Auto-merge.
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.
 - Leave sims, emulators, or dev servers running after proof.
+- Delegate agent-m1 Shell/`machineId` work to a Grok Bot **executor** Task subagent.
+
+## Notes / Related
+
+- Learning source: Anibal (ASNT) + Mark + Stella Monday eng 1:1s, 2026-09-21 — real-run Grok Bot→agent-m1 dispatch gaps (executor/`machineId`, `claude --bg`, ensure-install SoT, `claude respawn`, Orca `worker-start` flake).
+- Orca orch readiness flake + one-time host install gate: [big-work orchestration](big-work-orchestration.md).
+- Leave open #29 / #30 alone; coordinate ensure-host wording with #30 on `big-work-orchestration.md`.
