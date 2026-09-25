@@ -31,7 +31,7 @@ A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude 
    - UI: before/after screenshots of named screens/states (or `argent-screenshot-diff` output).
    - Behavior: specific log lines, network requests, or profiler summaries.
    - Logic: the test command to run and the pass criteria (e.g. `yarn test src/cart` — all green, new test covers the empty-cart case).
-5. **Host routing.** Note `agent-m1` (Claude Code / Codex with Argent + provisioned sims/AVDs). Claude vs Codex per chooser TBD.
+5. **Host routing.** Note `agent-m1` (Claude Code / Codex with Argent + provisioned sims/AVDs). Claude vs Codex per the [model lanes](../policies/agent-use-policy.md#default-picks) + Claude Code usage > 70% rule.
 
 Do not launch until all five are in the prompt. If you cannot state the proof expected, the task is not defined enough to launch.
 
@@ -100,7 +100,7 @@ Do not spend a heavy coding-model turn (Claude Code / Codex on `agent-m1`) on mu
 - Its only job: inspect the media against the stated success criteria and report **pass/fail + specifics** (what matched, what didn't, which asset).
 - Give it the success criteria and the media links; nothing else to implement.
 - Non-visual proof (logs, tests, exit codes) stays with the coding agent — no Luna.
-- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Sol / Opus / Fable-role → Opus). Not a Cursor cloud subagent.
+- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Opus 5.5 High / GPT 6 Sol when Claude Code usage > 70% / Fable 5.1). Not a Cursor cloud subagent.
 
 ## Teardown after proof
 

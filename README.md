@@ -51,4 +51,4 @@ Treat playbooks and policies in this repo as **standing policy** for any agent p
 - Follow them unless the current chat explicitly overrides for that one-off.
 - Prefer the latest merged `main` over memory of an older version.
 - Do not invent workshop quotes. Paraphrase practices; cite the source note.
-- Model role labels (Luna/Sol/Opus/Fable) map to Claude Code / Codex per [agent use policy](policies/agent-use-policy.md); skip Cursor-only lanes.
+- Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → GPT 6 Luna Max (Codex `gpt-6-luna`); general code + UI → Opus 5.5 High (Claude Code `claude-opus-5-5`), or GPT 6 Sol (Codex `gpt-6-sol`, xHigh general / High UI) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh. Skip Cursor-only lanes.

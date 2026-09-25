@@ -8,7 +8,7 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 - [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
 - [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
 
-**Lesson from the Mark trial (2026-09-18):** do **not** collapse big work into one mega-agent; do **not** skip the [size gate](#size-gate); prove-before-PR still stands; keep the sim mutex / max 2 concurrent sims. Large work uses **Orca** (not deferred) with an **Opus 5 xhigh** coordinator.
+**Lesson from the Mark trial (2026-09-18):** do **not** collapse big work into one mega-agent; do **not** skip the [size gate](#size-gate); prove-before-PR still stands; keep the sim mutex / max 2 concurrent sims. Large work uses **Orca** (not deferred) with an **Opus 5.5 xhigh** coordinator.
 
 ## Size gate
 
@@ -17,7 +17,7 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 | Gate | Condition | Action |
 | --- | --- | --- |
 | **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna / Sol / Opus on Claude Code / Codex). **No Orca Run. No orchestrator layer.** |
-| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with an **Opus 5 xhigh** coordinator. Coordinator only plans, dispatches, waits, and routes decisions (`plan → workers → integrate → prove → babysit` as **worker tasks**). Workers get **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …` — not all Opus xhigh. Coordinator does **not** implement, integrate, or validate. |
+| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with an **Opus 5.5 xhigh** coordinator. Coordinator only plans, dispatches, waits, and routes decisions (`plan → workers → integrate → prove → babysit` as **worker tasks**). Workers get **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …` — not all Opus xhigh. Coordinator does **not** implement, integrate, or validate. |
 
 ### Small examples (direct agent — no Orca)
 
@@ -26,7 +26,7 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 - One UI polish PR in a single app surface → **Opus** (Claude Code) High.
 - Mechanical chore with tests already green → **Luna** Max.
 
-### Needs-orch examples (Orca + Opus 5 xhigh coordinator)
+### Needs-orch examples (Orca + Opus 5.5 xhigh coordinator)
 
 - RN + API + shared package feature with disjoint paths.
 - Parallelizable cuts across two+ packages that should land as one coherent PR (or a short stack).
@@ -55,7 +55,7 @@ Grok Bot still: ensure amillez plugin, kick off / babysit PR, human pings. Grok 
 ## Default path (needs orch)
 
 1. **Eng bot intakes** the ask: success criteria, proof type, constraints; applies the [size gate](#size-gate).
-2. Eng bot (or a kickoff hop) verifies [prerequisites](#prerequisites-needs-orch-only), then launches an **Opus 5 xhigh** coordinator session that owns the Orca Run (see [Model assignment](#model-assignment)).
+2. Eng bot (or a kickoff hop) verifies [prerequisites](#prerequisites-needs-orch-only), then launches an **Opus 5.5 xhigh** coordinator session that owns the Orca Run (see [Model assignment](#model-assignment)).
 3. Coordinator runs the [supervised Orca loop](#preferred-supervised-orca-loop) below and picks **worker `--agent` / `--model` / `--effort` per slice** from the chooser.
 4. Eng bot arms babysit on the resulting PR(s) per [dispatch lifecycle](agent-dispatch-lifecycle.md#babysit-until-merged).
 
@@ -103,7 +103,7 @@ Notes from Orca docs:
 
 | Stage | Who | How |
 | --- | --- | --- |
-| **Plan (scout)** | Opus 5 xhigh coordinator | Recon blast radius; cut disjoint scopes; `task-create` with precise specs; assign chooser model/effort per task. |
+| **Plan (scout)** | Opus 5.5 xhigh coordinator | Recon blast radius; cut disjoint scopes; `task-create` with precise specs; assign chooser model/effort per task. |
 | **Workers** | Claude Code / Codex via Orca | `worker-start --agent claude\|codex --model … --effort …`; disk modes below. |
 | **Integrate** | Worker task (delegated) | Merge outputs, resolve conflicts, re-run unit/typecheck. Coordinator does **not** integrate — dispatch an integrate worker (often sequential `--worktree current`). |
 | **Prove** | Prove hop on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
@@ -138,7 +138,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 | Role | Owns |
 | --- | --- |
 | **Eng bot (Mark / Sam / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge/close. Does **not** replace Orca for the multi-agent DAG. |
-| **Coordinator (Opus 5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
+| **Coordinator (Opus 5.5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
 | **Worker agents** | Claude Code or Codex Dispatches. Slice-appropriate chooser pick; return `worker_done` with evidence. **No Cursor.** |
 
 ## Host matrix
@@ -150,19 +150,19 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 ## Model assignment
 
-### Coordinator label: Opus 5 xhigh
+### Coordinator label: Opus 5.5 xhigh
 
-- **Policy label:** **Opus 5 xhigh** — standing name for the large-work Orca coordinator (Agustín 2026-09-20; was Fable 5.1 High). Prefer this name in prompts, PR titles, and bot messages.
+- **Policy label:** **Opus 5.5 xhigh** — standing name for the large-work Orca coordinator (Agustín 2026-09-20; was Fable 5.1 High). Prefer this name in prompts, PR titles, and bot messages.
 - **Harness:** Claude Code on `agent-m1` (Opus at **xhigh** effort), driving the Orca CLI.
 - Plans / fans out via Orca; does **not** implement, integrate, or validate — those are worker tasks.
 
 ### Workers
 
-- Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna Max / Sol High / Opus High→xhigh).
-- Do **not** inherit Opus 5 xhigh for every worker.
+- Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (GPT 6 Luna Max / Opus 5.5 High, or GPT 6 Sol xHigh/High when Claude Code usage > 70% / Fable 5.1 Medium→High).
+- Do **not** inherit Opus 5.5 xhigh for every worker.
 - `--model` / `--effort` apply to Claude and Codex launches only (Orca docs); we never pass Cursor.
 
-**Rule:** apply the [size gate](#size-gate) first. Small → direct agent, no Orca Run. Large → Opus 5 xhigh coordinator inside Orca, then chooser-per-slice workers.
+**Rule:** apply the [size gate](#size-gate) first. Small → direct agent, no Orca Run. Large → Opus 5.5 xhigh coordinator inside Orca, then chooser-per-slice workers.
 
 ## Prompt fan-out skill
 
@@ -180,7 +180,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 | Arm | Host | Status |
 | --- | --- | --- |
-| **A — agent-m1** | `agent-m1` Claude/Codex (+ Orca for large) | **Current** — orch label **Opus 5 xhigh**. |
+| **A — agent-m1** | `agent-m1` Claude/Codex (+ Orca for large) | **Current** — orch label **Opus 5.5 xhigh**. |
 | **B — Cursor cloud** | Cursor cloud | **Do not use.** |
 
 ## Anti-patterns
@@ -194,7 +194,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - Claiming Argent/sim proof from anywhere other than `agent-m1`.
 - Parallel sim proves or opening a PR before prove.
 - Eng bot juggling N chats as forever-orchestrator instead of an Orca Run when the gate says large.
-- Stamping Opus 5 xhigh on every worker; renaming the coordinator away from **Opus 5 xhigh** (or using Fable as orch default).
+- Stamping Opus 5.5 xhigh on every worker; renaming the coordinator away from **Opus 5.5 xhigh** (or using Fable as orch default).
 - Treating `orchestrate-agents` prompt text as a substitute for Orca Dispatches / `worker_done`.
 - Retired `orca orchestration run` instead of `run-create` + `worker-start`.
 

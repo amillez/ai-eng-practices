@@ -9,7 +9,7 @@ Standing stack: `agent-m1` running Claude Code / Codex **only**. Dispatch = Grok
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion). Cursor Projects are out of scope for coding.
-- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Luna/Sol/Opus) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude/Codex → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Luna/Sol/Opus) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude/Codex → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on `agent-m1`
 
@@ -57,7 +57,7 @@ claude agents --json
 Rules:
 
 - Permissions bypass (`--dangerously-skip-permissions`) **only** on trusted `agent-m1`.
-- Prefer explicit `--model` / `--effort` when the CLI supports them so Sol High (etc.) is not “host default mystery.”
+- Prefer explicit `--model` / `--effort` when the CLI supports them so Opus 5.5 High / GPT 6 Sol xHigh (etc.) is not “host default mystery.”
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
 - **Post-upgrade stall:** if `--bg` sits on the startup dialog (`needs: open session`), unblock with `claude respawn <id>` (then re-check `claude agents --json`). Do not relaunch a duplicate session blindly.
 
@@ -72,7 +72,7 @@ intake → thorough prompt (skills + proof) → provision worktree
 
 Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `merged` | `blocked` | `discarded`
 
-When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
+When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5.5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
 
 ## Babysit until merged
 
@@ -100,7 +100,7 @@ Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack
 ## Do not
 
 - Use Cursor cloud, Cursor Projects, My Machines, or `register-worker-dir` for coding.
-- Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
+- Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5.5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Auto-merge.
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.
