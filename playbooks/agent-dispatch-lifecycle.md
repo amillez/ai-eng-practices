@@ -57,7 +57,7 @@ claude agents --json
 Rules:
 
 - Permissions bypass (`--dangerously-skip-permissions`) **only** on trusted `agent-m1`.
-- Prefer explicit `--model` / `--effort` when the CLI supports them so Sol High (etc.) is not “host default mystery.”
+- Prefer explicit `--model` / `--effort` when the CLI supports them so Opus 5.5 High / GPT 6 Sol xHigh (etc.) is not “host default mystery.”
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
 - **Post-upgrade stall:** if `--bg` sits on the startup dialog (`needs: open session`), unblock with `claude respawn <id>` (then re-check `claude agents --json`). Do not relaunch a duplicate session blindly.
 

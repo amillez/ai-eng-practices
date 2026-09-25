@@ -100,7 +100,7 @@ Do not spend a heavy coding-model turn (Claude Code / Codex on `agent-m1`) on mu
 - Its only job: inspect the media against the stated success criteria and report **pass/fail + specifics** (what matched, what didn't, which asset).
 - Give it the success criteria and the media links; nothing else to implement.
 - Non-visual proof (logs, tests, exit codes) stays with the coding agent — no Luna.
-- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Sol / Opus / Fable-role → Opus). Not a Cursor cloud subagent.
+- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Opus 5.5 High / GPT 6 Sol when Claude Code usage > 70% / Fable 5.1). Not a Cursor cloud subagent.
 
 ## Teardown after proof
 

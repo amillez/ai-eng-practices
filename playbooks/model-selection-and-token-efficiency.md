@@ -6,7 +6,7 @@ Opinionated playbook for humans and engineering bots. Distilled from Cursor's wo
 
 **Snapshot, not scripture.** Prices, quality/$, router savings, and "N× cheaper" examples are **as of the workshop**. They drift. Check [Models & pricing](https://cursor.com/docs/models-and-pricing) for live rates. Model names below use Cursor's common spellings (Grok, Fable, Opus, Composer, GPT 6 Sol / Luna). Spoken names on the recording may differ.
 
-**Current Grok Bot / Cursor lanes (2026-09-22):** **Opus 5.5** (UI / plans / orch coordinator at xhigh) and **GPT 6 Sol** (general code). Workshop table below still reflects talk-era names where noted.
+**Current agent-m1 lanes (2026-09-25):** **GPT 6 Luna Max** (super defined), **Opus 5.5 High** (general code + UI; over 70% Claude Code usage → **GPT 6 Sol** xHigh general / High UI), **Opus 5.5 xHigh** (Orca coordinator), **Fable 5.1 Medium→High/xhigh** (large reasoning). Canonical table: [agent-use-policy](../policies/agent-use-policy.md#default-picks). Workshop table below still reflects talk-era takes.
 
 Standing bot rules: [policies/agent-use-policy.md](../policies/agent-use-policy.md). Source note: [sources/cursor-model-selection-token-efficiency.md](../sources/cursor-model-selection-token-efficiency.md).
 
@@ -99,7 +99,7 @@ Two families:
 | **Fable** (Claude Fable) | Highly complex / wide surface / gnarly debugging / visual-heavy. Expensive. Escalate here on purpose. | Everyday tickets, "always on", or first attempt at a small task. |
 | **Opus** (Claude Opus) | Strong **writer / execution / plans you will actually read**. Sometimes better than Fable for those. | You only need a cheap implementer. |
 | **GPT 6 Sol** | Planning + reading codebases (per the talk). | Routine implementation (Composer) or quality/$ vs Grok. |
-| **GPT 5.6 Luna** | Cheaper GPT-class option. Workshop take: **weaker quality/$** vs Grok / Composer. | You care about Pareto quality/$. Prefer Grok or Composer. |
+| **GPT Luna** (talk-era) | Cheaper GPT-class option. Workshop take: **weaker quality/$** vs Grok / Composer. | You care about Pareto quality/$. Prefer Grok or Composer. |
 
 ### Quick chooser
 
