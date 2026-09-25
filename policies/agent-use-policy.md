@@ -8,6 +8,7 @@ Primary sources:
 
 - [Cursor workshop — Model Selection & Token Efficiency](../sources/cursor-model-selection-token-efficiency.md)
 - [Research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
+- [Friday digest 2026-09-18](../sources/friday-digest-2026-09-18.md)
 
 Heuristics and savings numbers are **as of the cited source**, not eternal.
 
@@ -204,7 +205,23 @@ If spend looks wrong, inspect prompting and model class first. Workshop examples
 
 ---
 
-## 8. Production vs throwaway AI code
+## 8. Integrations: MCP vs CLI
+
+When both a dedicated MCP / connector and an ad-hoc CLI/`curl` path exist for the **same** service job, **prefer MCP**.
+
+**Prefer MCP** when a connector exists (Notion, GitHub, Slack, X, etc.), when auth / pagination / structured results matter, or when bots should stay on the sanctioned tool surface (`GetDynamicTools` → `CallDynamicTool`) instead of scraping or inventing HTTP.
+
+**Only exception:** a paid MCP with no credits left (e.g. X once credits run out) falls back to the web for that job; return to the MCP when credits are back.
+
+**Prefer CLI** when no MCP exists; for CLI-native host tooling (`git`, `gh` for forge ops already done that way, Orca CLI, Argent CLI on `agent-m1`, package managers); or for one-off scripts / pipes / batch shell MCP does not cover well.
+
+**Anti-patterns:** signed-in browser or invented HTTP when an MCP exists; dual-pathing MCP + CLI for the same mutation without a reason; enabling unused MCPs (see §7).
+
+Decision checklist: [MCP vs CLI](../playbooks/mcp-vs-cli.md). Source: [Friday digest 2026-09-18](../sources/friday-digest-2026-09-18.md).
+
+---
+
+## 9. Production vs throwaway AI code
 
 [Boris Cherny's frame](https://x.com/bcherny/status/2098217571153838124) (Sep 2026): **both modes are valid** — pick explicitly before the agent starts. Throwaway work (spikes, mockups, one-off probes) can be a black box with low blast radius. Anything merged to `main` or touched again in six months is **production** and needs a **higher bar than human-written code**: reviewable, owned, tested, CI + automated review where you have it.
 
@@ -212,13 +229,13 @@ If production agent output misses the bar, escalate model or effort, invest in s
 
 ---
 
-## 9. Research hygiene
+## 10. Research hygiene
 
 When researching **Anthropic / Claude tooling**, prefer primary builder accounts (e.g. [@ClaudeDevs](https://x.com/ClaudeDevs), shipping notes, official docs) over marketing accounts. Marketing posts lag product reality.
 
 ---
 
-## 10. Overrides
+## 11. Overrides
 
 This policy applies to **all agents**. It is not scoped to a team, product, or bot flavor.
 
@@ -231,9 +248,11 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 ## Related
 
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
+- [Playbook: MCP vs CLI](../playbooks/mcp-vs-cli.md)
 - [Playbook: Cursor Projects](../playbooks/cursor-projects.md) — **historical**; coding host is Claude/Codex on agent-m1
 - [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
 - [Playbook: Agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)
 - [Playbook: Big-work orchestration](../playbooks/big-work-orchestration.md)
 - [Source: workshop](../sources/cursor-model-selection-token-efficiency.md)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)
+- [Source: Friday digest 2026-09-18](../sources/friday-digest-2026-09-18.md)
