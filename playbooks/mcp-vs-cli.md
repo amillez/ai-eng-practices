@@ -12,6 +12,8 @@ Use a dedicated MCP / connector when:
 - Auth, pagination, or structured results matter.
 - Bots/agents should stay on the sanctioned tool surface (`GetDynamicTools` → `CallDynamicTool`) — do not scrape, invent `curl`, or drive a signed-in browser for the same job.
 
+**Only exception: a paid MCP with no credits.** If the MCP is metered and we are out of credits, fall back to the web (public pages or the signed-in browser) for that job. Example: use the X MCP while we have X credits; once they run out, read X on the web instead. Switch back when credits return.
+
 ## Prefer CLI
 
 Use CLI / shell when:
@@ -22,7 +24,7 @@ Use CLI / shell when:
 
 ## Anti-patterns
 
-- Driving a signed-in browser or inventing HTTP when an MCP already covers the mutation or read.
+- Driving a signed-in browser or inventing HTTP when an MCP already covers the mutation or read (unless it's a paid MCP with no credits left).
 - Dual-pathing (MCP + CLI for the **same** mutation) without a stated reason.
 - Enabling unused MCPs (prefix bloat) — already in [policy hygiene](../policies/agent-use-policy.md#7-rules-skills-and-mcp-hygiene).
 
