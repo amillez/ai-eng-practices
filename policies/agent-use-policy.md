@@ -20,7 +20,7 @@ For heavy coding / engineering agent work:
 
 - **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code + Codex only**. No Cursor installed. No Cursor cloud coding path. No Cursor My Machines / self-hosted Cursor worker / `register-worker-dir`.
 - **Grok Bot** remains the chat/control plane (intake, dispatch, babysit, proof orchestration). It does **not** code on Cursor.
-- **Claude vs Codex chooser** on `agent-m1` is still **TBD** — bot orchestrators pick Claude vs Codex per that chooser when it lands; until then, pick the harness that can run the assigned model role (below).
+- **Claude vs Codex** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule: Claude Code (Opus 5.5 / Fable 5.1) by default; Codex for GPT 6 Luna work and for GPT 6 Sol when Claude Code usage is above 70%.
 
 Do **not** use Cursor Composer, Cursor cloud agents, Cursor Projects as a coding host, or Fast-mode Cursor notes as a coding path.
 
