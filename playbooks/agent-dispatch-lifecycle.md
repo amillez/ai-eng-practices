@@ -29,7 +29,7 @@ Rules:
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
 5. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
-   - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
+   - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [Teardown](#teardown) and [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
 6. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.
 
 ## Executor vs parent on `agent-m1`
@@ -74,6 +74,10 @@ Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `m
 
 When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5.5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
 
+## Teardown
+
+After proof, the task owner shuts down the iOS Simulator, Android emulator, Metro/dev servers, watchers, and tunnels started for the worktree. For Expo/RN work, also find and kill the matching `expo/bin/cli`, `expo start`, and `expo run` processes — they may not match `metro` or `Simulator` filters — then verify that no process is listening on every Metro port used (including 8081 or 8090). Ben's infra bot sweep of `agent-m1` is a backstop, not a substitute for the task owner's teardown. Use the [copy-pasteable check](agent-proof-feedback-loop.md#teardown-after-proof).
+
 ## Babysit until merged
 
 Hardened after Mark's rn-bedrock PR #11 notes (background wakes missed `agent-m1` settles twice); aligned with Agustín 2026-09-16.
@@ -86,7 +90,7 @@ Hardened after Mark's rn-bedrock PR #11 notes (background wakes missed `agent-m1
 6. **Filter listener noise, keep watching.** Empty-body COMMENTED reviews and agent fix-ack replies on unresolved threads can wake as review-commented. Stay quiet on pure noise, but do not treat it as a hard failure that abandons babysit.
 7. **Apply Agustín's review comments as they appear.** No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close.
 8. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
-9. **Tear down in two stages.** Sims, emulators, and dev servers go when proof is done; PR listeners and worktree stay until terminal.
+9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. Verify every Metro port used is no longer listening.
 10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
 
 Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack.md).

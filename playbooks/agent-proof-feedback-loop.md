@@ -108,7 +108,19 @@ Teardown is part of done — same bar as inspecting proof.
 
 - After proof is collected and inspected, shut down what you started: iOS Simulator / Android emulator, Metro/dev servers, watchers, temporary tunnels — anything booted for the task.
 - Prefer Argent/device skills to shut down cleanly (e.g. `stop-all-simulator-servers` scoped to the devices this session used). Otherwise quit the sim/emulator and kill leftover node/Metro processes for that workstream.
-- Do not leave sims or emulators running "for the next agent." The next workstream boots what it needs.
+- For Expo/RN work, explicitly find and kill the matching `expo/bin/cli`, `expo start`, and `expo run` processes started for the worktree; do not rely only on `metro` or `Simulator` process-name patterns. Then verify that nothing is listening on every Metro port used (commonly 8081 and 8090). Ben's infra bot sweep of `agent-m1` is a backstop; the task owner still tears down.
+- On macOS, review the matching PIDs before terminating them, then check the common ports (add any port the task used):
+
+  ```bash
+  pgrep -fl 'expo/bin/cli|expo (start|run)' || true
+  # After confirming the matches belong to this worktree:
+  pkill -TERM -f 'expo/bin/cli|expo (start|run)' || true
+  for port in 8081 8090; do
+    lsof -nP -iTCP:"$port" -sTCP:LISTEN || true
+  done
+  ```
+
+  Empty `lsof` output for each used port is the teardown check. Do not leave sims or emulators running "for the next agent." The next workstream boots what it needs.
 
 ## Skills allowlist
 
