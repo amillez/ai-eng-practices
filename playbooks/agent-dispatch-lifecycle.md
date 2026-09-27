@@ -24,7 +24,7 @@ Layout:
 Rules:
 
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
-2. **Ensure amillez plugin before coding (SoT).** On the **host** (user root), run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` → **core+mobile** at `~/.claude` + `~/.agents` (+ user rules + stamp). **No `~/.codex`.** **Not** into the worktree/project tree. `ensure-project.sh` is a **thin alias that ignores any project path** — do **not** treat it as per-project plugin install into the worktree. If already present, continue — refresh only when policy/skills changed or a human asks (`--force`). Optionally also commit selected stack skills into the project for teammates (e.g. `uniwind`) even though they are on the device — do not dump the whole mobile set. Project `verify-*` stay in-repo. **Grok Bot dispatch prompts to Claude/Codex must include this host ensure step** first. (Host-ensure wording in [big-work orchestration](big-work-orchestration.md) is fixed in open #30 — coordinate, don't conflict.)
+2. **Ensure amillez plugin before coding (SoT).** On the **host** (user root), run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` → **core+mobile** at `~/.claude` + `~/.agents` (+ user rules + stamp). **No `~/.codex`.** **Not** into the worktree/project tree. `ensure-project.sh` is a **thin alias that ignores any project path**. Do **not** treat it as per-project plugin install into the worktree. If already present, continue. Refresh only when policy/skills changed or a human asks (`--force`). Optionally also commit selected stack skills into the project for teammates (e.g. `uniwind`) even though they are on the device. Do not dump the whole mobile set. Project `verify-*` stay in-repo. **Grok Bot dispatch prompts to Claude/Codex must include this host ensure step** first.
 3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
@@ -93,12 +93,12 @@ Hardened after Mark's rn-bedrock PR #11 notes (background wakes missed `agent-m1
 9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. Verify every Metro port used is no longer listening.
 10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
 
-Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack.md).
+Related: the coding agent's side of a babysit (what it does when sent back with review comments or red CI) is the amillez-mode [Babysit playbook](https://github.com/amillez/agent-skills/blob/main/skills/amillez-mode/playbooks/babysit.md). The bot side stays here.
 
 ## Roles
 
 - **Eng bots (Mark / Sam):** write the prompt, pick skills and proof type, start the agent on `agent-m1`, follow up, verify proof, open the PR, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
-- **Coding agent:** works only in its own workstream.
+- **Coding agent:** works only in its own workstream, under `amillez-mode`. Never merges, arms auto-merge, or closes the PR.
 - **Jarvis:** postmortems when the lifecycle breaks (merged without proof, orphan worktrees).
 
 ## Do not
@@ -115,4 +115,3 @@ Related: pstack's babysit playbook — see [Steal from pstack](steal-from-pstack
 
 - Learning source: Anibal (ASNT) + Mark + Stella Monday eng 1:1s, 2026-09-21 — real-run Grok Bot→agent-m1 dispatch gaps (executor/`machineId`, `claude --bg`, ensure-install SoT, `claude respawn`, Orca `worker-start` flake).
 - Orca orch readiness flake + one-time host install gate: [big-work orchestration](big-work-orchestration.md).
-- Leave open #29 / #30 alone; coordinate ensure-host wording with #30 on `big-work-orchestration.md`.

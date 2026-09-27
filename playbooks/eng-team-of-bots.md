@@ -58,12 +58,12 @@ Coding agents run on **agent-m1** (Claude Code / Codex only). Cursor cloud dispa
 
 Every launch includes:
 
-1. **Skills + thorough prompt** aligned with [agent-use-policy](../policies/agent-use-policy.md).
+1. **Skills + thorough prompt** aligned with [agent-use-policy](../policies/agent-use-policy.md). The prompt names `amillez-mode`.
 2. **Expected proof** — screenshot, CI green, Bugbot clean, or explicit success criteria.
 3. **Monitor** — transcript, artifacts, CI; queue follow-ups when a run stalls.
 4. **Bar** — iterate until proof passes or escalate to a human. No "mostly works" merges on production paths.
 
-Auto-merge only when confidence is high **and** blast radius is low.
+Never auto-merge. Merge only on Agustín's say-so.
 
 ---
 
@@ -95,7 +95,7 @@ They do **not** compose for coding anymore: Grok Bot dispatches **Claude Code / 
 ## Guardrails
 
 - **P0 routines** (aggressive transcript polling) burn tokens — reserve for true P0.
-- **Nightly audits** need the same review bar as daytime work — see [production vs throwaway](../policies/agent-use-policy.md#production-vs-throwaway-ai-code).
+- **Nightly audits** need the same review bar as daytime work. See [production vs throwaway](../policies/agent-use-policy.md#9-production-vs-throwaway-ai-code).
 - Treat external fleet-size anecdotes as **snapshots**, not targets. Hold the quality bar locally.
 
 ---
@@ -104,6 +104,6 @@ They do **not** compose for coding anymore: Grok Bot dispatches **Claude Code / 
 
 - [Cursor Projects](cursor-projects.md)
 - [Agent use policy](../policies/agent-use-policy.md)
-- [amillez-mode](amillez-mode.md) — remap poteto / Cursor-first defaults for bot briefs
+- [amillez-mode](amillez-mode.md). Pointer to the required coding-agent skill in `amillez/agent-skills`.
 - [Steal from pstack](steal-from-pstack.md) — Lauren Tan / pstack workshop takeaways (distinct from the GrokBot course above)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)

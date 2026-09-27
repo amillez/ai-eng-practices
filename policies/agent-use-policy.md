@@ -42,6 +42,7 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 **Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
 
 - **Thorough launch prompt.** Every Claude Code / Codex launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
+- **amillez-mode is required.** Every invoked coding agent, a single agent or an Orca worker, loads and follows the `amillez-mode` skill ([`amillez/agent-skills`](https://github.com/amillez/agent-skills/tree/main/skills/amillez-mode)). The launch prompt or worker brief names it explicitly. A prompt that does not name amillez-mode is not ready to launch. This policy stays the source of truth for model lanes; the skill mirrors them.
 - **Require proof.** Not done at green CI or changed files — done when the agent has produced and inspected task-relevant proof.
 - **Flexible evidence.** Screenshots or videos for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
 - **Proof media on `media` branch.** Never commit screenshots/videos to the PR branch. Link them in the PR body via GitHub blob URLs, not raw URLs. See [proof media hosting](../playbooks/agent-proof-feedback-loop.md#proof-media-hosting).

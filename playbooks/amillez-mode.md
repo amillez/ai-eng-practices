@@ -1,63 +1,23 @@
 # amillez-mode
 
-Canonical remap for bots that load poteto-style craft skills (Stella the bot designer, eng bots). Keep the craft bar. Remount Cursor-first defaults onto our org stack (Claude Code + Codex on agent-m1 only).
+`amillez-mode` is the required working mode for every coding agent we invoke, a single agent or an Orca worker. It keeps the pstack craft bar (poteto-mode, MIT) and remaps its Cursor-first defaults onto our stack.
 
-Source: Stella onboard / poteto craft remount, 2026-09-16. Ensure-install SoT + voice capitalization: Stella Monday eng 1:1, 2026-09-21.
+The skill is the source of truth. It lives in [`amillez/agent-skills` `skills/amillez-mode`](https://github.com/amillez/agent-skills/tree/main/skills/amillez-mode):
 
----
+- [`SKILL.md`](https://github.com/amillez/agent-skills/blob/main/skills/amillez-mode/SKILL.md) holds the non-negotiables, principles index, reply rules, playbook router, and the remap table that used to live here.
+- `playbooks/`, `principles/`, and `references/` hold the ported craft.
+- [`UPSTREAM.md`](https://github.com/amillez/agent-skills/blob/main/skills/amillez-mode/UPSTREAM.md) holds the upstream pin, attribution, and per-file verdicts.
 
-## Intent
+It installs with the core group of the amillez plugin (`scripts/ensure-install.sh`).
 
-- **Keep poteto craft.** One job, unslopped, verified — Prove It Works.
-- **Call it amillez-mode.** Same bar, our labels.
-- **Do not fight poteto skills.** Remap only the defaults that conflict with our stack; leave the rest intact.
+## How to require it
 
----
-
-## Remap table
-
-| poteto / Cursor-default signal | amillez-mode | Where it lives |
-| --- | --- | --- |
-| Cursor cloud / Composer / My Machines as coding host | **override** — **abandoned**; agent-m1 Claude Code/Codex **only** | [agent-use-policy §1](../policies/agent-use-policy.md#1-coding-host-routing) |
-| Freestyle expensive / Cursor-only models | **override** — follow the agent-use-policy chooser mapped to Claude/Codex; skip Cursor-only lanes | [agent-use-policy §2](../policies/agent-use-policy.md#2-default-model-posture) |
-| Done = green CI / files changed | **override** — proof loop: flexible evidence, media on the `media` branch, Luna Max for visual | [agent-proof-feedback-loop](agent-proof-feedback-loop.md) |
-| Skills / plugins ad-hoc | **override** — allowlist via `amillez/agent-skills` | [agent-proof-feedback-loop](agent-proof-feedback-loop.md) + `amillez/agent-skills` README |
-| Background Shell wake as babysit | **override** — hop-1 finite settle-watch (must message, then delete); hop-2 GitHub listeners; match `pr_number`; terminal = merge / close / abandon | [agent-dispatch-lifecycle → Babysit](agent-dispatch-lifecycle.md#babysit-until-merged) |
-| poteto craft / one job / anti-jobs / one voice | **keep** — rename labels to amillez-mode in briefs; do not strip | This file |
-| poteto “short lowercase OK” voice | **remap** — org voice prefers **regular capitalization** (design-grok-bot already does) | This file + bot briefs |
-| Naming `ensure-project` as the primary install | **override** — SoT is `scripts/ensure-install.sh` (core+mobile → `~/.claude` + `~/.agents`; no `~/.codex`). `ensure-project.sh` is a **thin alias only** | [dispatch lifecycle](agent-dispatch-lifecycle.md#worktrees-on-agent-m1) · [agent-use-policy §1](../policies/agent-use-policy.md#1-coding-host-routing) |
-
-When a skill and this table disagree on host, model, done, skills, or babysit: this table wins. On craft: the skill wins.
-
----
-
-## Coding-bot brief overlay
-
-Paste into any coding bot Stella designs:
-
-- **Host:** agent-m1 Claude Code/Codex only. No Cursor coding path.
-- **Ensure (SoT one-liner):** [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` → core+mobile at `~/.claude` + `~/.agents` (no `~/.codex`). `ensure-project.sh` is a thin alias only — do **not** name ensure-project as the primary in bot briefs.
-- **Thorough launch:** goal, scope, named skills, expected proof.
-- **Skills:** only from the `amillez/agent-skills` allowlist.
-- **Babysit until merged** per the dispatch lifecycle.
-- **Review comments:** apply Agustín's review comments without permission chatter.
-- **Language:** reply in EN; Agustín may write EN/ES/CA. Prefer **regular capitalization** (remap poteto “short lowercase OK”).
-- **Framing:** no Peersyst / company framing unless he brings it up.
-
----
-
-## Checklist before shipping a bot brief
-
-- [ ] Craft bar kept (one job, anti-jobs, one voice, Prove It Works).
-- [ ] Every row in the remap table applied — no Cursor-first default left in.
-- [ ] Overlay pasted for coding bots.
-- [ ] Labels say amillez-mode, not poteto.
-
----
+- Every launch prompt and every Orca worker brief names `amillez-mode`. See [agent use policy §1](../policies/agent-use-policy.md#1-coding-host-routing) and the [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt).
+- Model lanes stay in the [agent use policy](../policies/agent-use-policy.md#default-picks). When the skill and the policy disagree on lanes, the policy wins and the skill gets a fix PR.
+- Change the skill through a PR in `amillez/agent-skills`, not here.
 
 ## Related
 
-- [Eng team of bots](eng-team-of-bots.md)
 - [Agent use policy](../policies/agent-use-policy.md)
 - [Agent proof feedback loop](agent-proof-feedback-loop.md)
 - [Agent dispatch lifecycle](agent-dispatch-lifecycle.md)

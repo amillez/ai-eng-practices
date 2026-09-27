@@ -48,8 +48,6 @@ On `agent-m1`, before creating a Run:
 4. **Amillez plugin** ensured on the **host** before coding workers touch the tree: run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` (thin alias `ensure-project.sh` — it ignores any project path). Default installs **core+mobile** to `~/.claude` / `~/.agents` — **not** `~/.codex`, and **not** into the worktree/project tree. Already present → continue; refresh only when policy/skills changed or a human asks (`--force`).
 5. Prefer `orca skills get orchestration --full` when flags drift — command surface evolves with the app.
 
-> **Coordinate with #30:** open PR #30 rewrites item 4 to host `ensure-install.sh` (thin alias `ensure-project.sh` ignores project path). Do not land conflicting ensure wording here until #30 merges — then item 4 should match [dispatch lifecycle ensure SoT](agent-dispatch-lifecycle.md#worktrees-on-agent-m1).
-
 Grok Bot still: ensure amillez plugin, kick off / babysit PR, human pings. Grok Bot does **not** replace Orca for the multi-agent DAG.
 
 ## Default path (needs orch)
@@ -137,9 +135,9 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 | Role | Owns |
 | --- | --- |
-| **Eng bot (Mark / Sam / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge/close. Does **not** replace Orca for the multi-agent DAG. |
+| **Eng bot (Mark / Sam / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close on Agustín's say-so. Does **not** replace Orca for the multi-agent DAG. |
 | **Coordinator (Opus 5.5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
-| **Worker agents** | Claude Code or Codex Dispatches. Slice-appropriate chooser pick; return `worker_done` with evidence. **No Cursor.** |
+| **Worker agents** | Claude Code or Codex Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. **No Cursor.** |
 
 ## Host matrix
 
@@ -166,12 +164,12 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 ## Prompt fan-out skill
 
-`orchestrate-agents` (amillez/agent-skills) still helps the coordinator write isolated task specs. **Runtime ownership, `worker_done`, and the DAG live in Orca** — the skill does not replace `run-create` / `worker-start` / `check --wait`.
+`orchestrate-agents` (amillez/agent-skills) gives the coordinator the worker brief template (MODE, GOAL, SCOPE, CONTEXT, ACCEPTANCE, VERIFY, TIMEBOX, FORBIDDEN, REPORT, STANDING) and retry by failure mode. Every brief names `amillez-mode`. **Runtime ownership, `worker_done`, and the DAG live in Orca.** The skill does not replace `run-create`, `worker-start`, or `check --wait`.
 
 ## Out of scope / later
 
 - Federated workers (`--on <remote>`) — optional; default stays local `agent-m1`.
-- Wholesale Arena/Swarm from pstack — still deferred; see [Steal from pstack](steal-from-pstack.md).
+- Arena, Swarm, and the other pstack fan-out skills are dropped for v1. Use recon and plan, `grill-me`, and Orca. See [Steal from pstack](steal-from-pstack.md).
 - Do not use retired Orca commands (`orchestration run`, `run-stop`, `coordinator-start`).
 
 ## Comparison experiment (historical/abandoned)
@@ -206,4 +204,4 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
 - [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
 - Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills) (spec writing; Orca owns the Run)
-- [Steal from pstack](steal-from-pstack.md) — Arena/Swarm deferred
+- [Steal from pstack](steal-from-pstack.md). Fan-out skills dropped for v1.
