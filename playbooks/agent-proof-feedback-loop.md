@@ -47,6 +47,7 @@ Match the task to every row that fits and name the union of those skills in the 
 | Critiquing existing motion ("does this feel right?") | `review-animations` (+ `animate-expo` if also fixing) |
 | Device proof (screenshots, flows, recordings) | Argent: `argent-ios-simulator-setup` / `argent-android-emulator-setup` → `argent-react-native-app-workflow` → `argent-test-ui-flow` (+ `argent-screen-recording` for motion) |
 | Uniwind `className` work | `uniwind` |
+| Any `.ts` or `.tsx` file | `typescript-best-practices` |
 
 **Proof skills alone are never enough for feel-sensitive UI.** If the task touches sheets, motion, native chrome, or feel, include the craft skills above as well as Argent. A launch prompt that names only Argent skills for a sheet or animation task is incomplete. `review-animations` is not auto-invoked (`disable-model-invocation: true` upstream), so name it explicitly when you want a critique pass.
 
@@ -138,6 +139,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
   - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup.
 - `react-native-best-practices` (`software-mansion-labs/skills`) — per skill description; use when writing, reviewing, or debugging ANY React Native or Expo code.
 - `uniwind` (`uni-stack/uniwind`) — per skill description; use when building or debugging Uniwind `className` styling in React Native.
+- `typescript-best-practices` (first-party, core). TypeScript type discipline for any `.ts` or `.tsx` file. Auto-loads by file path in Claude Code and by description in Codex. React Native library usage defers to `react-native-best-practices`.
 - `orchestrate-agents`. Size gate, then Orca for large work, with the worker brief template (every brief names `amillez-mode`) and retry by failure mode.
 - **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
 
