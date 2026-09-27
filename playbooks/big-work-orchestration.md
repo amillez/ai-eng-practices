@@ -15,7 +15,7 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 | Gate | Condition | Action |
 | --- | --- | --- |
 | **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna / Sol / Opus on Claude Code / Codex). **No Orca Run. No orchestrator layer.** |
-| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with an **Opus 5.5 xhigh** coordinator. Coordinator only plans, dispatches, waits, and routes decisions (`plan → workers → integrate → prove → babysit` as **worker tasks**). Workers get **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …` — not all Opus xhigh. Coordinator does **not** implement, integrate, or validate. |
+| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with an **Opus 5.5 xhigh** coordinator. Coordinator only plans, dispatches, waits, and routes decisions. Workers implement, integrate, and prove as **worker tasks**, each with **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …`, not all Opus xhigh. The eng bot babysits the PR. |
 
 ### Small examples (direct agent — no Orca)
 
@@ -101,7 +101,7 @@ Notes from Orca docs:
 | **Plan (scout)** | Opus 5.5 xhigh coordinator | Recon blast radius; cut disjoint scopes; `task-create` with precise specs; assign chooser model/effort per task. |
 | **Workers** | Claude Code / Codex via Orca | `worker-start --agent claude\|codex --model … --effort …`; disk modes below. |
 | **Integrate** | Worker task (delegated) | Merge outputs, resolve conflicts, re-run unit/typecheck. Coordinator does **not** integrate — dispatch an integrate worker (often sequential `--worktree current`). |
-| **Prove** | Prove hop on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
+| **Prove** | Worker task on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
 | **Babysit** | Eng bot (Grok) | Until `merged`\|`discarded`; PR listeners — does not replace Orca during the Run. |
 
 ## Worktrees and disk

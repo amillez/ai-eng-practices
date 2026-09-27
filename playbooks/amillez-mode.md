@@ -10,6 +10,8 @@ The skill is the source of truth. It lives in [`amillez/agent-skills` `skills/am
 
 It installs with the core group of the amillez plugin (`scripts/ensure-install.sh`).
 
+The pstack fan-out skills (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`) are not part of it. `reflect` is ported as the amillez-mode Reflect playbook. See [Steal from pstack](steal-from-pstack.md).
+
 ## How to require it
 
 - Every launch prompt and every Orca worker brief names `amillez-mode`. See [agent use policy §1](../policies/agent-use-policy.md#1-coding-host-routing) and the [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt).
