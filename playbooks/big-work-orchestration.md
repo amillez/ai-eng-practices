@@ -169,7 +169,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 ## Out of scope / later
 
 - Federated workers (`--on <remote>`) — optional; default stays local `agent-m1`.
-- Arena, Swarm, and the other pstack fan-out skills are dropped for v1. Use recon and plan, `grill-me`, and Orca. See [Steal from pstack](steal-from-pstack.md).
+- Arena, Swarm, and the other pstack fan-out skills are dropped for v1. Use recon and plan, `grill-me`, and Orca. The exception is `reflect`, ported as an amillez-mode playbook. See [Steal from pstack](steal-from-pstack.md).
 - Do not use retired Orca commands (`orchestration run`, `run-stop`, `coordinator-start`).
 
 ## Comparison experiment (historical/abandoned)
@@ -204,4 +204,4 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
 - [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
 - Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills) (spec writing; Orca owns the Run)
-- [Steal from pstack](steal-from-pstack.md). Fan-out skills dropped for v1.
+- [Steal from pstack](steal-from-pstack.md). Fan-out skills dropped for v1, except `reflect`.
