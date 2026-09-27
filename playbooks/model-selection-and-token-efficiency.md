@@ -1,14 +1,12 @@
 # Model selection & token efficiency
 
-> **Coding host note (2026-09-18):** standing coding path is **agent-m1 Claude Code + Codex only**. This playbook keeps workshop heuristics (Composer/Grok/Cursor harness language) as cost/prompt craft. Map role labels to Claude/Codex per [agent-use-policy](../policies/agent-use-policy.md); do not treat Composer / Cursor cloud as an active coding path.
-
 Opinionated playbook for humans and engineering bots. Distilled from Cursor's workshop **[Model Selection & Token Efficiency](https://www.youtube.com/watch?v=KcshxSB3sNY)** (Santi Garza, SpaceX AI field engineer; live session 25 August 2026, ~1 hour).
 
-**Snapshot, not scripture.** Prices, quality/$, router savings, and "N× cheaper" examples are **as of the workshop**. They drift. Check [Models & pricing](https://cursor.com/docs/models-and-pricing) for live rates. Model names below use Cursor's common spellings (Grok, Fable, Opus, Composer, GPT 6 Sol / Luna). Spoken names on the recording may differ.
+**Snapshot, not scripture.** Token ratios and "N× cheaper" examples are **as of the workshop**. They drift.
 
-**Current agent-m1 lanes (2026-09-25):** **GPT 6 Luna Max** (super defined), **Opus 5.5 High** (general code + UI; over 70% Claude Code usage → **GPT 6 Sol** xHigh general / High UI), **Opus 5.5 xHigh** (Orca coordinator), **Fable 5.1 Medium→High/xhigh** (large reasoning). Canonical table: [agent-use-policy](../policies/agent-use-policy.md#default-picks). Workshop table below still reflects talk-era takes.
+Model lanes live in the [agent use policy](../policies/agent-use-policy.md#default-picks). This playbook covers the token economics and prompt craft behind them.
 
-Standing bot rules: [policies/agent-use-policy.md](../policies/agent-use-policy.md). Source note: [sources/cursor-model-selection-token-efficiency.md](../sources/cursor-model-selection-token-efficiency.md).
+Source note: [sources/cursor-model-selection-token-efficiency.md](../sources/cursor-model-selection-token-efficiency.md).
 
 ---
 
@@ -32,13 +30,13 @@ You pay for **model I/O** (what goes into the model and what it emits). In the t
 
 **Model = engine. Harness = car.**
 
-Cursor wraps the model in a harness (tools, orchestration, system context) and **tunes that harness per model**. The same ask can behave differently across models because the car is different, not only because the engine is.
+The harness (Claude Code or Codex on `agent-m1`) wraps the model in tools, orchestration, and system context. The same ask can behave differently across models because the car is different, not only because the engine is.
 
 Hold these as design facts, not bugs:
 
 - **Non-determinism.** Same prompt, same model, not the same path. Judge on task completion and cost, not one lucky run.
 - **Tool orchestration.** The model chooses tools; the harness runs them. You pay for the model's tokens around those calls, not (per the talk) for the search/grep action itself.
-- **You pick the engine; Cursor drives the car.** Switching models is a first-class move, not a failure.
+- **You pick the engine; the harness drives the car.** Switching models is a first-class move, not a failure.
 
 ---
 
@@ -52,7 +50,7 @@ The model does not remember your repo between turns. **Every turn re-feeds conte
 [latest]  the ask you just sent
 ```
 
-**Compaction (workshop heuristic):** around **~90%** of the window, Cursor summarizes the **middle only**. Prefix and latest ask stay. After several compactions the middle is a photocopy of a photocopy — blurry decisions, invented constraints, forgotten files.
+**Compaction (workshop heuristic):** around **~90%** of the window, the harness summarizes the **middle only**. Prefix and latest ask stay. After several compactions the middle is a photocopy of a photocopy — blurry decisions, invented constraints, forgotten files.
 
 | Do | Don't |
 | --- | --- |
@@ -85,37 +83,7 @@ That blip is small. **Do not fear switching** when the task needs a different en
 
 **No single model wins every category.** Do not lock to one provider. Use a **portfolio**.
 
-Two families:
-
-- **Specialized SWE** (Composer): scoped coding, discrete implementation, fast/efficient. Default for most build work.
-- **Frontier general reasoning** (Grok, Opus, Fable, GPT Sol): hard or wide problems, planning, reading a large unfamiliar surface, gnarly debug, visual-heavy work.
-
-### Heuristics as of the workshop
-
-| Model | Use it for | Skip it when |
-| --- | --- | --- |
-| **Composer 2.5** | Default for most discrete coding / SWE tasks. Fast, efficient. Implementation after a plan. | The problem is wide, unfamiliar, or still needs a strategy. |
-| **Grok 4.6** | Strong **quality/$** (Pareto). Good general reasoning **and** coding. A default "smart" pick when Composer is not enough. | You already know the edit is local and specified — use Composer. |
-| **Fable** (Claude Fable) | Highly complex / wide surface / gnarly debugging / visual-heavy. Expensive. Escalate here on purpose. | Everyday tickets, "always on", or first attempt at a small task. |
-| **Opus** (Claude Opus) | Strong **writer / execution / plans you will actually read**. Sometimes better than Fable for those. | You only need a cheap implementer. |
-| **GPT 6 Sol** | Planning + reading codebases (per the talk). | Routine implementation (Composer) or quality/$ vs Grok. |
-| **GPT Luna** (talk-era) | Cheaper GPT-class option. Workshop take: **weaker quality/$** vs Grok / Composer. | You care about Pareto quality/$. Prefer Grok or Composer. |
-
-### Quick chooser
-
-```
-Is the edit already scoped (files + success criteria)?
-  yes → Composer 2.5
-  no  → Is the area unfamiliar or the ask vague?
-          yes → Ask mode (recon), then Plan with Grok / Opus / Sol
-          no  → Plan with Grok / Opus, then Composer to build
-
-Did Composer / Balance fail or is the surface huge / visual / gnarly?
-  yes → escalate to Fable (or Opus if the artifact is a plan/write-up)
-  no  → stay cheap
-```
-
-Worked situation rows and concrete picks live in the policy: [Agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
+Our lanes span two providers: Opus 5.5 and Fable 5.1 on Claude Code, GPT 6 Luna and GPT 6 Sol on Codex. The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ---
 
@@ -126,13 +94,10 @@ These are **spend multipliers**. Turn them with intent.
 | Knob | What it actually does | Default |
 | --- | --- | --- |
 | **Effort** | More agent loops / more work per turn → more tokens | **Low** for mechanical, low-verification work. Raise after the shot is clear, not before. Do not raise effort to fix a vague prompt. |
-| **Fast** | **Queue priority**, not a smarter model | Off. Use sparingly when waiting is the bottleneck. |
-| **Auto router** | Cost / **Balance** / Intelligence | **Balance** as the recommended default. Cost when the work is routine. Intelligence when you want harder turns sent up. |
+| **Fast** | Faster output, not a smarter model | Off unless the human asks. |
 | **Context / max** | Bigger window, more prefix + middle each turn | Normal until a complex refactor truly needs the extra room. |
 
-Workshop claim (snapshot): an **org-wide router policy** produced **~30–60% savings overnight**. That is a policy lever, not a reason to pick Intelligence on every personal chat.
-
-Auto may send a harder turn to a stronger model. That is a feature. Still do not combine Intelligence + Fast + max effort + Fable unless you can say why.
+Do not combine Fast, max effort, and Fable unless you can say why.
 
 ---
 
@@ -142,12 +107,10 @@ Auto may send a harder turn to a stronger model. That is a feature. Still do not
 
 - **CursorBench 4.0** added harder long-horizon tasks: edit, refactor, investigation, intent understanding, managing jobs, design adherence.
 - **Scores dropped across the board** because the bench got harder — not necessarily because models got worse.
-- **Grok 4.6** scored lower on 4.0 than on 3.x (e.g. ~41% at Extra High on 4.0 vs higher on 3.2 — **snapshot**; check leaderboard for current numbers).
-- **Grok 4.7** was teased around the same window; revisit picks when it ships — do not pre-switch on hype.
 
 **What to do:**
 
-1. Revisit model defaults when **Cursor changes defaults** or **CursorBench major versions** ship — not on every minor release.
+1. Revisit the lanes when a new model generation or a major benchmark version ships, not on every minor release. Do not pre-switch on hype.
 2. Smoke-test pinned skills after a bump — does the agent still follow the playbook?
 3. Judge models on **your repo's tasks**, not leaderboard alone. Benches drift; your test suite does not lie (if you have one).
 
@@ -164,7 +127,7 @@ Clarify **before** you build, or **with Plan mode**:
 - What must not change?
 - How will we know (test, repro, screenshot, log line)?
 
-A short plan on a strong general model, then Composer to implement, is the workshop's core cost-and-quality move.
+A short plan on a strong general model, then a lighter lane to implement, is the core cost-and-quality move.
 
 ---
 
@@ -189,45 +152,35 @@ Use this as a pre-flight. Bots: if the user skipped these and the task is non-tr
 
 ### Small, direct task
 
-Scope the file or folder → **Composer**. One chat. Success criteria in the same turn.
+Scope the file or folder → **GPT 6 Luna Max**. One chat. Success criteria in the same turn.
 
 ### Vague or unfamiliar
 
-**Ask mode** (recon, safe, read-only) → **Plan** → **Build**. Optionally `@` a prior chat instead of continuing it.
+**Read-only recon** → **Plan** → **Build**. Optionally `@` a prior chat instead of continuing it.
 
 ### Feature
 
-Pull context (ticket, `@` areas, Ask if needed) → **Plan** → split **subtasks** / multitask. Do not one-shot the whole feature in a single agent loop if it can be cut.
+Pull context (ticket, `@` areas, read-only recon if needed) → **Plan** → split **subtasks** / multitask. Do not one-shot the whole feature in a single agent loop if it can be cut.
 
 ### Refactor
 
-Define success first. **TDD:** tests green before and after. Run **Bugbot** on the PR (and locally if that is your loop). Do not "clean it up" without a check.
+Define success first. **TDD:** tests green before and after. Run automated review on the PR where the repo has it. Do not "clean it up" without a check.
 
 ### Hard bug
 
-**Debug mode:** reproduce + logs. Do not run guess loops on a frontier model. A failed hypothesis that stays in the thread becomes compacted folklore.
+**Reproduce first**, with logs. Do not run guess loops on a frontier model. A failed hypothesis that stays in the thread becomes compacted folklore.
 
 ---
 
-## 10. Recommended model workflow (from Q&A)
-
-1. **Plan** with strong general reasoning — **Grok, Opus, or GPT** (Sol when the job is planning + reading the codebase).
-2. **Implement** with **Composer**.
-3. **Reserve** a big general model **+ max context** for extremely complex refactors that need **ongoing decisions** in one thread.
-
-That is the default recipe. Fable is an escalation, not a lifestyle.
-
----
-
-## 11. Worked cost levers (as of workshop)
+## 10. Worked cost levers (as of workshop)
 
 The talk's point was not a spreadsheet. It was **compounding**.
 
 | Lever | Workshop-scale effect | How you pull it |
 | --- | --- | --- |
 | Prompt quality | **~10–12×** from better prompting **alone** (same model, vague vs specific / well-anchored) | Plan the shot; `@` anchors; one task; success criteria |
-| Wrong expensive model on top | Stacks to **~175×** vs a tight prompt on the right cheap model | Composer (or Balance) first; escalate on evidence |
-| Each extra habit | **~12–15%** each — new chat, short rules, skills vs fat prefix, no Fast-by-default, router policy, … | They **compound**. None is heroic; the pile is. |
+| Wrong expensive model on top | Stacks to **~175×** vs a tight prompt on the right cheap model | Cheapest lane that fits first; escalate on evidence |
+| Each extra habit | **~12–15%** each — new chat, short rules, skills vs fat prefix, no Fast-by-default, … | They **compound**. None is heroic; the pile is. |
 
 If usage exploded, do not start by "the model got worse." Walk the levers: vague prompt? eternal chat? always-on Fable? Fast + max effort? 30k-line paste? unused MCPs?
 
@@ -239,8 +192,8 @@ If usage exploded, do not start by "the model got worse." Walk the levers: vague
 | --- | --- |
 | **Eternal chats** | Compaction blur + baggage re-fed every turn |
 | **Vague "fix auth"** | Exploration + wrong guesses + expensive recovery |
-| **Always-on Fable** | Pays frontier rates for work Composer would finish |
-| **Fast by default** | You bought queue priority, not intelligence |
+| **Always-on Fable** | Pays frontier rates for work GPT 6 Luna or Opus 5.5 High would finish |
+| **Fast by default** | You bought speed, not intelligence |
 | **Giant always-apply rules** | Prefix tax on every request; cache-bust if you edit them mid-flight |
 | **Dumping 30k-line files into context** | Input burn, drowned signal, worse answers |
 | **One provider forever** | You miss the Pareto pick; no model wins every category |
@@ -252,8 +205,8 @@ If usage exploded, do not start by "the model got worse." Walk the levers: vague
 
 If you are an agent reading this as policy, also follow [policies/agent-use-policy.md](../policies/agent-use-policy.md). Short version:
 
-1. Pick model + effort per slice from the [agent-use-policy](../policies/agent-use-policy.md) chooser on `agent-m1` Claude Code / Codex — Composer/Balance is not the coding path.
+1. Pick model + effort per slice from the [agent-use-policy](../policies/agent-use-policy.md) chooser on `agent-m1` Claude Code or Codex.
 2. New chat per task; `@` anchors; no novel-length pastes.
 3. Plan before build when the work is not small and obvious.
-4. Escalate one knob at a time; de-escalate to Composer to implement.
+4. Escalate one knob at a time; de-escalate to GPT 6 Luna Max or Opus 5.5 High to implement.
 5. Chat overrides win for that ask only.

@@ -40,6 +40,6 @@ Prices, quality/$ rankings, router savings, and eval-style multiples in the play
 
 This write-up is a distillation for practice, not a transcript.
 
-- Auto-captions and spoken model names are approximate. Prefer Cursor's common UI spellings: **Grok**, **Fable**, **Opus**, **Composer**, **GPT 5.6 Sol / Luna** (talk-era names; current lanes use GPT 6 Sol / Luna per agent-use-policy).
+- Auto-captions and spoken model names are approximate. Model names follow Cursor's UI spellings as spoken in the talk. Our lanes are in the [agent use policy](../policies/agent-use-policy.md#default-picks).
 - No invented quotes. Practices are paraphrased from the talk's structure and the official video description.
 - If a detail was unclear on the recording, it is omitted or marked as a workshop claim — not filled in from other sessions.
