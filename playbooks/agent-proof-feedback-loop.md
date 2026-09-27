@@ -144,4 +144,4 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 
 ### Skill store
 
-Canonical install/update lives in the private repo [amillez/agent-skills](https://github.com/amillez/agent-skills). **Before coding, run `./scripts/ensure-install.sh`** (thin alias `ensure-project.sh`) — host ensure of **core+mobile** at `~/.claude` / `~/.agents` (no `~/.codex`, never into the project tree); already present → continue. Use `./scripts/install.sh` for a full install and `./scripts/update-install.sh` / `./scripts/update-upstream.sh` to refresh or pull upstream updates. Machines should not hand-duplicate skill folders.
+Canonical install/update lives in the private repo [amillez/agent-skills](https://github.com/amillez/agent-skills). **Before coding, run `./scripts/ensure-install.sh`**. It ensures **core+mobile** on the host at `~/.claude` / `~/.agents` (no `~/.codex`, never into the project tree) and continues when already present. Use `./scripts/install.sh` for a full install and `./scripts/update-install.sh` / `./scripts/update-upstream.sh` to refresh or pull upstream updates. Machines should not hand-duplicate skill folders.

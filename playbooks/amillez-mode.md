@@ -4,7 +4,7 @@
 
 The skill is the source of truth. It lives in [`amillez/agent-skills` `skills/amillez-mode`](https://github.com/amillez/agent-skills/tree/main/skills/amillez-mode):
 
-- [`SKILL.md`](https://github.com/amillez/agent-skills/blob/main/skills/amillez-mode/SKILL.md) holds the non-negotiables, principles index, reply rules, playbook router, and the remap table that used to live here.
+- [`SKILL.md`](https://github.com/amillez/agent-skills/blob/main/skills/amillez-mode/SKILL.md) holds the non-negotiables, principles index, reply rules, playbook router, and the remap table from upstream defaults to our stack.
 - `playbooks/`, `principles/`, and `references/` hold the ported craft.
 - [`UPSTREAM.md`](https://github.com/amillez/agent-skills/blob/main/skills/amillez-mode/UPSTREAM.md) holds the upstream pin, attribution, and per-file verdicts.
 
