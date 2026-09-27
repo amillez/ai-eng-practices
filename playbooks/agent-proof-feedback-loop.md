@@ -132,7 +132,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `animate-expo` — building animations.
 - `apple-design` — building UIs.
 - `review-animations` (Emil) — reviewing / critiquing existing motion against Emil's craft bar. **Not auto-invoked** (`disable-model-invocation: true` upstream): name it explicitly in launch prompts for critique passes.
-- `grill-me` — stress-test a plan or design before building.
+- `grill-me`. Settle a contested product or preference call that a prototype can't settle.
 - **Expo** (`expo/skills`):
   - `expo-dev-client` — build and distribute Expo development clients locally or via TestFlight for internal testing. For production TestFlight releases and store submission, use `eas-app-stores`.
   - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup.
@@ -140,6 +140,8 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `uniwind` (`uni-stack/uniwind`) — per skill description; use when building or debugging Uniwind `className` styling in React Native.
 - `typescript-best-practices` (first-party, core). TypeScript type discipline for any `.ts` or `.tsx` file. Auto-loads by file path in Claude Code and by description in Codex. React Native library usage defers to `react-native-best-practices`.
 - `orchestrate-agents`. Size gate, then Orca for large work, with the worker brief template (every brief names `amillez-mode`) and retry by failure mode.
+- `create-verification-skill`, `maintain-verification-skill` (first-party, core). Generate and maintain a project's `verify-<app>` skill and feature map.
+- `setup-amillez-models` (first-party, core). Install or refresh the Claude Code and Codex model-lane rules that mirror the [agent use policy](../policies/agent-use-policy.md#default-picks).
 - **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
 
 ### Skill store
