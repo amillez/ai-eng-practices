@@ -5,20 +5,18 @@
 | Title | AI research digest — September 12, 2026 |
 | Author | Sam (first digest for Agustín) |
 | Date | **12 September 2026** |
-| Repo impact | Slim playbooks + policy updates from approved proposals |
+| Repo impact | Eng team of bots playbook, evals drift note, policy updates |
 
 ## One-line summary
 
-Turn Sep 2026 signals on Cursor Projects, Grok Bot engineering fleets, production vs throwaway AI code, and CursorBench 4.0 eval drift into short decision guides and policy — not long playbooks.
+Turn Sep 2026 signals on Grok Bot engineering fleets, agent plan hygiene, production vs throwaway AI code, and CursorBench 4.0 eval drift into short decision guides and policy.
 
 ## Primary URLs
 
-### Cursor Projects & evals
+### Evals
 
 | Topic | URL |
 | --- | --- |
-| Introducing Projects (blog) | https://cursor.com/blog/projects |
-| Cursor changelog | https://cursor.com/changelog |
 | CursorBench 4.0 leaderboard | https://cursor.com/cursorbench |
 | Lee Robinson on CursorBench 4.0 | https://x.com/leerob/status/2098144600594465148 |
 
@@ -36,7 +34,7 @@ Turn Sep 2026 signals on Cursor Projects, Grok Bot engineering fleets, productio
 | --- | --- |
 | Boris Cherny — production vs throwaway AI code | https://x.com/bcherny/status/2098217571153838124 |
 
-### Prior repo sources (unchanged)
+### Related sources
 
 | Topic | URL |
 | --- | --- |
@@ -47,7 +45,6 @@ Turn Sep 2026 signals on Cursor Projects, Grok Bot engineering fleets, productio
 
 | Artifact | Path |
 | --- | --- |
-| Cursor Projects decision guide | [playbooks/cursor-projects.md](../playbooks/cursor-projects.md) |
 | Eng team of bots (our setup) | [playbooks/eng-team-of-bots.md](../playbooks/eng-team-of-bots.md) |
 | Agent use policy updates | [policies/agent-use-policy.md](../policies/agent-use-policy.md) |
 | Model selection — evals drift note | [playbooks/model-selection-and-token-efficiency.md](../playbooks/model-selection-and-token-efficiency.md) |
