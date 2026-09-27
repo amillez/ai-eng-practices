@@ -18,7 +18,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Big-work orchestration](playbooks/big-work-orchestration.md) | Large features: orchestrator session → workers → integrate → prove → babysit |
 | [Steal from pstack](playbooks/steal-from-pstack.md) | Deciding which pstack skills/playbooks to adopt, defer, or skip |
 | [Hard constraints](playbooks/hard-constraints.md) | Encoding footguns in lint/CI instead of prose, so the proof loop fails closed |
-| [amillez-mode](playbooks/amillez-mode.md) | Remapping poteto / Cursor-first skill defaults onto our stack while keeping the craft bar |
+| [amillez-mode](playbooks/amillez-mode.md) | Pointer to the required `amillez-mode` skill in `amillez/agent-skills`, which every coding agent loads |
 | [MCP vs CLI](playbooks/mcp-vs-cli.md) | Choosing MCP connectors vs CLI/`curl` for service integrations |
 
 ## Standing policies (for humans and bots)
@@ -51,4 +51,5 @@ Treat playbooks and policies in this repo as **standing policy** for any agent p
 - Follow them unless the current chat explicitly overrides for that one-off.
 - Prefer the latest merged `main` over memory of an older version.
 - Do not invent workshop quotes. Paraphrase practices; cite the source note.
+- Every coding agent you invoke, single or Orca worker, loads and follows [`amillez-mode`](playbooks/amillez-mode.md), and the launch prompt names it.
 - Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → GPT 6 Luna Max (Codex `gpt-6-luna`); general code + UI → Opus 5.5 High (Claude Code `claude-opus-5-5`), or GPT 6 Sol (Codex `gpt-6-sol`, xHigh general / High UI) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh. Skip Cursor-only lanes.

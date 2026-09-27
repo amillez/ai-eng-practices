@@ -26,7 +26,7 @@ A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude 
 
 1. **Goal / success criteria.** State what "done" looks like in observable terms. Not "fix the header" — "header title no longer truncates on iPhone SE; tapping back returns to Home."
 2. **Scope and constraints.** Name the files, packages, or areas in play. Say what is off-limits (no dependency bumps, no API changes, don't touch `ios/Podfile`, etc.).
-3. **Skills to invoke, by name.** List the skills this task needs, using the [skill chooser](#skill-chooser) below. Include **craft** skills (how to build it) as well as **proof** skills (how to show it works). Tell the agent it may pick additional skills when the task clearly needs them, and to say which ones it used.
+3. **Skills to invoke, by name.** Always name `amillez-mode` first. Then list the skills this task needs, using the [skill chooser](#skill-chooser) below. Include **craft** skills (how to build it) as well as **proof** skills (how to show it works). Tell the agent it may pick additional skills when the task clearly needs them, and to say which ones it used.
 4. **Proof expected.** Spell out the exact evidence to return and inspect:
    - UI: before/after screenshots of named screens/states (or `argent-screenshot-diff` output).
    - Behavior: specific log lines, network requests, or profiler summaries.
@@ -41,6 +41,7 @@ Match the task to every row that fits and name the union of those skills in the 
 
 | Task smell | Required skills |
 | --- | --- |
+| Any coding task (single agent or Orca worker) | `amillez-mode` |
 | RN UI, screens, native chrome (headers, tab bars, lists, forms) | `apple-design`, `react-native-best-practices` |
 | Motion, gestures, sheet feel, press feedback, transitions, haptics | `animate-expo`, `apple-design` |
 | Critiquing existing motion ("does this feel right?") | `review-animations` (+ `animate-expo` if also fixing) |
@@ -49,14 +50,14 @@ Match the task to every row that fits and name the union of those skills in the 
 
 **Proof skills alone are never enough for feel-sensitive UI.** If the task touches sheets, motion, native chrome, or feel, include the craft skills above as well as Argent. A launch prompt that names only Argent skills for a sheet or animation task is incomplete. `review-animations` is not auto-invoked (`disable-model-invocation: true` upstream), so name it explicitly when you want a critique pass.
 
-Example (bottom sheet with drag-to-dismiss): `Skills: animate-expo, apple-design, react-native-best-practices, argent-ios-simulator-setup, argent-android-emulator-setup, argent-react-native-app-workflow, argent-test-ui-flow, argent-screen-recording; review-animations for a final motion critique.`
+Example (bottom sheet with drag-to-dismiss): `Skills: amillez-mode, animate-expo, apple-design, react-native-best-practices, argent-ios-simulator-setup, argent-android-emulator-setup, argent-react-native-app-workflow, argent-test-ui-flow, argent-screen-recording; review-animations for a final motion critique.`
 
 ### Template
 
 ```text
 Goal: <what done looks like, observable>
 Scope: <files/areas>. Constraints: <what not to touch / limits>
-Skills: <craft skills from chooser>, <proof skills>. Use other skills if the task clearly needs them; list any you add.
+Skills: amillez-mode, <craft skills from chooser>, <proof skills>. Use other skills if the task clearly needs them; list any you add.
 Proof expected: <screenshots before/after of X | logs showing Y | run `<cmd>` and all pass>. Inspect the proof before reporting done; if it doesn't match, iterate or report the blocker with evidence.
 Host: agent-m1 — Claude Code | Codex — <pick + reason>
 ```
@@ -126,6 +127,7 @@ Teardown is part of done — same bar as inspecting proof.
 
 Only these skills are approved for launch prompts. Use each when its skill description matches the task, unless noted.
 
+- `amillez-mode` (first-party, core). **Required** working mode for every coding agent, single agent or Orca worker. Name it in every launch prompt and worker brief.
 - **Argent** — all `argent-*` skills (device setup, interaction, UI flows, screenshot diff, profiling, recording, etc.); pick by description.
 - `animate-expo` — building animations.
 - `apple-design` — building UIs.
@@ -136,7 +138,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
   - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup.
 - `react-native-best-practices` (`software-mansion-labs/skills`) — per skill description; use when writing, reviewing, or debugging ANY React Native or Expo code.
 - `uniwind` (`uni-stack/uniwind`) — per skill description; use when building or debugging Uniwind `className` styling in React Native.
-- `orchestrate-agents` — fan out large work into parallel isolated prompts (works with Claude Code and Codex workers).
+- `orchestrate-agents`. Size gate, then Orca for large work, with the worker brief template (every brief names `amillez-mode`) and retry by failure mode.
 - **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
 
 ### Skill store
