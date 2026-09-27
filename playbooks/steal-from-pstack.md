@@ -37,7 +37,6 @@ What we adopt from poteto's pstack vs what we only link. pstack skills are plain
 - Benny Slack automations pack — out of scope.
 - Wholesale `npx` / plugin install of every pstack skill onto `agent-m1`.
 - Transcript / routine healthcheck *skill recipes* — we use Grok Bot routines, not poteto skill bodies.
-- Cursor Projects as a coding host — historical / parallel-orchestration inspiration only; coding stays on agent-m1.
 
 ## Upstream
 

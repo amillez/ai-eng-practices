@@ -54,12 +54,12 @@ Rules:
 
 ## How bots dispatch coding agents
 
-Coding agents run on **agent-m1** (Claude Code / Codex only). Cursor cloud dispatch is abandoned (2026-09-18).
+Coding agents run on **agent-m1** (Claude Code / Codex only). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
 Every launch includes:
 
 1. **Skills + thorough prompt** aligned with [agent-use-policy](../policies/agent-use-policy.md). The prompt names `amillez-mode`.
-2. **Expected proof** — screenshot, CI green, Bugbot clean, or explicit success criteria.
+2. **Expected proof** per the [agent proof feedback loop](agent-proof-feedback-loop.md). Screenshots or video for UI, logs or test output for everything else. Green CI alone is not proof.
 3. **Monitor** — transcript, artifacts, CI; queue follow-ups when a run stalls.
 4. **Bar** — iterate until proof passes or escalate to a human. No "mostly works" merges on production paths.
 
@@ -75,20 +75,7 @@ Weekly sync between eng bots (and humans when needed):
 - Blockers and misfires from the prior week.
 - Postmortem → skill or policy edit when a bot under-reached the real goal.
 
-Same retro loop as [plan lifecycle in git](cursor-projects.md#plan-lifecycle) — applied to bot behavior.
-
----
-
-## Cursor Project vs Grok Bot (historical)
-
-Cursor Projects are **not** a coding path. Prefer Grok Bot → agent-m1 Claude/Codex.
-
-| | Cursor Project | Grok Bot routine |
-| --- | --- | --- |
-| **Best at** | Repo-scoped multi-PR work with human + Cursor | Standing loops, Slack intake, proof monitoring |
-| **Our default** | **Abandoned for coding** | Eng-bot fleets that babysit agent-m1 Claude/Codex sessions |
-
-They do **not** compose for coding anymore: Grok Bot dispatches **Claude Code / Codex on agent-m1**, not Cursor cloud agents. Historical decision guide: [cursor-projects.md](cursor-projects.md).
+Keep plans, coordinator notes, and retro outcomes in git so a fresh session rebuilds state in one turn. [Fatih Arslan, How I manage my agents](https://arslan.io/2026/09/11/how-i-manage-my-agents/) describes stage folders and retro-to-skill edits. Adapt the folder names to the repo instead of copying his skills.
 
 ---
 
@@ -102,7 +89,6 @@ They do **not** compose for coding anymore: Grok Bot dispatches **Claude Code / 
 
 ## Related
 
-- [Cursor Projects](cursor-projects.md)
 - [Agent use policy](../policies/agent-use-policy.md)
 - [amillez-mode](amillez-mode.md). Pointer to the required coding-agent skill in `amillez/agent-skills`.
 - [Steal from pstack](steal-from-pstack.md) — Lauren Tan / pstack workshop takeaways (distinct from the GrokBot course above)

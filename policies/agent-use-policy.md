@@ -256,7 +256,6 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
 - [Playbook: MCP vs CLI](../playbooks/mcp-vs-cli.md)
-- [Playbook: Cursor Projects](../playbooks/cursor-projects.md) — **historical**; coding host is Claude/Codex on agent-m1
 - [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
 - [Playbook: Agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)
 - [Playbook: Big-work orchestration](../playbooks/big-work-orchestration.md)
