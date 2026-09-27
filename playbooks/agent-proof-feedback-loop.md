@@ -127,7 +127,7 @@ Teardown is part of done — same bar as inspecting proof.
 
 Only these skills are approved for launch prompts. Use each when its skill description matches the task, unless noted.
 
-- `amillez-mode` (first-party, core). **Required** working mode for every coding agent, single agent or Orca worker. Name it in every launch prompt and worker brief.
+- `amillez-mode` (amillez skill, core). **Required** working mode for every coding agent, single agent or Orca worker. Name it in every launch prompt and worker brief.
 - **Argent** — all `argent-*` skills (device setup, interaction, UI flows, screenshot diff, profiling, recording, etc.); pick by description.
 - `animate-expo` — building animations.
 - `apple-design` — building UIs.
@@ -138,10 +138,10 @@ Only these skills are approved for launch prompts. Use each when its skill descr
   - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup.
 - `react-native-best-practices` (`software-mansion-labs/skills`) — per skill description; use when writing, reviewing, or debugging ANY React Native or Expo code.
 - `uniwind` (`uni-stack/uniwind`) — per skill description; use when building or debugging Uniwind `className` styling in React Native.
-- `typescript-best-practices` (first-party, core). TypeScript type discipline for any `.ts` or `.tsx` file. Auto-loads by file path in Claude Code and by description in Codex. React Native library usage defers to `react-native-best-practices`.
+- `typescript-best-practices` (amillez skill, core). TypeScript type discipline for any `.ts` or `.tsx` file. Auto-loads by file path in Claude Code and by description in Codex. React Native library usage defers to `react-native-best-practices`.
 - `orchestrate-agents`. Size gate, then Orca for large work, with the worker brief template (every brief names `amillez-mode`) and retry by failure mode.
-- `create-verification-skill`, `maintain-verification-skill` (first-party, core). Generate and maintain a project's `verify-<app>` skill and feature map.
-- `setup-amillez-models` (first-party, core). Install or refresh the Claude Code and Codex model-lane rules that mirror the [agent use policy](../policies/agent-use-policy.md#default-picks).
+- `create-verification-skill`, `maintain-verification-skill` (amillez skill, core). Generate and maintain a project's `verify-<app>` skill and feature map.
+- `setup-amillez-models` (amillez skill, core). Install or refresh the Claude Code and Codex model-lane rules that mirror the [agent use policy](../policies/agent-use-policy.md#default-picks).
 - **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
 
 ### Skill store
