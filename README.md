@@ -14,7 +14,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized eng bots that dispatch/babysit agent-m1 Claude Code / Codex |
 | [Agent proof feedback loop](playbooks/agent-proof-feedback-loop.md) | Deciding when a coding agent is done and what proof it must produce |
 | [Agent dispatch lifecycle](playbooks/agent-dispatch-lifecycle.md) | Dispatching work to a coding agent: worktree, PR, teardown |
-| [Big-work orchestration](playbooks/big-work-orchestration.md) | Large features: orchestrator session → workers → integrate → prove → babysit |
+| [Big-work orchestration](playbooks/big-work-orchestration.md) | Large work: an Orca Run whose Opus 5.5 xHigh coordinator plans and dispatches while workers implement, integrate, and prove |
 | [Steal from pstack](playbooks/steal-from-pstack.md) | Deciding which pstack skills/playbooks to adopt, defer, or skip |
 | [Hard constraints](playbooks/hard-constraints.md) | Encoding footguns in lint/CI instead of prose, so the proof loop fails closed |
 | [amillez-mode](playbooks/amillez-mode.md) | Pointer to the required `amillez-mode` skill in `amillez/agent-skills`, which every coding agent loads |
