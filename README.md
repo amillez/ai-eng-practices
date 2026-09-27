@@ -2,7 +2,7 @@
 
 Living, opinionated practices for AI-assisted software engineering.
 
-**Coding host (2026-09-18):** `agent-m1` running **Claude Code + Codex only**. Cursor cloud / Composer / My Machines are out of the coding workflow. Grok Bot remains the chat/control plane. See [agent use policy](policies/agent-use-policy.md).
+**Coding host:** `agent-m1` running **Claude Code + Codex only**. Grok Bot is the chat and control plane. See [agent use policy](policies/agent-use-policy.md).
 
 This repo is a small set of playbooks and standing policies. Prefer checklists and decision guides over essays. Keep advice cost-aware and anti-hype. When a number comes from a talk or eval, treat it as a snapshot, not eternal truth.
 
@@ -51,4 +51,4 @@ Treat playbooks and policies in this repo as **standing policy** for any agent p
 - Prefer the latest merged `main` over memory of an older version.
 - Do not invent workshop quotes. Paraphrase practices; cite the source note.
 - Every coding agent you invoke, single or Orca worker, loads and follows [`amillez-mode`](playbooks/amillez-mode.md), and the launch prompt names it.
-- Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → GPT 6 Luna Max (Codex `gpt-6-luna`); general code + UI → Opus 5.5 High (Claude Code `claude-opus-5-5`), or GPT 6 Sol (Codex `gpt-6-sol`, xHigh general / High UI) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh. Skip Cursor-only lanes.
+- Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → GPT 6 Luna Max (Codex `gpt-6-luna`); general code + UI → Opus 5.5 High (Claude Code `claude-opus-5-5`), or GPT 6 Sol (Codex `gpt-6-sol`, xHigh general / High UI) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh.
