@@ -74,6 +74,10 @@ Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `m
 
 When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5.5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
 
+## Restate reports before acting
+
+When the ask comes from a bug report, an issue, a user-feedback message, or a chat thread, the launcher (Grok Bot or an eng bot) passes the raw report or a link to it in the launch prompt and asks the agent to restate the underlying issue in plain words before any code. The launcher does **not** add its own hypothesis or suspected cause. A guess in the prompt anchors the agent and hides misreadings. Put the success criteria, skills, and proof type in the prompt as usual. If the launcher already has evidence (a stack trace, a failing command, a bisect result), include it labeled as evidence, not as the diagnosis. Read the agent's restatement first and correct a misreading before it builds. amillez-mode's Bug fix and Investigation playbooks start with the same restate step.
+
 ## Teardown
 
 After proof, the task owner shuts down the iOS Simulator, Android emulator, Metro/dev servers, watchers, and tunnels started for the worktree. For Expo/RN work, also find and kill the matching `expo/bin/cli`, `expo start`, and `expo run` processes — they may not match `metro` or `Simulator` filters — then verify that no process is listening on every Metro port used (including 8081 or 8090). Ben's infra bot sweep of `agent-m1` is a backstop, not a substitute for the task owner's teardown. Use the [copy-pasteable check](agent-proof-feedback-loop.md#teardown-after-proof).
@@ -106,6 +110,7 @@ Related: the coding agent's side of a babysit (what it does when sent back with 
 - Use Cursor cloud, Cursor Projects, My Machines, or `register-worker-dir` for coding.
 - Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5.5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Auto-merge.
+- Paraphrase a report into your own diagnosis in the launch prompt. Pass the raw report and ask for a restatement.
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.
 - Leave sims, emulators, or dev servers running after proof.
