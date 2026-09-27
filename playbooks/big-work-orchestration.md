@@ -1,14 +1,12 @@
 # Big-work orchestration
 
-When eng bots (Mark / Sam) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code / Codex** workers inside **Orca** orchestration. Cursor coding / Cursor cloud A/B arms are **historical/abandoned** (Agustín 2026-09-18). Do **not** resurrect Cursor as a coding host — even if Orca's CLI accepts `--agent cursor`, we do not use it.
+When eng bots (Mark / Sam) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code / Codex** workers inside **Orca** orchestration. Workers start with `--agent claude` or `--agent codex`, never `--agent cursor`.
 
 Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktree / babysit rules: [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
 **Docs (cite):**
 - [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
 - [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
-
-**Lesson from the Mark trial (2026-09-18):** do **not** collapse big work into one mega-agent; do **not** skip the [size gate](#size-gate); prove-before-PR still stands; keep the sim mutex / max 2 concurrent sims. Large work uses **Orca** (not deferred) with an **Opus 5.5 xhigh** coordinator.
 
 ## Size gate
 
@@ -22,7 +20,7 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 ### Small examples (direct agent — no Orca)
 
 - Rename a prop in one component folder → **Luna** (Codex) Max.
-- Fix a known auth bug in one package → **Sol** (Codex) High.
+- Fix a known auth bug in one package → **Opus** (Claude Code) High, or **Sol** (Codex) xHigh when Claude Code usage > 70%.
 - One UI polish PR in a single app surface → **Opus** (Claude Code) High.
 - Mechanical chore with tests already green → **Luna** Max.
 
@@ -45,10 +43,10 @@ On `agent-m1`, before creating a Run:
 3. **Skills installed** for the coordinator (and workers that need them):
    - `orca skills install --skill orca-cli` (or `npx skills add https://github.com/stablyai/orca --skill orca-cli`)
    - Install / refresh the **orchestration** skill (`orca skills get orchestration --full` after install).
-4. **Amillez plugin** ensured on the **host** before coding workers touch the tree: run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh` (thin alias `ensure-project.sh` — it ignores any project path). Default installs **core+mobile** to `~/.claude` / `~/.agents` — **not** `~/.codex`, and **not** into the worktree/project tree. Already present → continue; refresh only when policy/skills changed or a human asks (`--force`).
+4. **Amillez plugin** ensured on the **host** before coding workers touch the tree: run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh`. It installs **core+mobile** to `~/.claude` / `~/.agents`, never to `~/.codex` or the worktree. Already present → continue; refresh with `scripts/update-install.sh` when policy or skills change or a human asks.
 5. Prefer `orca skills get orchestration --full` when flags drift — command surface evolves with the app.
 
-Grok Bot still: ensure amillez plugin, kick off / babysit PR, human pings. Grok Bot does **not** replace Orca for the multi-agent DAG.
+Grok Bot ensures the amillez plugin, kicks off the coordinator, babysits the PR, and pings humans. Orca owns the multi-agent DAG.
 
 ## Default path (needs orch)
 
@@ -92,10 +90,9 @@ Notes from Orca docs:
 - A **Run** is a durable namespace + coordinator inbox — it does not schedule workers by itself.
 - A **Task** has spec, dependencies, status (`pending` → `ready` → `dispatched` → `completed`/`failed`/`blocked`).
 - **Dispatch** is one attempt; completion authority is `worker_done` with `--outcome succeeded|failed` plus `taskId` + `dispatchId`.
-- Do **not** use retired `orca orchestration run` / `run-stop` / `coordinator-start` — use Run + `worker-start`.
 - After accepted `worker_done`, `worker-release` (or `worker-retain` if debugging). Prefer `worker-read` over leaving dead terminals open.
 - Decision gates (`gate-create` / `gate-resolve`) and `ask` for blocking questions — do not rely on local TUI prompts for cross-agent decisions.
-- **`worker-start` readiness flake:** expect ~one readiness failure on a real run. **Retry the same `worker-start` once** with the same `--agent` / `--model` / `--effort` before escalating. Cite: Mark Monday 1:1 2026-09-21 — `run_8b5682528e23` on rn-bedrock PR #34.
+- **`worker-start` readiness flake:** expect about one readiness failure per real run. **Retry the same `worker-start` once** with the same `--agent` / `--model` / `--effort` before escalating.
 
 ### Pipeline mapping
 
@@ -137,20 +134,13 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 | --- | --- |
 | **Eng bot (Mark / Sam / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close on Agustín's say-so. Does **not** replace Orca for the multi-agent DAG. |
 | **Coordinator (Opus 5.5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
-| **Worker agents** | Claude Code or Codex Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. **No Cursor.** |
-
-## Host matrix
-
-| Host | Use for |
-| --- | --- |
-| **`agent-m1` + Orca + Claude Code / Codex** | **Only coding path** — small direct agents; large Orca Runs; prove (including Argent). |
-| **Cursor cloud / My Machines / `--agent cursor`** | **Abandoned** for coding. Do not dispatch. |
+| **Worker agents** | Claude Code or Codex Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. |
 
 ## Model assignment
 
 ### Coordinator label: Opus 5.5 xhigh
 
-- **Policy label:** **Opus 5.5 xhigh** — standing name for the large-work Orca coordinator (Agustín 2026-09-20; was Fable 5.1 High). Prefer this name in prompts, PR titles, and bot messages.
+- **Policy label.** **Opus 5.5 xhigh** is the standing name for the large-work Orca coordinator. Use this name in prompts, PR titles, and bot messages.
 - **Harness:** Claude Code on `agent-m1` (Opus at **xhigh** effort), driving the Orca CLI.
 - Plans / fans out via Orca; does **not** implement, integrate, or validate — those are worker tasks.
 
@@ -158,7 +148,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 - Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (GPT 6 Luna Max / Opus 5.5 High, or GPT 6 Sol xHigh/High when Claude Code usage > 70% / Fable 5.1 Medium→High).
 - Do **not** inherit Opus 5.5 xhigh for every worker.
-- `--model` / `--effort` apply to Claude and Codex launches only (Orca docs); we never pass Cursor.
+- `--model` / `--effort` apply to Claude and Codex launches (Orca docs).
 
 **Rule:** apply the [size gate](#size-gate) first. Small → direct agent, no Orca Run. Large → Opus 5.5 xhigh coordinator inside Orca, then chooser-per-slice workers.
 
@@ -169,32 +159,21 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 ## Out of scope / later
 
 - Federated workers (`--on <remote>`) — optional; default stays local `agent-m1`.
-- Arena, Swarm, and the other pstack fan-out skills are dropped for v1. Use recon and plan, `grill-me`, and Orca. The exception is `reflect`, ported as an amillez-mode playbook. See [Steal from pstack](steal-from-pstack.md).
-- Do not use retired Orca commands (`orchestration run`, `run-stop`, `coordinator-start`).
-
-## Comparison experiment (historical/abandoned)
-
-**Abandoned 2026-09-18.** Cursor removed from the coding workflow. Standing path: `agent-m1` + Claude Code / Codex, with **Orca** for large multi-agent work. Do not resurrect the A/B experiment.
-
-| Arm | Host | Status |
-| --- | --- | --- |
-| **A — agent-m1** | `agent-m1` Claude/Codex (+ Orca for large) | **Current** — orch label **Opus 5.5 xhigh**. |
-| **B — Cursor cloud** | Cursor cloud | **Do not use.** |
+- The pstack fan-out skills (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`) are not part of amillez-mode. Use recon and a plan, a prototype for empirical questions, `grill-me` for contested product or preference calls, and Orca. `reflect` is ported as an amillez-mode playbook. See [Steal from pstack](steal-from-pstack.md).
 
 ## Anti-patterns
 
 - Skipping the [size gate](#size-gate) — Orca Run for a rename, or one mega-agent for an epic.
 - Using Orca without runtime up / Experimental orchestration enabled / skills installed.
-- Collapsing large work into one mega session outside Orca (Mark trial lesson).
+- Collapsing large work into one mega session outside Orca.
 - Parallel workers on the same checkout (`--worktree current` twice).
 - More than 2 parallel worktrees under disk pressure without an explicit raise.
 - `--agent cursor` or any Cursor coding host.
 - Claiming Argent/sim proof from anywhere other than `agent-m1`.
 - Parallel sim proves or opening a PR before prove.
 - Eng bot juggling N chats as forever-orchestrator instead of an Orca Run when the gate says large.
-- Stamping Opus 5.5 xhigh on every worker; renaming the coordinator away from **Opus 5.5 xhigh** (or using Fable as orch default).
+- Stamping Opus 5.5 xhigh on every worker, or running the coordinator on any lane other than **Opus 5.5 xhigh**.
 - Treating `orchestrate-agents` prompt text as a substitute for Orca Dispatches / `worker_done`.
-- Retired `orca orchestration run` instead of `run-create` + `worker-start`.
 
 ## Related
 
@@ -204,4 +183,4 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
 - [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
 - Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills) (spec writing; Orca owns the Run)
-- [Steal from pstack](steal-from-pstack.md). Fan-out skills dropped for v1, except `reflect`.
+- [Steal from pstack](steal-from-pstack.md). Which pstack skills amillez-mode includes.
