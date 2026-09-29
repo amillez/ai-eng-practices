@@ -43,7 +43,7 @@ On `agent-m1`, before creating a Run:
 3. **Skills installed** for the coordinator (and workers that need them):
    - `orca skills install --skill orca-cli` (or `npx skills add https://github.com/stablyai/orca --skill orca-cli`)
    - Install / refresh the **orchestration** skill (`orca skills get orchestration --full` after install).
-4. **Amillez plugin** ensured on the **host** before coding workers touch the tree: run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh`. It installs **core+mobile** to `~/.claude` / `~/.agents`, never to `~/.codex` or the worktree. Already present → continue; refresh with `scripts/update-install.sh` when policy or skills change or a human asks.
+4. **Amillez plugin** ensured on the **host** before coding workers touch the tree: run [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`. It installs **core+mobile** to `~/.claude` / `~/.agents`, never to `~/.codex` or the worktree. Already present → continue; refresh with `scripts/update-install.sh` when policy or skills change or a human asks.
 5. Prefer `orca skills get orchestration --full` when flags drift — command surface evolves with the app.
 
 Grok Bot ensures the amillez plugin, kicks off the coordinator, babysits the PR, and pings humans. Orca owns the multi-agent DAG.
@@ -154,7 +154,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 ## Prompt fan-out skill
 
-`orchestrate-agents` (amillez/agent-skills) gives the coordinator the worker brief template (MODE, GOAL, SCOPE, CONTEXT, ACCEPTANCE, VERIFY, TIMEBOX, FORBIDDEN, REPORT, STANDING) and retry by failure mode. Every brief names `amillez-mode`. **Runtime ownership, `worker_done`, and the DAG live in Orca.** The skill does not replace `run-create`, `worker-start`, or `check --wait`.
+`orchestrate-agents` (amillez/akit) gives the coordinator the worker brief template (MODE, GOAL, SCOPE, CONTEXT, ACCEPTANCE, VERIFY, TIMEBOX, FORBIDDEN, REPORT, STANDING) and retry by failure mode. Every brief names `amillez-mode`. **Runtime ownership, `worker_done`, and the DAG live in Orca.** The skill does not replace `run-create`, `worker-start`, or `check --wait`.
 
 ## Out of scope / later
 
@@ -182,5 +182,5 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - [Agent use policy](../policies/agent-use-policy.md) — host routing + chooser
 - [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
 - [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
-- Skill: `orchestrate-agents` in [amillez/agent-skills](https://github.com/amillez/agent-skills) (spec writing; Orca owns the Run)
+- Skill: `orchestrate-agents` in [amillez/akit](https://github.com/amillez/akit) (spec writing; Orca owns the Run)
 - [Steal from pstack](steal-from-pstack.md). Which pstack skills amillez-mode includes.

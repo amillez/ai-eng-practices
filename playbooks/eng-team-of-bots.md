@@ -90,6 +90,6 @@ Keep plans, coordinator notes, and retro outcomes in git so a fresh session rebu
 ## Related
 
 - [Agent use policy](../policies/agent-use-policy.md)
-- [amillez-mode](amillez-mode.md). Pointer to the required coding-agent skill in `amillez/agent-skills`.
+- [amillez-mode](amillez-mode.md). Pointer to the required coding-agent skill in `amillez/akit`.
 - [Steal from pstack](steal-from-pstack.md) — Lauren Tan / pstack workshop takeaways (distinct from the GrokBot course above)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)

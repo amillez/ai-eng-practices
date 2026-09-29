@@ -17,7 +17,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | [Big-work orchestration](playbooks/big-work-orchestration.md) | Large work: an Orca Run whose Opus 5.5 xHigh coordinator plans and dispatches while workers implement, integrate, and prove |
 | [Steal from pstack](playbooks/steal-from-pstack.md) | Deciding which pstack skills/playbooks to adopt, defer, or skip |
 | [Hard constraints](playbooks/hard-constraints.md) | Encoding footguns in lint/CI instead of prose, so the proof loop fails closed |
-| [amillez-mode](playbooks/amillez-mode.md) | Pointer to the required `amillez-mode` skill in `amillez/agent-skills`, which every coding agent loads |
+| [amillez-mode](playbooks/amillez-mode.md) | Pointer to the required `amillez-mode` skill in `amillez/akit`, which every coding agent loads |
 | [MCP vs CLI](playbooks/mcp-vs-cli.md) | Choosing MCP connectors vs CLI/`curl` for service integrations |
 
 ## Standing policies (for humans and bots)

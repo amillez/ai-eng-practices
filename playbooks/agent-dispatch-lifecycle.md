@@ -24,7 +24,7 @@ Layout:
 Rules:
 
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
-2. **Ensure the amillez plugin on the host before coding.** Run [`amillez/agent-skills`](https://github.com/amillez/agent-skills) `scripts/ensure-install.sh`. It installs **core+mobile** at `~/.claude` and `~/.agents` (plus user rules and stamp, nothing under `~/.codex`) and continues when already present. Refresh with `scripts/update-install.sh` when policy or skills change or a human asks. Never install the plugin into the worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills stay in-repo. **Grok Bot dispatch prompts to Claude/Codex include this host ensure step first.**
+2. **Ensure the amillez plugin on the host before coding.** Run [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`. It installs **core+mobile** at `~/.claude` and `~/.agents` (plus user rules and stamp, nothing under `~/.codex`) and continues when already present. Refresh with `scripts/update-install.sh` when policy or skills change or a human asks. Never install the plugin into the worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills stay in-repo. **Grok Bot dispatch prompts to Claude/Codex include this host ensure step first.**
 3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
@@ -95,7 +95,7 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. Verify every Metro port used is no longer listening.
 10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
 
-Related: the coding agent's side of a babysit (what it does when sent back with review comments or red CI) is the amillez-mode [Babysit playbook](https://github.com/amillez/agent-skills/blob/main/skills/amillez-mode/playbooks/babysit.md). The bot side stays here.
+Related: the coding agent's side of a babysit (what it does when sent back with review comments or red CI) is the amillez-mode [Babysit playbook](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/babysit.md). The bot side stays here.
 
 ## Roles
 
