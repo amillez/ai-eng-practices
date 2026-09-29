@@ -15,6 +15,7 @@ The pstack fan-out skills (`how`, `why`, `architect`, `arena`, `swarm`, `interro
 ## How to require it
 
 - Every launch prompt and every Orca worker brief names `amillez-mode`. See [agent use policy §1](../policies/agent-use-policy.md#1-coding-host-routing) and the [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt).
+- Grok Bots do not load amillez-mode as their own working mode. They must know which skills to attach to launch prompts, and `amillez-mode` is always first.
 - Model lanes stay in the [agent use policy](../policies/agent-use-policy.md#default-picks). When the skill and the policy disagree on lanes, the policy wins and the skill gets a fix PR.
 - Change the skill through a PR in `amillez/akit`, not here.
 

@@ -58,7 +58,7 @@ Coding agents run on **agent-m1** (Claude Code / Codex only). The full flow is i
 
 Every launch includes:
 
-1. **Skills + thorough prompt** aligned with [agent-use-policy](../policies/agent-use-policy.md). The prompt names `amillez-mode`.
+1. **Skills + thorough prompt** aligned with [agent-use-policy](../policies/agent-use-policy.md). Knowing which skills to attach is one of the bot's most important jobs; the prompt always names `amillez-mode` first. The bot does not load amillez-mode itself.
 2. **Expected proof** per the [agent proof feedback loop](agent-proof-feedback-loop.md). Screenshots or video for UI, logs or test output for everything else. Green CI alone is not proof.
 3. **Monitor** — transcript, artifacts, CI; queue follow-ups when a run stalls.
 4. **Bar** — iterate until proof passes or escalate to a human. No "mostly works" merges on production paths.
@@ -90,6 +90,6 @@ Keep plans, coordinator notes, and retro outcomes in git so a fresh session rebu
 ## Related
 
 - [Agent use policy](../policies/agent-use-policy.md)
-- [amillez-mode](amillez-mode.md). Pointer to the required coding-agent skill in `amillez/akit`.
+- [amillez-mode](amillez-mode.md). Pointer to the required coding-agent skill in `amillez/akit`. Bots attach it on every dispatch; they do not load it themselves.
 - [Steal from pstack](steal-from-pstack.md) — Lauren Tan / pstack workshop takeaways (distinct from the GrokBot course above)
 - [Source: research digest 2026-09-12](../sources/research-digest-2026-09-12.md)

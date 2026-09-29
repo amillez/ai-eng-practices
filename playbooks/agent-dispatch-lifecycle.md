@@ -86,20 +86,20 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 
 1. **Own the workstream until a terminal status.** Terminal = merge, close, or abandon. Agent idle or session settle is not done.
 2. **Hop 1 — session settle: arm a finite settle-watch.** Do not rely on silent background Shell wakes alone. The bot arms a finite weekday `*/10` Europe/Madrid routine that checks the Claude Code / Codex session on `agent-m1`, **must message** the user on settle, block, or deadline, then deletes itself. See standing skill `agent-m1-completion-ping`.
-3. **Hop 2 — PR open: switch to GitHub listeners.** Babysit with PR-scoped GitHub event listeners (review, CI, push, `pr-merged`, `pr-closed`), not polling. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook.
+3. **Hop 2 — PR open: switch to GitHub listeners.** Babysit with PR-scoped GitHub event listeners (review, CI, push, `pr-merged`, `pr-closed`), not polling. `pr-merged` and `pr-closed` are always in the pack. Listeners do not reliably self-delete on merge, so every babysit routine prompt says explicitly to delete its own routine on the `pr-merged` or `pr-closed` wake. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook.
 4. **Match the PR on every listener wake.** On every GitHub listener wake, confirm the event's PR number matches this workstream's `pr_number`; ignore cross-PR payloads.
 5. **Do not stop at settle.** While the PR is OPEN and review threads are unresolved, do not delete the settle-watch or stop babysitting just because the coding session finished.
 6. **Filter listener noise, keep watching.** Empty-body COMMENTED reviews and agent fix-ack replies on unresolved threads can wake as review-commented. Stay quiet on pure noise, but do not treat it as a hard failure that abandons babysit.
 7. **Apply Agustín's review comments as they appear.** No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close.
 8. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
-9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. Verify every Metro port used is no longer listening.
+9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. On terminal, the babysit routine deletes itself, and the bot sweeps any stale babysit routines left for the merged or closed PR. Verify every Metro port used is no longer listening.
 10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
 
 Related: the coding agent's side of a babysit (what it does when sent back with review comments or red CI) is the amillez-mode [Babysit playbook](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/babysit.md). The bot side stays here.
 
 ## Roles
 
-- **Eng bots (Mark / Sam):** write the prompt, pick skills and proof type, start the agent on `agent-m1`, follow up, verify proof and the PR the agent opens, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
+- **Eng bots (Mark / Sam):** write the prompt, pick skills and proof type (always attach `amillez-mode` for coding agents; knowing which skills to attach is one of the bot's most important jobs), start the agent on `agent-m1`, follow up, verify proof and the PR the agent opens, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
 - **Coding agent:** works only in its own workstream, under `amillez-mode`, and opens its PR. Never merges, arms auto-merge, or closes the PR.
 - **Jarvis:** postmortems when the lifecycle breaks (merged without proof, orphan worktrees).
 

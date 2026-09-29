@@ -127,7 +127,7 @@ Teardown is part of done — same bar as inspecting proof.
 
 Only these skills are approved for launch prompts. Use each when its skill description matches the task, unless noted.
 
-- `amillez-mode` (amillez skill, core). **Required** working mode for every coding agent, single agent or Orca worker. Name it in every launch prompt and worker brief.
+- `amillez-mode` (amillez skill, core). **Required** working mode for every coding agent, single agent or Orca worker. Name it in every launch prompt and worker brief. Grok Bots do not load it; attaching the right skills to prompts is one of their most important jobs, and `amillez-mode` is always first.
 - **Argent** — all `argent-*` skills (device setup, interaction, UI flows, screenshot diff, profiling, recording, etc.); pick by description.
 - `animate-expo` — building animations.
 - `apple-design` — building UIs.
