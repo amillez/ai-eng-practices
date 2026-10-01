@@ -30,7 +30,7 @@ Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins e
 
 | Policy label | Intent | Run on | CLI pick (verified 2026-09-25) |
 | --- | --- | --- | --- |
-| **Luna** — GPT 6 Luna (Max) | Very direct / super defined; mechanical; visual-verify | **Codex** | `codex exec -m gpt-6-luna -c model_reasoning_effort=max` |
+| **Luna** — GPT 6 Luna (Max) | Very direct / super defined; mechanical | **Codex** | `codex exec -m gpt-6-luna -c model_reasoning_effort=max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
 | **Sol** — GPT 6.1 Sol | Fallback for general code (**xHigh**) and UI (**High**) when [Claude Code usage > 70%](#claude-code-usage--70) | **Codex** | General: `codex exec -m gpt-6.1-sol -c model_reasoning_effort=xhigh` · UI: `… model_reasoning_effort=high` |
 | **Opus 5.5 xhigh** | Large-work **Orca coordinator** default | **Claude Code** driving Orca CLI | `claude --model claude-opus-5-5 --effort xhigh`; coordinator only plans/dispatches/waits (does not integrate/validate) |
@@ -45,7 +45,8 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 - **Require proof.** Not done at green CI or changed files — done when the agent has produced and inspected task-relevant proof.
 - **Flexible evidence.** Screenshots or videos for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
 - **Proof media on `media` branch.** Never commit screenshots/videos to the PR branch. Link them in the PR body via GitHub blob URLs, not raw URLs. See [proof media hosting](../playbooks/agent-proof-feedback-loop.md#proof-media-hosting).
-- **Visual verification (Luna role).** Inspect screenshots/videos with a **Codex GPT 6 Luna** session (`gpt-6-luna`, effort Max) that reports pass/fail against the success criteria. Coding agents do not burn heavy turns on it; non-visual proof stays with the coding agent. See [visual verification](../playbooks/agent-proof-feedback-loop.md#visual-verification-luna-max-subagent).
+- **Prove on the real surface.** Launch the app, run a read-only doctor check, drive the real user path, and capture evidence, following the project's `verify-<app>` skill when the repo has one. See [prove and inspect](../playbooks/agent-proof-feedback-loop.md#prove-and-inspect).
+- **Inspect proof against the success criteria.** The agent that drove the app reads every asset and reports pass or fail with specifics. A second judge is not required when the implementer already proved the change on device. A separate verification session is optional. If you start one, it only inspects proof and never implements, and you pick its model per task from the [agent chooser](#agent-chooser-examples).
 - **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
 - **Tear down after proof.** Shut down sims/emulators, dev servers, and matching Expo CLI processes (`expo/bin/cli`, `expo start`, `expo run`), then verify no used Metro port is listening. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
@@ -109,7 +110,6 @@ Use this when you need a pick, not a philosophy. Leave Fast off by default. Esca
 | Writing / agreeing on a plan | **Opus 5.5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
 | Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 6 Luna** | **Max** | Codex | Few edge cases, little verification needed. |
 | Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **GPT 6.1 Sol**) ×2 + **GPT 6.1 Sol**; synthesizer **Opus 5.5** | Reviewers **High** (Sol: **xHigh**); synthesizer **xHigh** | Claude Code + Codex | amillez-mode [Reflect](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/reflect.md). The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
-| Visual proof verification (screenshots/videos) | **GPT 6 Luna** | **Max** | Codex | Verification-only session on agent-m1; reports pass/fail. Never implements. |
 
 Concrete picks:
 

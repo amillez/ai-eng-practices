@@ -178,7 +178,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 ## Related
 
 - [Agent dispatch lifecycle](agent-dispatch-lifecycle.md) — worktrees, babysit, teardown
-- [Agent proof feedback loop](agent-proof-feedback-loop.md) — thorough launch, Argent, Luna Max, media branch
+- [Agent proof feedback loop](agent-proof-feedback-loop.md) — thorough launch, Argent, Launch/Doctor/Drive/Evidence, media branch
 - [Agent use policy](../policies/agent-use-policy.md) — host routing + chooser
 - [Orca CLI overview](https://www.onorca.dev/docs/cli/overview)
 - [Orca Orchestration](https://www.onorca.dev/docs/cli/orchestration)
