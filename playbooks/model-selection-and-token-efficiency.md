@@ -83,7 +83,7 @@ That blip is small. **Do not fear switching** when the task needs a different en
 
 **No single model wins every category.** Do not lock to one provider. Use a **portfolio**.
 
-Our lanes span two providers: Opus 5.5 and Fable 5.1 on Claude Code, GPT 6 Luna and GPT 6 Sol on Codex. The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
+Our lanes span two providers: Opus 5.5 and Fable 5.1 on Claude Code, GPT 6 Luna and GPT 6.1 Sol on Codex. The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ---
 

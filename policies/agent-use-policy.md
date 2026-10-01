@@ -20,7 +20,7 @@ For heavy coding / engineering agent work:
 
 - **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code + Codex only**. No Cursor installed.
 - **Grok Bot** is the chat and control plane (intake, dispatch, babysit, proof orchestration). It does not write code.
-- **Claude vs Codex** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule: Claude Code (Opus 5.5 / Fable 5.1) by default; Codex for GPT 6 Luna work and for GPT 6 Sol when Claude Code usage is above 70%.
+- **Claude vs Codex** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule: Claude Code (Opus 5.5 / Fable 5.1) by default; Codex for GPT 6 Luna work and for GPT 6.1 Sol when Claude Code usage is above 70%.
 
 Do **not** code through Cursor: no Cursor cloud agents, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6 fallbacks.
 
@@ -32,11 +32,11 @@ Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins e
 | --- | --- | --- | --- |
 | **Luna** — GPT 6 Luna (Max) | Very direct / super defined; mechanical; visual-verify | **Codex** | `codex exec -m gpt-6-luna -c model_reasoning_effort=max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
-| **Sol** — GPT 6 Sol | Fallback for general code (**xHigh**) and UI (**High**) when [Claude Code usage > 70%](#claude-code-usage--70) | **Codex** | General: `codex exec -m gpt-6-sol -c model_reasoning_effort=xhigh` · UI: `… model_reasoning_effort=high` |
+| **Sol** — GPT 6.1 Sol | Fallback for general code (**xHigh**) and UI (**High**) when [Claude Code usage > 70%](#claude-code-usage--70) | **Codex** | General: `codex exec -m gpt-6.1-sol -c model_reasoning_effort=xhigh` · UI: `… model_reasoning_effort=high` |
 | **Opus 5.5 xhigh** | Large-work **Orca coordinator** default | **Claude Code** driving Orca CLI | `claude --model claude-opus-5-5 --effort xhigh`; coordinator only plans/dispatches/waits (does not integrate/validate) |
 | **Fable** — Fable 5.1 (Medium → High/xhigh) | Large reasoning / gnarly escalate (non-orch) | **Claude Code** | Fable 5.1 at **Medium**, escalate to **High** then **xhigh** one step at a time (Opus 5.5 at high effort if Fable unavailable). Replan/split if still thrashing. **Not** the Orca coordinator default (**Opus 5.5 xhigh**) |
 
-Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Claude Code (Opus 5.5) by default for general code and UI; Codex (GPT 6 Sol) when Claude Code usage is above 70%; Codex (GPT 6 Luna) for super-defined work.
+Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Claude Code (Opus 5.5) by default for general code and UI; Codex (GPT 6.1 Sol) when Claude Code usage is above 70%; Codex (GPT 6 Luna) for super-defined work.
 
 **Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
 
@@ -86,14 +86,14 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 | Situation | Model (effort) | Harness | Notes |
 | --- | --- | --- | --- |
 | Very direct / super defined | **GPT 6 Luna** (**Max**) | Codex (`gpt-6-luna`) | Mechanical, files + success criteria clear |
-| General code / some reasoning | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Default for most implementation + light reasoning. **Claude Code usage > 70% → GPT 6 Sol (xHigh)** on Codex (`gpt-6-sol`) |
-| UI work | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Product UI / visual taste. **Claude Code usage > 70% → GPT 6 Sol (High)** on Codex (`gpt-6-sol`) |
+| General code / some reasoning | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Default for most implementation + light reasoning. **Claude Code usage > 70% → GPT 6.1 Sol (xHigh)** on Codex (`gpt-6.1-sol`) |
+| UI work | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Product UI / visual taste. **Claude Code usage > 70% → GPT 6.1 Sol (High)** on Codex (`gpt-6.1-sol`) |
 | Large-work orchestration (needs orch) | **Opus 5.5** (**xHigh**) coordinator inside **Orca** | Claude Code + Orca CLI | Size gate → Orca Run. Workers: `worker-start --agent claude|codex` + chooser model/effort. Coordinator does not integrate/validate. |
 | Large reasoning (non-orch) | **Fable 5.1** (**Medium** → High/xhigh) | Claude Code | Hard single-agent reasoning. Escalate effort one step at a time. |
 
 #### Claude Code usage > 70%
 
-Before launching a Claude Code lane (general code or UI), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to Codex **GPT 6 Sol** instead (**xHigh** for general code, **High** for UI). At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected; if usage is exhausted, say so and pick the nearest Codex lane rather than stalling.
+Before launching a Claude Code lane (general code or UI), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to Codex **GPT 6.1 Sol** instead (**xHigh** for general code, **High** for UI). At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected; if usage is exhausted, say so and pick the nearest Codex lane rather than stalling.
 
 ### Agent chooser examples
 
@@ -102,20 +102,20 @@ Use this when you need a pick, not a philosophy. Leave Fast off by default. Esca
 | Situation | Model | Effort | Harness | Notes |
 | --- | --- | --- | --- | --- |
 | Straightforward / super defined | **GPT 6 Luna** | **Max** | Codex | Files and success criteria are already clear. |
-| General reasoning + implementation | **Opus 5.5** (usage > 70% → **GPT 6 Sol**) | **High** (Sol: **xHigh**) | Claude Code (Sol: Codex) | Default for most implementation + light reasoning. |
-| UI work | **Opus 5.5** (usage > 70% → **GPT 6 Sol**) | **High** (Sol: **High**) | Claude Code (Sol: Codex) | Product UI / visual taste. |
+| General reasoning + implementation | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **xHigh**) | Claude Code (Sol: Codex) | Default for most implementation + light reasoning. |
+| UI work | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **High**) | Claude Code (Sol: Codex) | Product UI / visual taste. |
 | Large-work orchestration (needs orch) | **Opus 5.5** (Orca coordinator) | **xHigh** | Claude Code + Orca | Prefer **Opus 5.5 xhigh** label. Workers via Orca `--agent claude|codex` + chooser — not all Opus xhigh. Coordinator does not integrate/validate. |
 | Large reasoning / gnarly escalate (non-orch) | **Fable 5.1** | **Medium** (→ High → xhigh) | Claude Code | Escalate **effort** for hard single-agent work — not the Orca coordinator default. |
 | Writing / agreeing on a plan | **Opus 5.5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
 | Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 6 Luna** | **Max** | Codex | Few edge cases, little verification needed. |
-| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **GPT 6 Sol**) ×2 + **GPT 6 Sol**; synthesizer **Opus 5.5** | Reviewers **High** (Sol: **xHigh**); synthesizer **xHigh** | Claude Code + Codex | amillez-mode [Reflect](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/reflect.md). The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
+| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **GPT 6.1 Sol**) ×2 + **GPT 6.1 Sol**; synthesizer **Opus 5.5** | Reviewers **High** (Sol: **xHigh**); synthesizer **xHigh** | Claude Code + Codex | amillez-mode [Reflect](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/reflect.md). The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
 | Visual proof verification (screenshots/videos) | **GPT 6 Luna** | **Max** | Codex | Verification-only session on agent-m1; reports pass/fail. Never implements. |
 
 Concrete picks:
 
 1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **GPT 6 Luna** (Codex), **Max effort**.
-2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **Opus 5.5** (Claude Code), **High** (Claude Code usage > 70% → **GPT 6 Sol** xHigh on Codex). If two wrong fixes: new chat + plan, then implement again.
-3. New to the monorepo — where should a billing webhook live / what breaks → read-only recon on **Opus 5.5** (Claude Code), **High** (> 70% usage → GPT 6 Sol xHigh). Then a short plan before the build.
+2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **Opus 5.5** (Claude Code), **High** (Claude Code usage > 70% → **GPT 6.1 Sol** xHigh on Codex). If two wrong fixes: new chat + plan, then implement again.
+3. New to the monorepo — where should a billing webhook live / what breaks → read-only recon on **Opus 5.5** (Claude Code), **High** (> 70% usage → GPT 6.1 Sol xHigh). Then a short plan before the build.
 4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus 5.5** (Claude Code), **High** (→ **xhigh** if architecture tradeoffs). Implement later against the agreed plan.
 5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1** (Claude Code), **Medium** (→ **High** / **xhigh** if needed), debug/repro-first. After the root cause is pinned, drop to GPT 6 Luna Max (Codex) or Opus 5.5 High for the surgical fix.
 
@@ -153,7 +153,7 @@ Escalate **one knob at a time**. Say why.
 - You have not scoped the files, success criteria, or repro.
 - You only want faster output (that is Fast, not intelligence).
 
-De-escalate as soon as the hard part is done. After a strong-model plan, implement with a lighter model (GPT 6 Luna at Max for mechanical work, Opus 5.5 High — or GPT 6 Sol xHigh when Claude Code usage > 70% — for general implementation) unless the remaining work still needs complex reasoning.
+De-escalate as soon as the hard part is done. After a strong-model plan, implement with a lighter model (GPT 6 Luna at Max for mechanical work, Opus 5.5 High — or GPT 6.1 Sol xHigh when Claude Code usage > 70% — for general implementation) unless the remaining work still needs complex reasoning.
 
 ---
 
