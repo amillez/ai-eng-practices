@@ -146,7 +146,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 ### Workers
 
-- Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (GPT 6 Luna Max / Opus 5.5 High, or GPT 6 Sol xHigh/High when Claude Code usage > 70% / Fable 5.1 Medium→High).
+- Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (GPT 6 Luna Max / Opus 5.5 High, or GPT 6.1 Sol xHigh/High when Claude Code usage > 70% / Fable 5.1 Medium→High).
 - Do **not** inherit Opus 5.5 xhigh for every worker.
 - `--model` / `--effort` apply to Claude and Codex launches (Orca docs).
 
