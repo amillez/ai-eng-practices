@@ -66,8 +66,8 @@ Host: agent-m1 — Claude Code | Codex — <pick + reason>
 
 1. Launch with a [thorough prompt](#thorough-launch-prompt) — success criteria, skills, and expected proof stated up front.
 2. Implement.
-3. Collect proof (boot sim if needed; run flow or tests). [Host media](#proof-media-hosting) on the `media` branch.
-4. **Inspect** proof. Visual (screenshots/videos): hand off to a [Luna Max verifier](#visual-verification-luna-max-subagent). Non-visual (logs, tests, exit codes): the coding agent reads it directly.
+3. Collect proof with Launch, Doctor, Drive, and Evidence ([prove and inspect](#prove-and-inspect)). [Host media](#proof-media-hosting) on the `media` branch.
+4. **Inspect** proof against the success criteria. The coding agent that drove the app reads every asset, visual or not, and reports pass or fail with specifics.
 5. If mismatch: follow up and repeat until proof matches — or report the blocker with evidence.
 6. [Tear down](#teardown-after-proof) everything booted for the task.
 7. Package repeated unblock steps into a skill/playbook note (avoid re-discovering env flakiness).
@@ -93,15 +93,20 @@ git -C ../media-wt add proof && git -C ../media-wt commit -m "Proof for <slug>" 
 git worktree remove ../media-wt
 ```
 
-## Visual verification: Luna Max subagent
+## Prove and inspect
 
-Do not spend a heavy coding-model turn (Claude Code / Codex on `agent-m1`) on multimodal inspection of screenshots or videos.
+Prove the change on the real surface with the project's `verify-<app>` skill when the repo has one. Without one, run the same four steps by hand:
 
-- For visual proof, the eng bot (or the coding agent via spawn) launches a **Codex Luna-role session on agent-m1**, effort Max — verification-only.
-- Its only job: inspect the media against the stated success criteria and report **pass/fail + specifics** (what matched, what didn't, which asset).
-- Give it the success criteria and the media links; nothing else to implement.
-- Non-visual proof (logs, tests, exit codes) stays with the coding agent — no Luna.
-- Luna Max here is **verification-only**. Implementation stays on the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) pick (Opus 5.5 High / GPT 6.1 Sol when Claude Code usage > 70% / Fable 5.1).
+1. **Launch.** Start the app for verification and confirm it is ready. For Expo/RN, use Argent simulator or emulator setup.
+2. **Doctor.** Run one read-only check that the instance is worth driving: process up, right build, port owned by this task. Run it again after any surprising drive.
+3. **Drive.** Exercise the real user path with stable handles (accessibility labels, test IDs, routes), not internal setters or test-only endpoints. For Expo/RN, drive with Argent.
+4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots and videos go to the [`media` branch](#proof-media-hosting). Logs, test output, and exit codes go in the PR body or a linked artifact.
+
+Then inspect the evidence against the success criteria in the launch prompt:
+
+- The coding agent that drove the app inspects every asset and reports **pass or fail with specifics**: what matched, what did not, and which asset shows it.
+- A second judge is not required when the implementer already proved the change on device.
+- A separate verification session is optional. Give it the success criteria and the media links. It only inspects proof and never implements. Pick its model per task from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ## Teardown after proof
 
