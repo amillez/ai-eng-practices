@@ -42,7 +42,8 @@ Match the task to every row that fits and name the union of those skills in the 
 | --- | --- |
 | Any coding task (single agent or Orca worker) | `amillez-mode` |
 | RN UI, screens, native chrome (headers, tab bars, lists, forms) | `apple-design`, `react-native-best-practices` |
-| Motion, gestures, sheet feel, press feedback, transitions, haptics | `animate-expo`, `apple-design` |
+| Motion, gestures, sheet feel, spring or interruptible press motion, transitions, haptics | `animate-expo`, `apple-design` |
+| Plain scale or opacity press feedback in a uniwind project | `uniwind` (`active:` variants), plus `apple-design` and `react-native-best-practices` as needed |
 | Critiquing existing motion ("does this feel right?") | `review-animations` (+ `animate-expo` if also fixing) |
 | Device proof (screenshots, flows, recordings) | Argent: `argent-ios-simulator-setup` / `argent-android-emulator-setup` → `argent-react-native-app-workflow` → `argent-test-ui-flow` (+ `argent-screen-recording` for motion) |
 | Uniwind `className` work | `uniwind` |
@@ -66,7 +67,7 @@ Host: agent-m1 — Claude Code | Codex — <pick + reason>
 
 1. Launch with a [thorough prompt](#thorough-launch-prompt) — success criteria, skills, and expected proof stated up front.
 2. Implement.
-3. Collect proof with Launch, Doctor, Drive, and Evidence ([prove and inspect](#prove-and-inspect)). [Host media](#proof-media-hosting) on the `media` branch.
+3. Collect proof with Launch, Doctor, Drive, and Evidence ([prove and inspect](#prove-and-inspect)). [Host media](#proof-media-hosting) on the repo's media branch.
 4. **Inspect** proof against the success criteria. The coding agent that drove the app reads every asset, visual or not, and reports pass or fail with specifics.
 5. If mismatch: follow up and repeat until proof matches — or report the blocker with evidence.
 6. [Tear down](#teardown-after-proof) everything booted for the task.
@@ -77,20 +78,29 @@ Host: agent-m1 — Claude Code | Codex — <pick + reason>
 Proof media = **screenshots and videos** (screen recordings, before/after clips). Video is first-class proof for visual/UI flows when a still is insufficient.
 
 - **Do not** commit proof media on the PR/workstream branch.
-- Push media to a dedicated **`media`** branch in the **same repo** the PR targets. If it does not exist, create it as an orphan branch (unrelated to `main`; hosts media only).
+- Push media to a media branch in the **same repo** the PR targets. Before pushing, list `git ls-remote --heads origin 'media*'` and follow the repo's existing convention: one `media` branch, or per-PR `media/<slug>` branches.
+- Do not create a `media` branch beside an existing `media/<slug>` tree, and do not create `media/<slug>` beside a `media` branch. Git rejects both refs together.
+- Create the media branch as an orphan (unrelated to `main`, hosts media only) only when it does not exist yet.
+- Push from a detached temporary worktree. Never touch the workstream branch.
 - Use a clear path: `proof/<pr-number-or-slug>/<file>`.
 - In the **PR description**, embed or link each asset with verification notes next to it.
-- **No raw URLs.** Repos may be private; `raw.githubusercontent.com` and other unauthenticated raw links break for reviewers. Use GitHub UI links:
-  - Images: `![before](https://github.com/<owner>/<repo>/blob/media/proof/<slug>/before.png?raw=true)` renders for logged-in viewers, or link the blob page.
-  - Videos: link the blob page `https://github.com/<owner>/<repo>/blob/media/proof/<slug>/flow.mp4` — GitHub plays common formats there.
+- **No raw URLs.** Repos may be private; `raw.githubusercontent.com` and other unauthenticated raw links break for reviewers. Use GitHub UI links built from the actual media branch name (`<media-branch>` below):
+  - Images: `![before](https://github.com/<owner>/<repo>/blob/<media-branch>/proof/<slug>/before.png?raw=true)` renders for logged-in viewers, or link the blob page.
+  - Videos: link the blob page `https://github.com/<owner>/<repo>/blob/<media-branch>/proof/<slug>/flow.mp4` — GitHub plays common formats there.
 
 ```bash
-# separate worktree; never touch the workstream branch
-git fetch origin media && git worktree add ../media-wt media \
-  || git worktree add --orphan -b media ../media-wt   # first time only
+git ls-remote --heads origin 'media*'
+MEDIA=media   # or media/<slug> when the repo keeps per-PR media branches
+if git ls-remote --exit-code --heads origin "$MEDIA" >/dev/null; then
+  git fetch origin "$MEDIA" && git worktree add --detach ../media-wt FETCH_HEAD
+else
+  git worktree add --orphan -b "$MEDIA" ../media-wt   # branch does not exist yet
+fi
 mkdir -p ../media-wt/proof/<slug> && cp <files> ../media-wt/proof/<slug>/
-git -C ../media-wt add proof && git -C ../media-wt commit -m "Proof for <slug>" && git -C ../media-wt push -u origin media
+git -C ../media-wt add proof && git -C ../media-wt commit -m "Proof for <slug>"
+git -C ../media-wt push origin "HEAD:refs/heads/$MEDIA"
 git worktree remove ../media-wt
+git branch -D "$MEDIA" 2>/dev/null || true   # local orphan branch only
 ```
 
 ## Prove and inspect
@@ -100,11 +110,12 @@ Prove the change on the real surface with the project's `verify-<app>` skill whe
 1. **Launch.** Start the app for verification and confirm it is ready. For Expo/RN, use Argent simulator or emulator setup.
 2. **Doctor.** Run one read-only check that the instance is worth driving: process up, right build, port owned by this task. Run it again after any surprising drive.
 3. **Drive.** Exercise the real user path with stable handles (accessibility labels, test IDs, routes), not internal setters or test-only endpoints. For Expo/RN, drive with Argent.
-4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots and videos go to the [`media` branch](#proof-media-hosting). Logs, test output, and exit codes go in the PR body or a linked artifact.
+4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots and videos go to the [media branch](#proof-media-hosting). Logs, test output, and exit codes go in the PR body or a linked artifact.
 
 Then inspect the evidence against the success criteria in the launch prompt:
 
 - The coding agent that drove the app inspects every asset and reports **pass or fail with specifics**: what matched, what did not, and which asset shows it.
+- When the task matches a visual reference, the success criteria list per-element checks: each icon's glyph, relative sizes, presentation type, and native versus drawn chrome. Whoever inspects reports pass or fail per element, not an overall match.
 - A second judge is not required when the implementer already proved the change on device.
 - A separate verification session is optional. Give it the success criteria and the media links. It only inspects proof and never implements. Pick its model per task from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples).
 

@@ -27,7 +27,7 @@ Rules:
 2. **Ensure the amillez plugin on the host before coding.** Run [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`. It installs **core+mobile** at `~/.claude` and `~/.agents` (plus user rules and stamp, nothing under `~/.codex`) and continues when already present. Refresh with `scripts/update-install.sh` when policy or skills change or a human asks. Never install the plugin into the worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills stay in-repo. **Grok Bot dispatch prompts to Claude/Codex include this host ensure step first.**
 3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
-   - Screenshots/videos live on the repo's `media` branch, never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
+   - Screenshots/videos live on the repo's media branch (`media` or per-PR `media/<slug>`, per the repo's convention), never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
 5. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
    - Workstream teardown also covers sims/emulators, Metro/dev servers, watchers, and tunnels — not only `git worktree remove`. See [Teardown](#teardown) and [teardown after proof](agent-proof-feedback-loop.md#teardown-after-proof).
 6. **No long-lived dirty trees.** If blocked, mark blocked with evidence; park or discard. No zombies on disk.
@@ -47,8 +47,9 @@ Recipe (parent Shell with `machineId`, after host ensure + worktree provision):
 ```bash
 # Prefer positional prompt — do NOT use -p/--print (conflicts with attachable --bg)
 claude --bg --dangerously-skip-permissions \
-  --model <opaque-model-id> --effort <effort> \
+  --model claude-opus-5-5 --effort high \
   "<thorough launch prompt>"
+# --model is the full lanes-table id, never an alias such as opus
 
 # Capture session id
 claude agents --json
@@ -90,7 +91,7 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 4. **Match the PR on every listener wake.** On every GitHub listener wake, confirm the event's PR number matches this workstream's `pr_number`; ignore cross-PR payloads.
 5. **Do not stop at settle.** While the PR is OPEN and review threads are unresolved, do not delete the settle-watch or stop babysitting just because the coding session finished.
 6. **Filter listener noise, keep watching.** Empty-body COMMENTED reviews and agent fix-ack replies on unresolved threads can wake as review-commented. Stay quiet on pure noise, but do not treat it as a hard failure that abandons babysit.
-7. **Apply Agustín's review comments as they appear.** No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close.
+7. **Apply Agustín's review comments as they appear.** No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close. Carve-out: a comment that can only be met by overriding platform behavior (new native module, dependency patch, native build change, dynamic font linking) ships the platform default plus a thread reply that names the override's cost. Build the override only on the reviewer's go.
 8. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
 9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. On terminal, the babysit routine deletes itself, and the bot sweeps any stale babysit routines left for the merged or closed PR. Verify every Metro port used is no longer listening.
 10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
@@ -116,4 +117,4 @@ Related: the coding agent's side of a babysit (what it does when sent back with 
 
 ## Related
 
-- Orca `worker-start` readiness flake and the one-time Orca host install: [big-work orchestration](big-work-orchestration.md).
+- Orca `worker-start` readiness timeouts and the one-time Orca host install: [big-work orchestration](big-work-orchestration.md).

@@ -63,7 +63,7 @@ Cite: [Orchestration — preferred supervised loop](https://www.onorca.dev/docs/
 
 ```text
 run-create → task-create (+ deps as needed) → worker-start (claude|codex + model + effort + worktree)
-  → check --wait (worker_done / escalation / question) → worker tasks for integrate + prove → babysit
+  → check --wait (worker_done / escalation / question) → worker tasks for integrate → structure review → prove → babysit
 ```
 
 Concrete shape (coordinator drives these):
@@ -76,10 +76,13 @@ orca orchestration worker-start \
   --worktree new-child \   # or: current — never two agents on one checkout
   --name <slug> \
   --agent claude \         # or: codex — NEVER cursor for coding
-  --model <opaque-model-id> \
+  --model claude-opus-5-5 \
   --effort high \
   --setup run \
   --json
+# --model is the full lanes-table id (claude-opus-5-5, gpt-6.1-sol, gpt-6-luna).
+# Never an alias (opus) and never an id from ~/.codex/models_cache.json.
+# After start, check the worker banner for the expected model.
 
 orca orchestration check --wait --types worker_done,escalation,question --timeout-ms 900000 --json
 orca orchestration check --ack <deliveryId> --wait --types worker_done,escalation,question --timeout-ms 900000 --json
@@ -92,7 +95,7 @@ Notes from Orca docs:
 - **Dispatch** is one attempt; completion authority is `worker_done` with `--outcome succeeded|failed` plus `taskId` + `dispatchId`.
 - After accepted `worker_done`, `worker-release` (or `worker-retain` if debugging). Prefer `worker-read` over leaving dead terminals open.
 - Decision gates (`gate-create` / `gate-resolve`) and `ask` for blocking questions — do not rely on local TUI prompts for cross-agent decisions.
-- **`worker-start` readiness flake:** expect about one readiness failure per real run. **Retry the same `worker-start` once** with the same `--agent` / `--model` / `--effort` before escalating.
+- **Readiness timeout:** read the worker terminal, answer the blocking prompt for this launch only (workspace trust, update offer), retry into the same terminal with `--retry-of`, and re-check the model banner. Do not treat this as a blind flake.
 
 ### Pipeline mapping
 
@@ -101,6 +104,7 @@ Notes from Orca docs:
 | **Plan (scout)** | Opus 5.5 xhigh coordinator | Recon blast radius; cut disjoint scopes; `task-create` with precise specs; assign chooser model/effort per task. |
 | **Workers** | Claude Code / Codex via Orca | `worker-start --agent claude\|codex --model … --effort …`; disk modes below. |
 | **Integrate** | Worker task (delegated) | Merge outputs, resolve conflicts, re-run unit/typecheck. Coordinator does **not** integrate — dispatch an integrate worker (often sequential `--worktree current`). |
+| **Structure review** | Worker task (delegated) | Review the integrated diff against the repo's own practice docs so structure settles before proof rounds start. Runs after integrate, before prove. |
 | **Prove** | Worker task on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
 | **Babysit** | Eng bot (Grok) | Until `merged`\|`discarded`; PR listeners — does not replace Orca during the Run. |
 
@@ -147,6 +151,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 ### Workers
 
 - Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (GPT 6 Luna Max / Opus 5.5 High, or GPT 6.1 Sol xHigh/High when Claude Code usage > 70% / Fable 5.1 Medium→High).
+- `--model` takes the full id from the lanes table (`claude-opus-5-5`, `gpt-6.1-sol`, `gpt-6-luna`). Never an alias such as `opus`, and never an id from `~/.codex/models_cache.json`. After each `worker-start`, check the worker banner for the expected model.
 - Do **not** inherit Opus 5.5 xhigh for every worker.
 - `--model` / `--effort` apply to Claude and Codex launches (Orca docs).
 
@@ -173,6 +178,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - Parallel sim proves or opening a PR before prove.
 - Eng bot juggling N chats as forever-orchestrator instead of an Orca Run when the gate says large.
 - Stamping Opus 5.5 xhigh on every worker, or running the coordinator on any lane other than **Opus 5.5 xhigh**.
+- `--model` as an alias (`opus`) or an id from `~/.codex/models_cache.json` instead of the lanes-table id.
 - Treating `orchestrate-agents` prompt text as a substitute for Orca Dispatches / `worker_done`.
 
 ## Related
