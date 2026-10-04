@@ -2,7 +2,7 @@
 
 How **we** run specialized engineering bots that dispatch coding agents on `agent-m1` (Claude Code / Codex).
 
-**Snapshot, not scripture** — fleet patterns as of September 2026.
+**Snapshot, not scripture** — fleet patterns as of October 2026.
 
 Standing bot rules: [policies/agent-use-policy.md](../policies/agent-use-policy.md).
 
@@ -16,9 +16,13 @@ Focused bots stay sharper. Our split:
 
 | Bot | Domain |
 | --- | --- |
-| **Sam** | This repo — playbooks, policies, model picks, skill hygiene. |
-| **Mark** | RN client quality, visual proof, mobile best-practice skills. |
-| **Jarvis (hub)** | Cross-project intake, routing, git handoffs. Plans and delegates; does not write feature code. |
+| **Sam** | This repo — playbooks, policies, model picks, skill hygiene, and the general amillez-mode process rails. |
+| **Mark** | RN client quality, visual proof, mobile skills. Runs coding work on `agent-m1`. Owns the akit `amillez-react-native-mode` skill and rn-bedrock docs gardening. |
+| **Anibal** | Runs and manages coding work on `agent-m1`. |
+| **Emily** | Engineer bot for `KaikuLabs/favvy-app`. Codes on `agent-m1`. |
+| **Ben** | `agent-m1` host health checks. Keeps Claude Code, Codex, and `gh` updated and logged in. |
+| **Stella** | Designs new Grok Bots. |
+| **Jarvis and Friday (hub)** | Cross-project intake and routing to other bots. Plan and delegate; do not write feature code. |
 
 Each bot carries **domain memory** (specs, test patterns, design principles). A harness bot should not own RN visual polish.
 
@@ -28,7 +32,7 @@ Each bot carries **domain memory** (specs, test patterns, design principles). A 
 
 Source: Matt Palmer's GrokBot course (SpaceXAI DX), [via @kaorixbt](https://x.com/kaorixbt/status/2099853269191311760). Separate from the Lauren Tan / pstack workshop.
 
-- **Durable (core)** — Sam, Mark, Jarvis. Domain memory, routines, [Monday 1:1s](#monday-eng-bot-11s). Continuity matters.
+- **Durable (core)** — Sam, Mark, Anibal, Emily, Ben, Stella, Jarvis, Friday. Domain memory, routines, [Monday 1:1s](#monday-eng-bot-11s). Continuity matters.
 - **Ephemeral (throwaway)** — spin up a bot for a one-off (scrape, script, experiment); delete it when done.
 
 Why throwaways:
