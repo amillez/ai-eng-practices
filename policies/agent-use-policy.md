@@ -24,11 +24,11 @@ For heavy coding / engineering agent work:
 
 Do **not** code through Cursor: no Cursor cloud agents, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6 fallbacks.
 
-**Model role labels → Claude Code / Codex (as of 2026-09-25):**
+**Model role labels → Claude Code / Codex (as of 2026-10-04):**
 
-Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.282, Codex CLI 0.157.0). If a lane cannot run on either harness, use the nearest equivalent or skip that lane.
+Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.289, Codex CLI 0.160.0). If a lane cannot run on either harness, use the nearest equivalent or skip that lane.
 
-| Policy label | Intent | Run on | CLI pick (verified 2026-09-25) |
+| Policy label | Intent | Run on | CLI pick (verified 2026-10-04) |
 | --- | --- | --- | --- |
 | **Luna** — GPT 6 Luna (Max) | Very direct / super defined; mechanical | **Codex** | `codex exec -m gpt-6-luna -c model_reasoning_effort=max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
@@ -63,7 +63,7 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 - **One agent per tree.** Parallel work uses separate worktrees with disjoint paths.
 - **Parent owns `agent-m1` Shell.** Grok Bot **executor** Task subagents cannot pass `machineId` to Shell (box only). Parent must run agent-m1 Shell/Read with `machineId` (`cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`) for Claude launch / worktree create on the Mac. Executors stay fine for `gh`/API/box work. Canonical `claude --bg` recipe + `claude respawn` unblock: [dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md#canonical-claude-code-background-launch-on-agent-m1).
 - **Size gate before launch.** **Small** (single surface or package, one PR, clear blast radius, one focused session) → dispatch the matching agent from this chooser directly. No Orca Run, no orchestrator. **Large** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, or unclear blast radius) → an **Orca** Run on `agent-m1` with an **Opus 5.5 xHigh** coordinator (`claude --model claude-opus-5-5 --effort xhigh`). The coordinator only plans, dispatches, and waits. Workers implement, integrate, and prove, each with model and effort per slice from this chooser. Grok Bot ensures the amillez plugin and babysits the PRs. Do not collapse large work into one mega agent. **Needs parallel workers → Orca; one agent can own the whole loop but the work is long, cross-cutting, or reviewed after stepping away → amillez-mode [Figure it out](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/figure-it-out.md).** Prerequisites and the Orca loop are in [big-work orchestration](../playbooks/big-work-orchestration.md).
-- **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Bots babysit an open PR with PR-scoped GitHub event listeners, and every babysit routine deletes itself on the `pr-merged` or `pr-closed` wake. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
+- **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Bots babysit an open PR with PR-scoped GitHub event listeners, and every babysit routine deletes itself on the `pr-merged` or `pr-closed` wake. A babysitter starts one coding session per submitted review with every unresolved thread batched in, never one per inline comment. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Teardown after merge or abandon.** Remove the worktree and delete the local branch; runtime teardown and Metro-port verification still apply. No dirty or orphan trees left on disk.
 
 **Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host.

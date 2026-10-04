@@ -19,7 +19,7 @@ You pay for **model I/O** (what goes into the model and what it emits). In the t
 | Burns money | Usually does not (as of workshop) |
 | --- | --- |
 | Prompt + conversation + rules/skills/tools prefix sent to the model | Search / grep / most harness tool calls themselves |
-| Model output (completions, plans, patches, thinking if billed as output) | Clicking around the IDE |
+| Model output (completions, plans, patches, thinking if billed as output) | Local work the CLI runs outside the model call (tests, builds, git) |
 | Images, files, and other attachments once they are in the model context | |
 
 **Implication:** make the model do less guessing. Point it. A cheap model that finishes in two turns beats an expensive model that explores for twenty.
