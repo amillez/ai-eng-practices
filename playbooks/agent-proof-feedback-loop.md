@@ -151,7 +151,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `grill-me`. Settle a contested product or preference call that a prototype can't settle.
 - **Expo** (`expo/skills`):
   - `expo-dev-client` — build and distribute Expo development clients locally or via TestFlight for internal testing. For production TestFlight releases and store submission, use `eas-app-stores`.
-  - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup.
+  - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup. The target SDK must meet the [dependency age rule](../policies/agent-use-policy.md#11-dependency-versions), not the skill's `expo@latest` or `expo@next` step.
 - `react-native-best-practices` (`software-mansion-labs/skills`) — per skill description; use when writing, reviewing, or debugging ANY React Native or Expo code.
 - `uniwind` (`uni-stack/uniwind`) — per skill description; use when building or debugging Uniwind `className` styling in React Native.
 - `typescript-best-practices` (amillez skill, core). TypeScript type discipline for any `.ts` or `.tsx` file. Auto-loads by file path in Claude Code and by description in Codex. React Native library usage defers to `react-native-best-practices`.
