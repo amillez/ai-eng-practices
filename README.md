@@ -25,6 +25,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | Policy | Use when |
 | --- | --- |
 | [Agent use policy](policies/agent-use-policy.md) | Default operating rules for any agent unless a chat explicitly overrides |
+| [Grok Bot fleet norms](policies/fleet-norms.md) | A Grok Bot decides whether to raise an item, nudge Agustín, start a routine, or store policy |
 
 ## Sources
 
