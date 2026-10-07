@@ -249,6 +249,7 @@ This policy applies to **all agents**. It is not scoped to a team, product, or b
 
 ## Related
 
+- [Policy: Grok Bot fleet norms](fleet-norms.md)
 - [Playbook: Model selection & token efficiency](../playbooks/model-selection-and-token-efficiency.md)
 - [Playbook: MCP vs CLI](../playbooks/mcp-vs-cli.md)
 - [Playbook: Eng team of bots](../playbooks/eng-team-of-bots.md)
