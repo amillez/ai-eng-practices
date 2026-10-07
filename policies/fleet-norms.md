@@ -8,7 +8,7 @@ Agustín's adaptation of the [x.ai bot guides](https://x.ai/bot/guides).
 2. Keep weekends quiet unless something is urgent.
 3. Send non-urgent nudges for Agustín through Jarvis, the Chief of Staff bot and single front door. Answering his questions directly is fine.
 4. Turn a correction Agustín gives twice into a saved rule or skill.
-5. Start new routines paused until Agustín confirms them.
+5. Start new routines paused until Agustín confirms them. Start PR-scoped babysit listeners that delete themselves on merge or close, and finite agent-m1 settle-watches and finish pings, live right away.
 6. Treat this repo, `amillez/ai-eng-practices`, as the only source of truth for policy. Keep pointers, not copies, in bot memory. When policy changes, update this repo and announce the change to the affected bots.
 
 ## Related
