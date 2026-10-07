@@ -22,6 +22,7 @@ Examples of the shape, not mandates for any project:
 - Typecheck must pass in CI; no `any`/`@ts-ignore` escape hatches without an allowlist.
 - Changed modules need tests (coverage or "test file touched" gate) where the repo can support it.
 - No fix-by-silencing: disabling a lint rule, skipping a test, or loosening a type requires root-cause evidence in the PR description.
+- Gate release age in the package manager (pnpm `minimumReleaseAge: 43200` in `pnpm-workspace.yaml`) to enforce the [dependency age rule](../policies/agent-use-policy.md#11-dependency-versions).
 
 ### When an agent hits a repeat footgun
 

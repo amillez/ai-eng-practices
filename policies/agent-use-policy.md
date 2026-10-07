@@ -237,7 +237,19 @@ When researching **Anthropic / Claude tooling**, prefer primary builder accounts
 
 ---
 
-## 11. Overrides
+## 11. Dependency versions
+
+This rule covers project dependencies in every repo: npm packages, Expo and React Native SDKs, CocoaPods, Gradle, and any other package a project declares.
+
+- Install, bump to, or migrate to a version only when it is **at least 1 month old** (from its publish date) and has **no significant reported issues**. Significant issues are open regressions or crash reports in the issue tracker, or release notes or a follow-up patch that warn against the version.
+- A newer version waits until it is a month old. Pick the newest version that passes both checks. Do not take `@latest` or `@next` blindly, and that includes skill steps such as `expo-upgrade`'s `npx expo install expo@latest`.
+- Before the change, check the publish date (`npm view <pkg> time --json`, the GitHub release, or the CocoaPods or Maven publish date) and the issue tracker. State the version, its release date, and the issue check in the PR description.
+- Where the package manager supports it, enforce the age check in config, for example pnpm `minimumReleaseAge: 43200` (30 days in minutes) in `pnpm-workspace.yaml`. See [hard constraints](../playbooks/hard-constraints.md).
+- Host tooling on `agent-m1` (Claude Code, Codex, `gh`, Argent) is out of scope and keeps its own update rules.
+
+---
+
+## 12. Overrides
 
 This policy applies to **all agents**. It is not scoped to a team, product, or bot flavor.
 
