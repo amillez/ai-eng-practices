@@ -164,7 +164,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 ## Out of scope / later
 
 - Federated workers (`--on <remote>`) — optional; default stays local `agent-m1`.
-- The pstack fan-out skills (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`) are not part of amillez-mode. Use recon and a plan, a prototype for empirical questions, `grill-me` for contested product or preference calls, and Orca. `reflect` is ported as an amillez-mode playbook. See [Steal from pstack](steal-from-pstack.md).
+- The pstack fan-out skills (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`) are not part of amillez-mode. Use recon and a plan, a prototype for empirical questions, `grill-me` for contested product or preference calls, and Orca. `reflect` is the one we adopted, as the standalone akit skill [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md). See [Steal from pstack](steal-from-pstack.md).
 
 ## Anti-patterns
 
