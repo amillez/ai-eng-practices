@@ -109,7 +109,7 @@ Use this when you need a pick, not a philosophy. Leave Fast off by default. Esca
 | Large reasoning / gnarly escalate (non-orch) | **Fable 5.1** | **Medium** (→ High → xhigh) | Claude Code | Escalate **effort** for hard single-agent work — not the Orca coordinator default. |
 | Writing / agreeing on a plan | **Opus 5.5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
 | Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 6 Luna** | **Max** | Codex | Few edge cases, little verification needed. |
-| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **GPT 6.1 Sol**) ×2 + **GPT 6.1 Sol**; synthesizer **Opus 5.5** | Reviewers **High** (Sol: **xHigh**); synthesizer **xHigh** | Claude Code + Codex | amillez-mode [Reflect](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/reflect.md). The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
+| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **GPT 6.1 Sol**) ×2 + **GPT 6.1 Sol**; synthesizer **Opus 5.5** | Reviewers **High** (Sol: **xHigh**); synthesizer **xHigh** | Claude Code + Codex | The akit [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md) skill. The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
 
 Concrete picks:
 
