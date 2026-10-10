@@ -138,6 +138,7 @@ Teardown is part of done — same bar as inspecting proof.
   ```
 
   Empty `lsof` output for each used port is the teardown check. Do not leave sims or emulators running "for the next agent." The next workstream boots what it needs.
+- For Android jobs, also run `./gradlew --stop` in the project's `android/` directory. See [agent-m1 resource limits](../policies/agent-use-policy.md#12-agent-m1-resource-limits).
 
 ## Skills allowlist
 

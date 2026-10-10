@@ -49,7 +49,7 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 - **Inspect proof against the success criteria.** The agent that drove the app reads every asset and reports pass or fail with specifics. A second judge is not required when the implementer already proved the change on device. A separate verification session is optional. If you start one, it only inspects proof and never implements, and you pick its model per task from the [agent chooser](#agent-chooser-examples).
 - **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
-- **Tear down after proof.** Shut down sims/emulators, dev servers, and matching Expo CLI processes (`expo/bin/cli`, `expo start`, `expo run`), then verify no used Metro port is listening. See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
+- **Tear down after proof.** Shut down sims/emulators, dev servers, and matching Expo CLI processes (`expo/bin/cli`, `expo start`, `expo run`), then verify no used Metro port is listening. For Android jobs, also stop the Gradle and Kotlin daemons per [§12](#12-agent-m1-resource-limits). See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
 
 **Amillez plugin before coding** (see [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`):
 
@@ -249,7 +249,17 @@ This rule covers project dependencies in every repo: npm packages, Expo and Reac
 
 ---
 
-## 12. Overrides
+## 12. agent-m1 resource limits
+
+`agent-m1` has 16 GB of RAM and a 245 GB disk, and on 2026-10-10 three Android emulators plus Gradle and Kotlin daemons filled memory and disk, froze the host, and killed a Codex job with `ENOSPC`.
+
+- **One Android emulator at a time.** At most one Android emulator runs on `agent-m1` at a time, across the whole fleet. Before you boot one, check what is running. Use `simfleet status` or `simfleet emu list` when simfleet is up, otherwise `adb devices` and `pgrep -fl qemu-system`. If an emulator is already running and it isn't yours, wait for it or reuse it through a simfleet claim. Never boot a second one. simfleet has no emulator-count setting today, so this check is the cap. If simfleet gains that setting, set the cap in its config.
+- **Android teardown.** When an Android job finishes, run `./gradlew --stop` in the project's `android/` directory to stop the Gradle and Kotlin daemons. Then shut down every simulator, emulator, and Metro or Expo server the job started, per the teardown rules in [§1](#1-coding-host-routing). Check with `pgrep -fl 'GradleDaemon|KotlinCompileDaemon'` and kill any daemon from this job that is still listed.
+- **Disk floor.** Don't start a heavy build or an emulator when `agent-m1` has under 20 GB free. Heavy builds are a native iOS or Android build, `expo prebuild`, `pod install`, a Gradle build, and a full test matrix. Check free space with `df -h ~` and read the Avail column. Under 20 GB, ping Ben (the infra bot) with the `df -h ~` output and wait.
+
+---
+
+## 13. Overrides
 
 This policy applies to **all agents**. It is not scoped to a team, product, or bot flavor.
 

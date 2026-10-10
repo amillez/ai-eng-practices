@@ -26,6 +26,7 @@ Rules:
 1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
 2. **Ensure the amillez plugin on the host before coding.** Run [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`. It installs **core+mobile** at `~/.claude` and `~/.agents` (plus user rules and stamp, nothing under `~/.codex`) and continues when already present. Refresh with `scripts/update-install.sh` when policy or skills change or a human asks. Never install the plugin into the worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills stay in-repo. **Grok Bot dispatch prompts to Claude/Codex include this host ensure step first.**
 3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
+   - Before launch, check free disk and running emulators per [agent-m1 resource limits](../policies/agent-use-policy.md#12-agent-m1-resource-limits). Under 20 GB free, ping Ben and wait.
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)).
    - Screenshots/videos live on the repo's media branch (`media` or per-PR `media/<slug>`, per the repo's convention), never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
 5. **After merge or abandon:** remove the worktree and delete the local branch. The remote branch follows PR merge/close.
@@ -81,7 +82,7 @@ When the ask comes from a bug report, an issue, a user-feedback message, or a ch
 
 ## Teardown
 
-After proof, the task owner shuts down the iOS Simulator, Android emulator, Metro/dev servers, watchers, and tunnels started for the worktree. For Expo/RN work, also find and kill the matching `expo/bin/cli`, `expo start`, and `expo run` processes — they may not match `metro` or `Simulator` filters — then verify that no process is listening on every Metro port used (including 8081 or 8090). Ben's infra bot sweep of `agent-m1` is a backstop, not a substitute for the task owner's teardown. Use the [copy-pasteable check](agent-proof-feedback-loop.md#teardown-after-proof).
+After proof, the task owner shuts down the iOS Simulator, Android emulator, Metro/dev servers, watchers, and tunnels started for the worktree. For Expo/RN work, also find and kill the matching `expo/bin/cli`, `expo start`, and `expo run` processes — they may not match `metro` or `Simulator` filters — then verify that no process is listening on every Metro port used (including 8081 or 8090). Ben's infra bot sweep of `agent-m1` is a backstop, not a substitute for the task owner's teardown. Use the [copy-pasteable check](agent-proof-feedback-loop.md#teardown-after-proof). For Android jobs, also run `./gradlew --stop` per [agent-m1 resource limits](../policies/agent-use-policy.md#12-agent-m1-resource-limits).
 
 ## Babysit until merged
 
