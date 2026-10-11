@@ -24,11 +24,11 @@ For heavy coding / engineering agent work:
 
 Do **not** code through Cursor: no Cursor cloud agents, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6 fallbacks.
 
-**Model role labels → Claude Code / Codex (as of 2026-10-04):**
+**Model role labels → Claude Code / Codex (as of 2026-10-11):**
 
-Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.289, Codex CLI 0.160.0). If a lane cannot run on either harness, use the nearest equivalent or skip that lane.
+Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.296, Codex CLI 0.162.0). If a lane cannot run on either harness, use the nearest equivalent or skip that lane.
 
-| Policy label | Intent | Run on | CLI pick (verified 2026-10-04) |
+| Policy label | Intent | Run on | CLI pick (verified 2026-10-11) |
 | --- | --- | --- | --- |
 | **Luna** — GPT 6 Luna (Max) | Very direct / super defined; mechanical | **Codex** | `codex exec -m gpt-6-luna -c model_reasoning_effort=max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
@@ -89,6 +89,7 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 | Very direct / super defined | **GPT 6 Luna** (**Max**) | Codex (`gpt-6-luna`) | Mechanical, files + success criteria clear |
 | General code / some reasoning | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Default for most implementation + light reasoning. **Claude Code usage > 70% → GPT 6.1 Sol (xHigh)** on Codex (`gpt-6.1-sol`) |
 | UI work | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Product UI / visual taste. **Claude Code usage > 70% → GPT 6.1 Sol (High)** on Codex (`gpt-6.1-sol`) |
+| Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Writing a human reads and acts on. **Claude Code usage > 70% → GPT 6.1 Sol (xHigh)** on Codex (`gpt-6.1-sol`). Luna is not for docs. |
 | Large-work orchestration (needs orch) | **Opus 5.5** (**xHigh**) coordinator inside **Orca** | Claude Code + Orca CLI | Size gate → Orca Run. Workers: `worker-start --agent claude|codex` + chooser model/effort. Coordinator does not integrate/validate. |
 | Large reasoning (non-orch) | **Fable 5.1** (**Medium** → High/xhigh) | Claude Code | Hard single-agent reasoning. Escalate effort one step at a time. |
 
@@ -105,6 +106,7 @@ Use this when you need a pick, not a philosophy. Leave Fast off by default. Esca
 | Straightforward / super defined | **GPT 6 Luna** | **Max** | Codex | Files and success criteria are already clear. |
 | General reasoning + implementation | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **xHigh**) | Claude Code (Sol: Codex) | Default for most implementation + light reasoning. |
 | UI work | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **High**) | Claude Code (Sol: Codex) | Product UI / visual taste. |
+| Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **xHigh**) | Claude Code (Sol: Codex) | Includes gardens. Luna is only for trivial mechanical chores, not docs. |
 | Large-work orchestration (needs orch) | **Opus 5.5** (Orca coordinator) | **xHigh** | Claude Code + Orca | Prefer **Opus 5.5 xhigh** label. Workers via Orca `--agent claude|codex` + chooser — not all Opus xhigh. Coordinator does not integrate/validate. |
 | Large reasoning / gnarly escalate (non-orch) | **Fable 5.1** | **Medium** (→ High → xhigh) | Claude Code | Escalate **effort** for hard single-agent work — not the Orca coordinator default. |
 | Writing / agreeing on a plan | **Opus 5.5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
@@ -118,6 +120,7 @@ Concrete picks:
 3. New to the monorepo — where should a billing webhook live / what breaks → read-only recon on **Opus 5.5** (Claude Code), **High** (> 70% usage → GPT 6.1 Sol xHigh). Then a short plan before the build.
 4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus 5.5** (Claude Code), **High** (→ **xhigh** if architecture tradeoffs). Implement later against the agreed plan.
 5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1** (Claude Code), **Medium** (→ **High** / **xhigh** if needed), debug/repro-first. After the root cause is pinned, drop to GPT 6 Luna Max (Codex) or Opus 5.5 High for the surgical fix.
+6. Weekly garden PR that fixes stale version stamps and roster wording across `policies/` and `playbooks/` → **Opus 5.5** (Claude Code), **High** (> 70% usage → GPT 6.1 Sol xHigh). Not Luna, even when the edits look mechanical.
 
 ---
 

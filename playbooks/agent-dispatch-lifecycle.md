@@ -105,7 +105,7 @@ Related: the coding agent's side of a babysit (what it does when sent back with 
 
 ## Roles
 
-- **Eng bots (Mark / Sam):** write the prompt, pick skills and proof type (always attach `amillez-mode` for coding agents; knowing which skills to attach is one of the bot's most important jobs), start the agent on `agent-m1`, follow up, verify proof and the PR the agent opens, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
+- **Eng bots (Mark / Sam / Anibal / Emily):** write the prompt, pick skills and proof type (always attach `amillez-mode` for coding agents; knowing which skills to attach is one of the bot's most important jobs), start the agent on `agent-m1`, follow up, verify proof and the PR the agent opens, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
 - **Coding agent:** works only in its own workstream, under `amillez-mode`, and opens its PR. Never merges, arms auto-merge, or closes the PR.
 - **Jarvis:** postmortems when the lifecycle breaks (merged without proof, orphan worktrees).
 
