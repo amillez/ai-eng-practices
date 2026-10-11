@@ -1,6 +1,6 @@
 # Big-work orchestration
 
-When eng bots (Mark / Sam) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code / Codex** workers inside **Orca** orchestration. Workers start with `--agent claude` or `--agent codex`, never `--agent cursor`.
+When eng bots (Mark / Sam / Anibal / Emily) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code / Codex** workers inside **Orca** orchestration. Workers start with `--agent claude` or `--agent codex`, never `--agent cursor`.
 
 Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktree / babysit rules: [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
@@ -136,7 +136,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 | Role | Owns |
 | --- | --- |
-| **Eng bot (Mark / Sam / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close on Agustín's say-so. Does **not** replace Orca for the multi-agent DAG. |
+| **Eng bot (Mark / Sam / Anibal / Emily / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close on Agustín's say-so. Does **not** replace Orca for the multi-agent DAG. |
 | **Coordinator (Opus 5.5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
 | **Worker agents** | Claude Code or Codex Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. |
 
