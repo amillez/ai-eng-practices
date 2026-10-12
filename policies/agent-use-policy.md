@@ -20,7 +20,7 @@ For heavy coding / engineering agent work:
 
 - **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code + Codex only**. No Cursor installed.
 - **Grok Bot** is the chat and control plane (intake, dispatch, babysit, proof orchestration). It does not write code.
-- **Claude vs Codex** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule: Claude Code (Opus 5.5 / Fable 5.1) by default; Codex for GPT 6 Luna work and for GPT 6.1 Sol when Claude Code usage is above 70%.
+- **Claude vs Codex** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule: Claude Code (Opus 5.5 / Fable 5.1) by default; Codex for GPT 6 Luna work, for code review on GPT 6.1 Sol, and for GPT 6.1 Sol when Claude Code usage is above 70%.
 
 Do **not** code through Cursor: no Cursor cloud agents, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6 fallbacks.
 
@@ -35,8 +35,9 @@ Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins e
 | **Sol** — GPT 6.1 Sol | Fallback for general code (**xHigh**) and UI (**High**) when [Claude Code usage > 70%](#claude-code-usage--70) | **Codex** | General: `codex exec -m gpt-6.1-sol -c model_reasoning_effort=xhigh` · UI: `… model_reasoning_effort=high` |
 | **Opus 5.5 xhigh** | Large-work **Orca coordinator** default | **Claude Code** driving Orca CLI | `claude --model claude-opus-5-5 --effort xhigh`; coordinator only plans/dispatches/waits (does not integrate/validate) |
 | **Fable** — Fable 5.1 (Medium → High/xhigh) | Large reasoning / gnarly escalate (non-orch) | **Claude Code** | Fable 5.1 at **Medium**, escalate to **High** then **xhigh** one step at a time (Opus 5.5 at high effort if Fable unavailable). Replan/split if still thrashing. **Not** the Orca coordinator default (**Opus 5.5 xhigh**) |
+| **Review** (GPT 6.1 Sol, High) | Code review means PR review, cross-model review of a diff, and the review step in babysit or proof. | **Codex** | `codex exec -m gpt-6.1-sol -c model_reasoning_effort=high --sandbox read-only - < brief.md`, or the built-in reviewer `codex exec review -m gpt-6.1-sol -c model_reasoning_effort=high --base main < /dev/null`. |
 
-Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Claude Code (Opus 5.5) by default for general code and UI; Codex (GPT 6.1 Sol) when Claude Code usage is above 70%; Codex (GPT 6 Luna) for super-defined work.
+Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Claude Code (Opus 5.5) by default for general code and UI; Codex (GPT 6.1 Sol) when Claude Code usage is above 70%; Codex (GPT 6 Luna) for super-defined work. Code review runs on Codex (GPT 6.1 Sol, High).
 
 **Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
 
