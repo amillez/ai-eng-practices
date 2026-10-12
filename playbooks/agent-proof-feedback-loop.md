@@ -110,7 +110,7 @@ Prove the change on the real surface with the project's `verify-<app>` skill whe
 1. **Launch.** Start the app for verification and confirm it is ready. For Expo/RN, use Argent simulator or emulator setup.
 2. **Doctor.** Run one read-only check that the instance is worth driving: process up, right build, port owned by this task. Run it again after any surprising drive.
 3. **Drive.** Exercise the real user path with stable handles (accessibility labels, test IDs, routes), not internal setters or test-only endpoints. For Expo/RN, drive with Argent.
-4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots and videos go to the [media branch](#proof-media-hosting). Logs, test output, and exit codes go in the PR body or a linked artifact.
+4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots and videos go to the [media branch](#proof-media-hosting). Logs, test output, and exit codes go in the PR body or a linked artifact. Proof must be captured after the last UI-affecting commit. After any UI change, re-capture proof before calling the PR ready.
 
 Then inspect the evidence against the success criteria in the launch prompt:
 
