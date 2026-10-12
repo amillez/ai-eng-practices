@@ -213,7 +213,9 @@ When both a dedicated MCP / connector and an ad-hoc CLI/`curl` path exist for th
 
 **Prefer MCP** when a connector exists (Notion, GitHub, Slack, X, etc.), when auth / pagination / structured results matter, or when bots should stay on the sanctioned tool surface (`GetDynamicTools` → `CallDynamicTool`) instead of scraping or inventing HTTP.
 
-**Only exception:** a paid MCP with no credits left (e.g. X once credits run out) falls back to the web for that job; return to the MCP when credits are back.
+**Only exception:** a paid MCP with no credits left falls back to the web for that job. Return to the MCP when credits are back.
+
+**X reads.** Grok Bots read public X (posts, users, search, trends, news) through the built-in free X connector. They don't scrape X, call the paid X API, or need an X connection. The built-in connector can't act as Agustín. DMs, bookmarks, and the home timeline need the X plugin, which can't post. Limits per user are 30 calls a minute, 1000 a day (UTC day), and at most 25 results per call.
 
 **Prefer CLI** when no MCP exists; for CLI-native host tooling (`git`, `gh` for forge ops already done that way, Orca CLI, Argent CLI on `agent-m1`, package managers); or for one-off scripts / pipes / batch shell MCP does not cover well.
 

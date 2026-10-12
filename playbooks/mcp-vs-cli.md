@@ -12,7 +12,7 @@ Use a dedicated MCP / connector when:
 - Auth, pagination, or structured results matter.
 - Bots/agents should stay on the sanctioned tool surface (`GetDynamicTools` → `CallDynamicTool`) — do not scrape, invent `curl`, or drive a signed-in browser for the same job.
 
-**Only exception: a paid MCP with no credits.** If the MCP is metered and we are out of credits, fall back to the web (public pages or the signed-in browser) for that job. Example: use the X MCP while we have X credits; once they run out, read X on the web instead. Switch back when credits return.
+**Only exception: a paid MCP with no credits.** If the MCP is metered and we are out of credits, fall back to the web (public pages or the signed-in browser) for that job. Switch back when credits return. Public X reads never take this path. They go through the built-in free X connector per [policy §8](../policies/agent-use-policy.md#8-integrations-mcp-vs-cli).
 
 ## Prefer CLI
 
