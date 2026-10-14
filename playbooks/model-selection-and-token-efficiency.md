@@ -30,7 +30,7 @@ You pay for **model I/O** (what goes into the model and what it emits). In the t
 
 **Model = engine. Harness = car.**
 
-The harness (Claude Code or Codex on `agent-m1`) wraps the model in tools, orchestration, and system context. The same ask can behave differently across models because the car is different, not only because the engine is.
+The harness (Claude Code, the Cursor Agent CLI, or Codex on `agent-m1`) wraps the model in tools, orchestration, and system context. The same ask can behave differently across models because the car is different, not only because the engine is.
 
 Hold these as design facts, not bugs:
 
@@ -83,7 +83,7 @@ That blip is small. **Do not fear switching** when the task needs a different en
 
 **No single model wins every category.** Do not lock to one provider. Use a **portfolio**.
 
-Our lanes span two providers: Opus 5.5 and Fable 5.1 on Claude Code, GPT 6 Luna and GPT 6.1 Sol on Codex. The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
+Our lanes span three providers. Opus 5.5, Fable 5.1, and Haiku 5.5 run on Claude Code. Grok 4.7 runs on the Cursor Agent CLI as the fallback when Claude Code usage is above 70%. GPT 6.1 Sol runs on Codex for code review only. The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ---
 
@@ -152,7 +152,7 @@ Use this as a pre-flight. Bots: if the user skipped these and the task is non-tr
 
 ### Small, direct task
 
-Scope the file or folder → **GPT 6 Luna Max**. One chat. Success criteria in the same turn.
+Scope the file or folder → **Claude Haiku 5.5 Max**. One chat. Success criteria in the same turn.
 
 ### Vague or unfamiliar
 
@@ -192,7 +192,7 @@ If usage exploded, do not start by "the model got worse." Walk the levers: vague
 | --- | --- |
 | **Eternal chats** | Compaction blur + baggage re-fed every turn |
 | **Vague "fix auth"** | Exploration + wrong guesses + expensive recovery |
-| **Always-on Fable** | Pays frontier rates for work GPT 6 Luna or Opus 5.5 High would finish |
+| **Always-on Fable** | Pays frontier rates for work Claude Haiku 5.5 or Opus 5.5 High would finish |
 | **Fast by default** | You bought speed, not intelligence |
 | **Giant always-apply rules** | Prefix tax on every request; cache-bust if you edit them mid-flight |
 | **Dumping 30k-line files into context** | Input burn, drowned signal, worse answers |
@@ -205,8 +205,8 @@ If usage exploded, do not start by "the model got worse." Walk the levers: vague
 
 If you are an agent reading this as policy, also follow [policies/agent-use-policy.md](../policies/agent-use-policy.md). Short version:
 
-1. Pick model + effort per slice from the [agent-use-policy](../policies/agent-use-policy.md) chooser on `agent-m1` Claude Code or Codex.
+1. Pick model + effort per slice from the [agent-use-policy](../policies/agent-use-policy.md) chooser on `agent-m1`.
 2. New chat per task; `@` anchors; no novel-length pastes.
 3. Plan before build when the work is not small and obvious.
-4. Escalate one knob at a time; de-escalate to GPT 6 Luna Max or Opus 5.5 High to implement.
+4. Escalate one knob at a time; de-escalate to Claude Haiku 5.5 Max or Opus 5.5 High to implement.
 5. Chat overrides win for that ask only.

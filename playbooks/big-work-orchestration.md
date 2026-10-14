@@ -1,6 +1,6 @@
 # Big-work orchestration
 
-When eng bots (Mark / Sam / Anibal / Emily) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code / Codex** workers inside **Orca** orchestration. Workers start with `--agent claude` or `--agent codex`, never `--agent cursor`.
+When eng bots (Mark / Sam / Anibal / Emily) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code** workers (Opus or Haiku) inside **Orca** orchestration. Workers start with `--agent claude`. A slice that hits the [Claude Code usage > 70%](../policies/agent-use-policy.md#claude-code-usage--70) rule runs as a direct headless Grok 4.7 xHigh session on the Cursor Agent CLI, outside Orca. Codex only reviews.
 
 Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktree / babysit rules: [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
@@ -14,15 +14,15 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 
 | Gate | Condition | Action |
 | --- | --- | --- |
-| **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Luna / Sol / Opus on Claude Code / Codex). **No Orca Run. No orchestrator layer.** |
-| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with an **Opus 5.5 xhigh** coordinator. Coordinator only plans, dispatches, waits, and routes decisions. Workers implement, integrate, and prove as **worker tasks**, each with **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude\|codex --model … --effort …`, not all Opus xhigh. The eng bot babysits the PR. |
+| **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Haiku / Opus on Claude Code, Grok on the Cursor Agent CLI). **No Orca Run. No orchestrator layer.** |
+| **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with an **Opus 5.5 xhigh** coordinator. Coordinator only plans, dispatches, waits, and routes decisions. Workers implement, integrate, and prove as **worker tasks**, each with **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude --model … --effort …`, not all Opus xhigh. The eng bot babysits the PR. |
 
 ### Small examples (direct agent — no Orca)
 
-- Rename a prop in one component folder → **Luna** (Codex) Max.
-- Fix a known auth bug in one package → **Opus** (Claude Code) High, or **Sol** (Codex) xHigh when Claude Code usage > 70%.
+- Rename a prop in one component folder → **Haiku** (Claude Code) Max.
+- Fix a known auth bug in one package → **Opus** (Claude Code) High, or **Grok 4.7** (Cursor Agent CLI) xHigh when Claude Code usage > 70%.
 - One UI polish PR in a single app surface → **Opus** (Claude Code) High.
-- Mechanical chore with tests already green → **Luna** Max.
+- Mechanical chore with tests already green → **Haiku** Max.
 
 ### Needs-orch examples (Orca + Opus 5.5 xhigh coordinator)
 
@@ -62,7 +62,7 @@ Do **not** collapse big work into one mega agent that owns every file. Do **not*
 Cite: [Orchestration — preferred supervised loop](https://www.onorca.dev/docs/cli/orchestration).
 
 ```text
-run-create → task-create (+ deps as needed) → worker-start (claude|codex + model + effort + worktree)
+run-create → task-create (+ deps as needed) → worker-start (claude + model + effort + worktree)
   → check --wait (worker_done / escalation / question) → worker tasks for integrate → structure review → prove → babysit
 ```
 
@@ -75,12 +75,12 @@ orca orchestration worker-start \
   --task <taskId> \
   --worktree new-child \   # or: current — never two agents on one checkout
   --name <slug> \
-  --agent claude \         # or: codex — NEVER cursor for coding
+  --agent claude \
   --model claude-opus-5-5 \
   --effort high \
   --setup run \
   --json
-# --model is the full lanes-table id (claude-opus-5-5, gpt-6.1-sol, gpt-6-luna).
+# --model is the full lanes-table id (claude-opus-5-5, claude-haiku-5-5).
 # Never an alias (opus) and never an id from ~/.codex/models_cache.json.
 # After start, check the worker banner for the expected model.
 
@@ -102,7 +102,7 @@ Notes from Orca docs:
 | Stage | Who | How |
 | --- | --- | --- |
 | **Plan (scout)** | Opus 5.5 xhigh coordinator | Recon blast radius; cut disjoint scopes; `task-create` with precise specs; assign chooser model/effort per task. |
-| **Workers** | Claude Code / Codex via Orca | `worker-start --agent claude\|codex --model … --effort …`; disk modes below. |
+| **Workers** | Claude Code via Orca | `worker-start --agent claude --model … --effort …`; disk modes below. |
 | **Integrate** | Worker task (delegated) | Merge outputs, resolve conflicts, re-run unit/typecheck. Coordinator does **not** integrate — dispatch an integrate worker (often sequential `--worktree current`). |
 | **Structure review** | Worker task (delegated) | Review the integrated diff against the repo's own practice docs so structure settles before proof rounds start. Runs after integrate, before prove. |
 | **Prove** | Worker task on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
@@ -138,7 +138,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 | --- | --- |
 | **Eng bot (Mark / Sam / Anibal / Emily / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close on Agustín's say-so. Does **not** replace Orca for the multi-agent DAG. |
 | **Coordinator (Opus 5.5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
-| **Worker agents** | Claude Code or Codex Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. |
+| **Worker agents** | Claude Code Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. |
 
 ## Model assignment
 
@@ -150,10 +150,10 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 ### Workers
 
-- Assign **`--agent claude|codex`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (GPT 6 Luna Max / Opus 5.5 High, or GPT 6.1 Sol xHigh/High when Claude Code usage > 70% / Fable 5.1 Medium→High).
-- `--model` takes the full id from the lanes table (`claude-opus-5-5`, `gpt-6.1-sol`, `gpt-6-luna`). Never an alias such as `opus`, and never an id from `~/.codex/models_cache.json`. After each `worker-start`, check the worker banner for the expected model.
+- Assign **`--agent claude`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Claude Haiku 5.5 Max / Opus 5.5 High / Fable 5.1 Medium→High). When Claude Code usage is above 70%, run the slice as a direct Grok 4.7 xHigh session on the Cursor Agent CLI instead of an Orca worker.
+- `--model` takes the full id from the lanes table (`claude-opus-5-5`, `claude-haiku-5-5`). Never an alias such as `opus`, and never an id from `~/.codex/models_cache.json`. After each `worker-start`, check the worker banner for the expected model.
 - Do **not** inherit Opus 5.5 xhigh for every worker.
-- `--model` / `--effort` apply to Claude and Codex launches (Orca docs).
+- `--model` / `--effort` apply to Claude Code launches (Orca docs).
 
 **Rule:** apply the [size gate](#size-gate) first. Small → direct agent, no Orca Run. Large → Opus 5.5 xhigh coordinator inside Orca, then chooser-per-slice workers.
 
@@ -173,7 +173,9 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - Collapsing large work into one mega session outside Orca.
 - Parallel workers on the same checkout (`--worktree current` twice).
 - More than 2 parallel worktrees under disk pressure without an explicit raise.
-- `--agent cursor` or any Cursor coding host.
+- `--agent codex` for a coding worker. Codex only reviews.
+- `--agent cursor` workers. Orca lists a `cursor` agent, but it opens the interactive `cursor-agent` TUI. The Grok fallback runs headless outside Orca.
+- Cursor cloud agents, Cursor Projects, My Machines, Composer, or Grok 4.6.
 - Claiming Argent/sim proof from anywhere other than `agent-m1`.
 - Parallel sim proves or opening a PR before prove.
 - Eng bot juggling N chats as forever-orchestrator instead of an Orca Run when the gate says large.
