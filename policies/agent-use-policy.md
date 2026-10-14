@@ -18,7 +18,7 @@ Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 For heavy coding / engineering agent work:
 
-- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code** (the default coder), the **Cursor Agent CLI** (`agent`, Grok 4.7 xHigh, the [Claude Code usage > 70%](#claude-code-usage--70) fallback, headless only), and **Codex** (code review only).
+- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code** (the default coder), the **Cursor Agent CLI** (`agent`, Grok 4.7 xHigh, the [Claude Code usage > 70%](#claude-code-usage--70) fallback, headless or as an Orca worker), and **Codex** (code review only).
 - **Grok Bot** is the chat and control plane (intake, dispatch, babysit, proof orchestration). It does not write code.
 - **Which harness** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule. Claude Code (Opus 5.5, Fable 5.1, Haiku 5.5) codes by default. The Cursor Agent CLI runs Grok 4.7 xHigh when Claude Code usage is above 70%. Codex never codes. It runs code review on GPT 6.1 Sol.
 
@@ -32,7 +32,7 @@ Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** an
 | --- | --- | --- | --- |
 | **Haiku** — Claude Haiku 5.5 (Max) | Very direct / super defined; mechanical | **Claude Code** | `claude --model claude-haiku-5-5 --effort max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
-| **Grok** — Grok 4.7 xHigh | Fallback for general code, UI, and docs when [Claude Code usage > 70%](#claude-code-usage--70) | **Cursor Agent CLI** (headless) | `agent -p --force --model grok-4.7-xhigh "<prompt>"` |
+| **Grok** — Grok 4.7 xHigh | Fallback for general code, UI, and docs when [Claude Code usage > 70%](#claude-code-usage--70) | **Cursor Agent CLI** (headless, or an Orca worker) | `agent -p --force --model grok-4.7-xhigh "<prompt>"`. Inside Orca, `worker-start --agent cursor --model grok-4.7-xhigh` with no `--effort`. |
 | **Sol** — GPT 6.1 Sol (High) | Code review only. Sol never codes. | **Codex** | See the **Review** row. |
 | **Opus 5.5 xhigh** | Large-work **Orca coordinator** default | **Claude Code** driving Orca CLI | `claude --model claude-opus-5-5 --effort xhigh`; coordinator only plans/dispatches/waits (does not integrate/validate) |
 | **Fable** — Fable 5.1 (Medium → High/xhigh) | Large reasoning / gnarly escalate (non-orch) | **Claude Code** | Fable 5.1 at **Medium**, escalate to **High** then **xhigh** one step at a time (Opus 5.5 at high effort if Fable unavailable). Replan/split if still thrashing. **Not** the Orca coordinator default (**Opus 5.5 xhigh**) |
@@ -92,12 +92,12 @@ Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code
 | General code / some reasoning | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Default for most implementation + light reasoning. **Claude Code usage > 70% → Grok 4.7 xHigh** on the Cursor Agent CLI (`grok-4.7-xhigh`) |
 | UI work | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Product UI / visual taste. **Claude Code usage > 70% → Grok 4.7 xHigh** on the Cursor Agent CLI (`grok-4.7-xhigh`) |
 | Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Writing a human reads and acts on. **Claude Code usage > 70% → Grok 4.7 xHigh** on the Cursor Agent CLI (`grok-4.7-xhigh`). Haiku is not for docs. |
-| Large-work orchestration (needs orch) | **Opus 5.5** (**xHigh**) coordinator inside **Orca** | Claude Code + Orca CLI | Size gate → Orca Run. Workers: `worker-start --agent claude` + chooser model/effort. Coordinator does not integrate/validate. |
+| Large-work orchestration (needs orch) | **Opus 5.5** (**xHigh**) coordinator inside **Orca** | Claude Code + Orca CLI | Size gate → Orca Run. Workers: `worker-start --agent claude` + chooser model/effort, or `--agent cursor --model grok-4.7-xhigh` when Claude Code usage > 70%. Never `--agent codex`. Coordinator does not integrate/validate. |
 | Large reasoning (non-orch) | **Fable 5.1** (**Medium** → High/xhigh) | Claude Code | Hard single-agent reasoning. Escalate effort one step at a time. |
 
 #### Claude Code usage > 70%
 
-Before launching a Claude Code lane (general code, UI, or docs), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to **Grok 4.7 xHigh** on the Cursor Agent CLI instead (`agent -p --force --model grok-4.7-xhigh "<prompt>"`). At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected. If usage is exhausted, say so and use the Grok lane rather than stalling. Codex is never the fallback, since Codex does not code.
+Before launching a Claude Code lane (general code, UI, or docs), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to **Grok 4.7 xHigh** on the Cursor Agent CLI instead (`agent -p --force --model grok-4.7-xhigh "<prompt>"`). Inside an Orca Run, start that worker with `--agent cursor --model grok-4.7-xhigh`. At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected. If usage is exhausted, say so and use the Grok lane rather than stalling. Codex is never the fallback, since Codex does not code.
 
 ### Agent chooser examples
 
@@ -109,11 +109,11 @@ Use this when you need a pick, not a philosophy. Leave Fast off by default. Esca
 | General reasoning + implementation | **Opus 5.5** (usage > 70% → **Grok 4.7**) | **High** (Grok: **xHigh**) | Claude Code (Grok: Cursor Agent CLI) | Default for most implementation + light reasoning. |
 | UI work | **Opus 5.5** (usage > 70% → **Grok 4.7**) | **High** (Grok: **xHigh**) | Claude Code (Grok: Cursor Agent CLI) | Product UI / visual taste. |
 | Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (usage > 70% → **Grok 4.7**) | **High** (Grok: **xHigh**) | Claude Code (Grok: Cursor Agent CLI) | Includes gardens. Haiku is only for trivial mechanical chores, not docs. |
-| Large-work orchestration (needs orch) | **Opus 5.5** (Orca coordinator) | **xHigh** | Claude Code + Orca | Prefer **Opus 5.5 xhigh** label. Workers via Orca `--agent claude` + chooser — not all Opus xhigh. Coordinator does not integrate/validate. |
+| Large-work orchestration (needs orch) | **Opus 5.5** (Orca coordinator) | **xHigh** | Claude Code + Orca | Prefer **Opus 5.5 xhigh** label. Workers via Orca `--agent claude` + chooser — not all Opus xhigh. Grok workers use `--agent cursor --model grok-4.7-xhigh` when Claude Code usage > 70%. Never `--agent codex`. Coordinator does not integrate/validate. |
 | Large reasoning / gnarly escalate (non-orch) | **Fable 5.1** | **Medium** (→ High → xhigh) | Claude Code | Escalate **effort** for hard single-agent work — not the Orca coordinator default. |
 | Writing / agreeing on a plan | **Opus 5.5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
 | Mechanical chore (format, rename in known files, boilerplate with tests already green) | **Claude Haiku 5.5** | **Max** | Claude Code | Few edge cases, little verification needed. |
-| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **GPT 6.1 Sol**) ×2 + **GPT 6.1 Sol**; synthesizer **Opus 5.5** | Reviewers **High** (Sol: **xHigh**); synthesizer **xHigh** | Claude Code + Codex | The akit [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md) skill. The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
+| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **Grok 4.7 xHigh** on the Cursor Agent CLI, read-only) ×2 + **GPT 6.1 Sol**; synthesizer **Opus 5.5**, falling back to **Grok 4.7 xHigh** when Claude Code is exhausted | Reviewers **High** (Sol and Grok: **xHigh**); synthesizer **xHigh** | Claude Code + Codex, plus the Cursor Agent CLI for the fallbacks | The akit [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md) skill. Read-only Grok runs use `agent -p --trust --mode plan --model grok-4.7-xhigh "$(cat brief.md)" < /dev/null`. The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
 
 Concrete picks:
 

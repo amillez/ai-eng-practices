@@ -2,14 +2,14 @@
 
 How bots dispatch work to coding agents: projects, worktrees, and teardown.
 
-Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%, headless only), and Codex (code review only). Dispatch = Grok Bot → agent-m1 coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
+Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%, headless or as an Orca worker), and Codex (code review only). Dispatch = Grok Bot → agent-m1 coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
 
 ## Units
 
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion).
-- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Cursor Agent CLI on Grok 4.7 xHigh when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on `agent-m1`
 
@@ -111,7 +111,7 @@ Related: the coding agent's side of a babysit (what it does when sent back with 
 
 ## Do not
 
-- Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. The headless Cursor Agent CLI is the only Cursor path.
+- Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. The Cursor Agent CLI, headless or as an Orca worker, is the only Cursor path.
 - Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5.5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Auto-merge.
 - Paraphrase a report into your own diagnosis in the launch prompt. Pass the raw report and ask for a restatement.
