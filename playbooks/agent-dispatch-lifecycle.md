@@ -2,14 +2,14 @@
 
 How bots dispatch work to coding agents: projects, worktrees, and teardown.
 
-Standing stack: `agent-m1` running Claude Code / Codex **only**. Dispatch = Grok Bot → agent-m1 Claude/Codex session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
+Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%, headless only), and Codex (code review only). Dispatch = Grok Bot → agent-m1 coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
 
 ## Units
 
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion).
-- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Luna/Sol/Opus) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude/Codex → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on `agent-m1`
 
@@ -64,8 +64,8 @@ Rules:
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
 - **Post-upgrade stall:** if `--bg` sits on the startup dialog (`needs: open session`), unblock with `claude respawn <id>` (then re-check `claude agents --json`). Do not relaunch a duplicate session blindly.
 - **Resume can change the session id.** `--bg --resume <id>` keeps the id unless that session is already running, in which case it starts a copy under a new id. `--fork-session` always makes a new id. After any resume, re-read `claude agents --json` and point settle-watches at the id the CLI reports.
-- **Headless Codex.** `nohup … &` from a machine Shell dies when that Shell exits. Start it with `screen -dmS <name> …` or the `zsh -l` wrapper.
-- **agent-m1 disconnected.** If Grok Bot shows `agent-m1` disconnected, do not relaunch jobs. Claude Code and Codex keep running locally on `agent-m1`, so wait for the reconnect, then check the session with `claude agents --json`.
+- **Headless Codex and Cursor Agent CLI.** `nohup … &` from a machine Shell dies when that Shell exits. Start it with `screen -dmS <name> …` or the `zsh -l` wrapper.
+- **agent-m1 disconnected.** If Grok Bot shows `agent-m1` disconnected, do not relaunch jobs. Claude Code, Cursor Agent CLI, and Codex sessions keep running locally on `agent-m1`, so wait for the reconnect, then check the session with `claude agents --json`.
 
 ## Lifecycle
 
@@ -91,12 +91,12 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 ## Babysit until merged
 
 1. **Own the workstream until a terminal status.** Terminal = merge, close, or abandon. Agent idle or session settle is not done.
-2. **Hop 1 — session settle: arm a finite settle-watch.** Do not rely on silent background Shell wakes alone. The bot arms a finite weekday `*/10` Europe/Madrid routine that checks the Claude Code / Codex session on `agent-m1`, **must message** the user on settle, block, or deadline, then deletes itself. See standing skill `agent-m1-completion-ping`. A routine run cannot create, update, resume, or enable routines, so the settle-watch hands back to the parent bot, which arms hop 2 and does any re-arming.
+2. **Hop 1 — session settle: arm a finite settle-watch.** Do not rely on silent background Shell wakes alone. The bot arms a finite weekday `*/10` Europe/Madrid routine that checks the coding session on `agent-m1`, **must message** the user on settle, block, or deadline, then deletes itself. See standing skill `agent-m1-completion-ping`. A routine run cannot create, update, resume, or enable routines, so the settle-watch hands back to the parent bot, which arms hop 2 and does any re-arming.
 3. **Hop 2 — PR open: switch to GitHub listeners.** Babysit with PR-scoped GitHub event listeners (review, CI, push, `pr-merged`, `pr-closed`), not polling. `pr-merged` and `pr-closed` are always in the pack. Listeners do not reliably self-delete on merge, so every babysit routine prompt says explicitly to delete its own routine on the `pr-merged` or `pr-closed` wake. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook.
 4. **Match the PR on every listener wake.** On every GitHub listener wake, confirm the event's PR number matches this workstream's `pr_number`; ignore cross-PR payloads.
 5. **Do not stop at settle.** While the PR is OPEN and review threads are unresolved, do not delete the settle-watch or stop babysitting just because the coding session finished.
 6. **Filter listener noise, keep watching.** Empty-body COMMENTED reviews and agent fix-ack replies on unresolved threads can wake as review-commented. Stay quiet on pure noise, but do not treat it as a hard failure that abandons babysit. Coding sessions post thread replies with `gh` as `amillez`. A wake whose only new activity is in-thread replies from the session the bot launched, with no new review and no new reviewer comment, is a no-op. Start no session and leave the Amillez Tasks card unchanged. Real feedback still follows item 7.
-7. **Apply Agustín's review comments once per submitted review.** Start a Claude Code or Codex session only after a review is submitted, never one per inline comment. Before the launch, check `claude agents --json` for a busy session on the PR's branch, and never resume a busy session. Batch every unresolved thread into one session. No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close. Carve-out: a comment that can only be met by overriding platform behavior (new native module, dependency patch, native build change, dynamic font linking) ships the platform default plus a thread reply that names the override's cost. Build the override only on the reviewer's go.
+7. **Apply Agustín's review comments once per submitted review.** Start a coding session only after a review is submitted, never one per inline comment. Before the launch, check `claude agents --json` for a busy session on the PR's branch, and never resume a busy session. Batch every unresolved thread into one session. No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close. Carve-out: a comment that can only be met by overriding platform behavior (new native module, dependency patch, native build change, dynamic font linking) ships the platform default plus a thread reply that names the override's cost. Build the override only on the reviewer's go.
 8. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
 9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. On terminal, the babysit routine deletes itself, and the bot sweeps any stale babysit routines left for the merged or closed PR. Verify every Metro port used is no longer listening.
 10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
@@ -111,7 +111,7 @@ Related: the coding agent's side of a babysit (what it does when sent back with 
 
 ## Do not
 
-- Use Cursor cloud, Cursor Projects, My Machines, or `register-worker-dir` for coding.
+- Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. The headless Cursor Agent CLI is the only Cursor path.
 - Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5.5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Auto-merge.
 - Paraphrase a report into your own diagnosis in the launch prompt. Pass the raw report and ask for a restatement.

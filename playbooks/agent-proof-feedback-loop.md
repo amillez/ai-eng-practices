@@ -1,6 +1,6 @@
 # Agent proof feedback loop
 
-Standing practice for eng work on `agent-m1` (Claude Code / Codex). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
+Standing practice for eng work on `agent-m1` (Claude Code, or Grok on the Cursor Agent CLI, with Codex for review). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
 
 Related: pstack's prove-it-works and verification-skill pattern — see [Steal from pstack](steal-from-pstack.md). Checks that must fail closed: [Hard constraints](hard-constraints.md).
 
@@ -21,7 +21,7 @@ A coding agent is not done when CI is green or files changed. It is done when it
 
 ## Thorough launch prompt
 
-A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude Code or Codex** on agent-m1, write the launch prompt so the agent can close the loop on its own. Every launch prompt **must** include:
+A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off a coding agent on agent-m1, write the launch prompt so the agent can close the loop on its own. Every launch prompt **must** include:
 
 1. **Goal / success criteria.** State what "done" looks like in observable terms. Not "fix the header" — "header title no longer truncates on iPhone SE; tapping back returns to Home."
 2. **Scope and constraints.** Name the files, packages, or areas in play. Say what is off-limits (no dependency bumps, no API changes, don't touch `ios/Podfile`, etc.).
@@ -30,7 +30,7 @@ A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off **Claude 
    - UI: before/after screenshots of named screens/states (or `argent-screenshot-diff` output).
    - Behavior: specific log lines, network requests, or profiler summaries.
    - Logic: the test command to run and the pass criteria (e.g. `yarn test src/cart` — all green, new test covers the empty-cart case).
-5. **Host routing.** Note `agent-m1` (Claude Code / Codex with Argent + provisioned sims/AVDs). Claude vs Codex per the [model lanes](../policies/agent-use-policy.md#default-picks) + Claude Code usage > 70% rule.
+5. **Host routing.** Note `agent-m1` (Claude Code or the Cursor Agent CLI, with Argent + provisioned sims/AVDs). Pick the harness per the [model lanes](../policies/agent-use-policy.md#default-picks) + Claude Code usage > 70% rule.
 
 Do not launch until all five are in the prompt. If you cannot state the proof expected, the task is not defined enough to launch.
 
@@ -60,7 +60,7 @@ Goal: <what done looks like, observable>
 Scope: <files/areas>. Constraints: <what not to touch / limits>
 Skills: amillez-mode, <craft skills from chooser>, <proof skills>. Use other skills if the task clearly needs them; list any you add.
 Proof expected: <screenshots before/after of X | logs showing Y | run `<cmd>` and all pass>. Inspect the proof before reporting done; if it doesn't match, iterate or report the blocker with evidence.
-Host: agent-m1 — Claude Code | Codex — <pick + reason>
+Host: agent-m1 — Claude Code | Cursor Agent CLI — <pick + reason>
 ```
 
 ## Loop

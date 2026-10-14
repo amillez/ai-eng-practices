@@ -1,6 +1,6 @@
 # Eng team of bots
 
-How **we** run specialized engineering bots that dispatch coding agents on `agent-m1` (Claude Code / Codex).
+How **we** run specialized engineering bots that dispatch coding agents on `agent-m1` (Claude Code, the Cursor Agent CLI, and Codex for review).
 
 **Snapshot, not scripture** — fleet patterns as of October 2026.
 
@@ -20,7 +20,7 @@ Focused bots stay sharper. Our split:
 | **Mark** | RN client quality, visual proof, mobile skills. Runs coding work on `agent-m1`. Owns the akit `amillez-react-native-mode` skill and rn-bedrock docs gardening. |
 | **Anibal** | Runs and manages coding work on `agent-m1`. |
 | **Emily** | Engineer bot for `KaikuLabs/favvy-app`. Codes on `agent-m1`. |
-| **Ben** | `agent-m1` host health checks. Keeps Claude Code, Codex, and `gh` updated and logged in. |
+| **Ben** | `agent-m1` host health checks. Keeps Claude Code, the Cursor Agent CLI, Codex, and `gh` updated and logged in. |
 | **Stella** | Designs new Grok Bots. |
 | **Jarvis and Friday (hub)** | Cross-project intake and routing to other bots. Plan and delegate; do not write feature code. |
 
@@ -58,7 +58,7 @@ Rules:
 
 ## How bots dispatch coding agents
 
-Coding agents run on **agent-m1** (Claude Code / Codex only). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
+Coding agents run on **agent-m1** (Claude Code, or Grok on the Cursor Agent CLI when Claude Code usage > 70%). Codex only reviews. The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
 Every launch includes:
 

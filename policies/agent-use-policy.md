@@ -18,30 +18,31 @@ Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 For heavy coding / engineering agent work:
 
-- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code + Codex only**. No Cursor installed.
+- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code** (the default coder), the **Cursor Agent CLI** (`agent`, Grok 4.7 xHigh, the [Claude Code usage > 70%](#claude-code-usage--70) fallback, headless only), and **Codex** (code review only).
 - **Grok Bot** is the chat and control plane (intake, dispatch, babysit, proof orchestration). It does not write code.
-- **Claude vs Codex** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule: Claude Code (Opus 5.5 / Fable 5.1) by default; Codex for GPT 6 Luna work, for code review of Claude Code work on GPT 6.1 Sol, and for GPT 6.1 Sol when Claude Code usage is above 70%.
+- **Which harness** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule. Claude Code (Opus 5.5, Fable 5.1, Haiku 5.5) codes by default. The Cursor Agent CLI runs Grok 4.7 xHigh when Claude Code usage is above 70%. Codex never codes. It runs code review on GPT 6.1 Sol.
 
-Do **not** code through Cursor: no Cursor cloud agents, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6 fallbacks.
+The Cursor Agent CLI is the only Cursor path. Do **not** use Cursor cloud agents, Cursor Projects, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6.
 
-**Model role labels → Claude Code / Codex (as of 2026-10-11):**
+**Model role labels → harness (as of 2026-10-11):**
 
-Policy keeps the role names (Luna / Sol / Opus / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.296, Codex CLI 0.162.0). If a lane cannot run on either harness, use the nearest equivalent or skip that lane.
+Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.296, Codex CLI 0.162.0). If a lane cannot run on its harness, use the nearest equivalent or skip that lane.
 
 | Policy label | Intent | Run on | CLI pick (verified 2026-10-11) |
 | --- | --- | --- | --- |
-| **Luna** — GPT 6 Luna (Max) | Very direct / super defined; mechanical | **Codex** | `codex exec -m gpt-6-luna -c model_reasoning_effort=max` |
+| **Haiku** — Claude Haiku 5.5 (Max) | Very direct / super defined; mechanical | **Claude Code** | `claude --model claude-haiku-5-5 --effort max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
-| **Sol** — GPT 6.1 Sol | Fallback for general code (**xHigh**) and UI (**High**) when [Claude Code usage > 70%](#claude-code-usage--70) | **Codex** | General: `codex exec -m gpt-6.1-sol -c model_reasoning_effort=xhigh` · UI: `… model_reasoning_effort=high` |
+| **Grok** — Grok 4.7 xHigh | Fallback for general code, UI, and docs when [Claude Code usage > 70%](#claude-code-usage--70) | **Cursor Agent CLI** (headless) | `agent -p --force --model grok-4.7-xhigh "<prompt>"` |
+| **Sol** — GPT 6.1 Sol (High) | Code review only. Sol never codes. | **Codex** | See the **Review** row. |
 | **Opus 5.5 xhigh** | Large-work **Orca coordinator** default | **Claude Code** driving Orca CLI | `claude --model claude-opus-5-5 --effort xhigh`; coordinator only plans/dispatches/waits (does not integrate/validate) |
 | **Fable** — Fable 5.1 (Medium → High/xhigh) | Large reasoning / gnarly escalate (non-orch) | **Claude Code** | Fable 5.1 at **Medium**, escalate to **High** then **xhigh** one step at a time (Opus 5.5 at high effort if Fable unavailable). Replan/split if still thrashing. **Not** the Orca coordinator default (**Opus 5.5 xhigh**) |
-| **Review** (other model family) | Code review always uses the other model family. Claude Code work (written by Opus) goes to GPT 6.1 Sol High. This is the default case, since Claude Code is the main coder. Codex work (written by Sol or Luna) goes to Opus 5.5 High, read-only. Code review means PR review, cross-model review of a diff, and the review step in babysit or proof. | **Codex** for Claude Code work · **Claude Code** for Codex work | Claude Code work: `codex exec -m gpt-6.1-sol -c model_reasoning_effort=high --sandbox read-only - < brief.md`, or the built-in reviewer `codex exec review -m gpt-6.1-sol -c model_reasoning_effort=high --base main < /dev/null`. Codex work: `claude -p --model claude-opus-5-5 --effort high --permission-mode plan < brief.md`. Plan mode keeps the reviewer read-only. |
+| **Review** (other model family) | Code review always runs on Codex GPT 6.1 Sol High, read-only. That is another model family for Claude Code work and for Grok work alike. Code review means PR review, cross-model review of a diff, and the review step in babysit or proof. | **Codex** | `codex exec -m gpt-6.1-sol -c model_reasoning_effort=high --sandbox read-only - < brief.md`, or the built-in reviewer `codex exec review -m gpt-6.1-sol -c model_reasoning_effort=high --base main < /dev/null`. |
 
-Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Claude Code (Opus 5.5) by default for general code and UI; Codex (GPT 6.1 Sol) when Claude Code usage is above 70%; Codex (GPT 6 Luna) for super-defined work. Code review uses the other model family. Claude Code work goes to Codex (GPT 6.1 Sol, High), and Codex work goes to Claude Code (Opus 5.5, High, read-only).
+Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code (Opus 5.5) is the default for general code and UI. The Cursor Agent CLI (Grok 4.7 xHigh) takes over when Claude Code usage is above 70%. Claude Code (Haiku 5.5) takes super-defined work. Code review always goes to Codex (GPT 6.1 Sol, High, read-only).
 
 **Proof before done** (see [agent proof feedback loop](../playbooks/agent-proof-feedback-loop.md)):
 
-- **Thorough launch prompt.** Every Claude Code / Codex launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
+- **Thorough launch prompt.** Every Claude Code, Cursor Agent CLI, or Codex launch states goal, scope, skills to invoke by name, and the proof expected. See [thorough launch prompt](../playbooks/agent-proof-feedback-loop.md#thorough-launch-prompt).
 - **amillez-mode is required for coding agents.** Every invoked coding agent, a single agent or an Orca worker, loads and follows the `amillez-mode` skill ([`amillez/akit`](https://github.com/amillez/akit/tree/main/skills/amillez-mode)). The launch prompt or worker brief names it explicitly. A prompt that does not name amillez-mode is not ready to launch. Grok Bots do not load amillez-mode themselves; knowing which skills to attach to prompts is one of their most important jobs, and `amillez-mode` is always first. This policy stays the source of truth for model lanes; the skill mirrors them.
 - **Require proof.** Not done at green CI or changed files — done when the agent has produced and inspected task-relevant proof.
 - **Flexible evidence.** Screenshots or videos for UI; logs, test output, exit codes, or traces for non-visual work. No screenshots for show.
@@ -56,7 +57,7 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 
 - **Host install.** Before coding on `agent-m1`, run `./scripts/ensure-install.sh` from the akit checkout (or `AMILLEZ_SKILLS_ROOT`). It installs the **core+mobile** groups at **`~/.claude`** and **`~/.agents`** (skills, user rules `amillez-models.md`, stamp) when they are missing and continues when they are present. Codex reads `~/.agents`; nothing goes under `~/.codex`. Refresh with `./scripts/update-install.sh` when policy or skills change or a human asks.
 - **Project trees.** The plugin never installs into a project or worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills live in the repo.
-- **Dispatch prompts.** Every Grok Bot dispatch prompt to Claude Code / Codex starts with the host ensure step, or the bot runs it before launch.
+- **Dispatch prompts.** Every Grok Bot dispatch prompt to a coding agent starts with the host ensure step, or the bot runs it before launch.
 
 **Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
 
@@ -67,9 +68,9 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 - **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Bots babysit an open PR with PR-scoped GitHub event listeners, and every babysit routine deletes itself on the `pr-merged` or `pr-closed` wake. A babysitter starts one coding session per submitted review with every unresolved thread batched in, never one per inline comment. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Teardown after merge or abandon.** Remove the worktree and delete the local branch; runtime teardown and Metro-port verification still apply. No dirty or orphan trees left on disk.
 
-**Permissions bypass on `agent-m1` only**: Run Claude Code and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code) or equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host.
+**Permissions bypass on `agent-m1` only**: Run Claude Code, the Cursor Agent CLI, and Codex with permission prompts disabled for unattended agent work. Use the CLI's skip-permissions flag (Claude Code), `--force` (Cursor Agent CLI), or the equivalent sandbox bypass option (Codex) so agents are not blocked waiting for interactive approval. This applies only to the trusted `agent-m1` host.
 
-**Claude Code / Codex launches** (eng-bot Mark's launch discipline, adapted):
+**Coding agent launches** (eng-bot Mark's launch discipline, adapted):
 
 - **Never omit model or effort.** Harness defaults are not the Agent chooser.
 - **Fast:** leave off unless the human explicitly asks.
@@ -87,16 +88,16 @@ Bot orchestrators (Grok Bots) pick **Claude vs Codex** from the lanes above: Cla
 
 | Situation | Model (effort) | Harness | Notes |
 | --- | --- | --- | --- |
-| Very direct / super defined | **GPT 6 Luna** (**Max**) | Codex (`gpt-6-luna`) | Mechanical, files + success criteria clear |
-| General code / some reasoning | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Default for most implementation + light reasoning. **Claude Code usage > 70% → GPT 6.1 Sol (xHigh)** on Codex (`gpt-6.1-sol`) |
-| UI work | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Product UI / visual taste. **Claude Code usage > 70% → GPT 6.1 Sol (High)** on Codex (`gpt-6.1-sol`) |
-| Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Writing a human reads and acts on. **Claude Code usage > 70% → GPT 6.1 Sol (xHigh)** on Codex (`gpt-6.1-sol`). Luna is not for docs. |
-| Large-work orchestration (needs orch) | **Opus 5.5** (**xHigh**) coordinator inside **Orca** | Claude Code + Orca CLI | Size gate → Orca Run. Workers: `worker-start --agent claude|codex` + chooser model/effort. Coordinator does not integrate/validate. |
+| Very direct / super defined | **Claude Haiku 5.5** (**Max**) | Claude Code (`claude-haiku-5-5`) | Mechanical, files + success criteria clear |
+| General code / some reasoning | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Default for most implementation + light reasoning. **Claude Code usage > 70% → Grok 4.7 xHigh** on the Cursor Agent CLI (`grok-4.7-xhigh`) |
+| UI work | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Product UI / visual taste. **Claude Code usage > 70% → Grok 4.7 xHigh** on the Cursor Agent CLI (`grok-4.7-xhigh`) |
+| Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (**High**) | Claude Code (`claude-opus-5-5`) | Writing a human reads and acts on. **Claude Code usage > 70% → Grok 4.7 xHigh** on the Cursor Agent CLI (`grok-4.7-xhigh`). Haiku is not for docs. |
+| Large-work orchestration (needs orch) | **Opus 5.5** (**xHigh**) coordinator inside **Orca** | Claude Code + Orca CLI | Size gate → Orca Run. Workers: `worker-start --agent claude` + chooser model/effort. Coordinator does not integrate/validate. |
 | Large reasoning (non-orch) | **Fable 5.1** (**Medium** → High/xhigh) | Claude Code | Hard single-agent reasoning. Escalate effort one step at a time. |
 
 #### Claude Code usage > 70%
 
-Before launching a Claude Code lane (general code or UI), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to Codex **GPT 6.1 Sol** instead (**xHigh** for general code, **High** for UI). At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected; if usage is exhausted, say so and pick the nearest Codex lane rather than stalling.
+Before launching a Claude Code lane (general code, UI, or docs), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to **Grok 4.7 xHigh** on the Cursor Agent CLI instead (`agent -p --force --model grok-4.7-xhigh "<prompt>"`). At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected. If usage is exhausted, say so and use the Grok lane rather than stalling. Codex is never the fallback, since Codex does not code.
 
 ### Agent chooser examples
 
@@ -104,24 +105,24 @@ Use this when you need a pick, not a philosophy. Leave Fast off by default. Esca
 
 | Situation | Model | Effort | Harness | Notes |
 | --- | --- | --- | --- | --- |
-| Straightforward / super defined | **GPT 6 Luna** | **Max** | Codex | Files and success criteria are already clear. |
-| General reasoning + implementation | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **xHigh**) | Claude Code (Sol: Codex) | Default for most implementation + light reasoning. |
-| UI work | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **High**) | Claude Code (Sol: Codex) | Product UI / visual taste. |
-| Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (usage > 70% → **GPT 6.1 Sol**) | **High** (Sol: **xHigh**) | Claude Code (Sol: Codex) | Includes gardens. Luna is only for trivial mechanical chores, not docs. |
-| Large-work orchestration (needs orch) | **Opus 5.5** (Orca coordinator) | **xHigh** | Claude Code + Orca | Prefer **Opus 5.5 xhigh** label. Workers via Orca `--agent claude|codex` + chooser — not all Opus xhigh. Coordinator does not integrate/validate. |
+| Straightforward / super defined | **Claude Haiku 5.5** | **Max** | Claude Code | Files and success criteria are already clear. |
+| General reasoning + implementation | **Opus 5.5** (usage > 70% → **Grok 4.7**) | **High** (Grok: **xHigh**) | Claude Code (Grok: Cursor Agent CLI) | Default for most implementation + light reasoning. |
+| UI work | **Opus 5.5** (usage > 70% → **Grok 4.7**) | **High** (Grok: **xHigh**) | Claude Code (Grok: Cursor Agent CLI) | Product UI / visual taste. |
+| Docs, knowledge, playbook, or policy PRs | **Opus 5.5** (usage > 70% → **Grok 4.7**) | **High** (Grok: **xHigh**) | Claude Code (Grok: Cursor Agent CLI) | Includes gardens. Haiku is only for trivial mechanical chores, not docs. |
+| Large-work orchestration (needs orch) | **Opus 5.5** (Orca coordinator) | **xHigh** | Claude Code + Orca | Prefer **Opus 5.5 xhigh** label. Workers via Orca `--agent claude` + chooser — not all Opus xhigh. Coordinator does not integrate/validate. |
 | Large reasoning / gnarly escalate (non-orch) | **Fable 5.1** | **Medium** (→ High → xhigh) | Claude Code | Escalate **effort** for hard single-agent work — not the Orca coordinator default. |
 | Writing / agreeing on a plan | **Opus 5.5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
-| Mechanical chore (format, rename in known files, boilerplate with tests already green) | **GPT 6 Luna** | **Max** | Codex | Few edge cases, little verification needed. |
+| Mechanical chore (format, rename in known files, boilerplate with tests already green) | **Claude Haiku 5.5** | **Max** | Claude Code | Few edge cases, little verification needed. |
 | Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **GPT 6.1 Sol**) ×2 + **GPT 6.1 Sol**; synthesizer **Opus 5.5** | Reviewers **High** (Sol: **xHigh**); synthesizer **xHigh** | Claude Code + Codex | The akit [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md) skill. The synthesizer is the one non-Orca Opus 5.5 xHigh use. Output is one PR for review or a garden hand-off. |
 
 Concrete picks:
 
-1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **GPT 6 Luna** (Codex), **Max effort**.
-2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **Opus 5.5** (Claude Code), **High** (Claude Code usage > 70% → **GPT 6.1 Sol** xHigh on Codex). If two wrong fixes: new chat + plan, then implement again.
-3. New to the monorepo — where should a billing webhook live / what breaks → read-only recon on **Opus 5.5** (Claude Code), **High** (> 70% usage → GPT 6.1 Sol xHigh). Then a short plan before the build.
+1. Rename a prop in `UserCard.tsx` and fix call sites in that folder → **Claude Haiku 5.5** (Claude Code), **Max effort**.
+2. Auth broken for `@edu` emails; 12-line stack + `@` the auth folder → **Opus 5.5** (Claude Code), **High** (Claude Code usage > 70% → **Grok 4.7** xHigh on the Cursor Agent CLI). If two wrong fixes: new chat + plan, then implement again.
+3. New to the monorepo — where should a billing webhook live / what breaks → read-only recon on **Opus 5.5** (Claude Code), **High** (> 70% usage → Grok 4.7 xHigh). Then a short plan before the build.
 4. Draft a migration plan for splitting payments into a new service (a human will review / push back) → **Opus 5.5** (Claude Code), **High** (→ **xhigh** if architecture tradeoffs). Implement later against the agreed plan.
-5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1** (Claude Code), **Medium** (→ **High** / **xhigh** if needed), debug/repro-first. After the root cause is pinned, drop to GPT 6 Luna Max (Codex) or Opus 5.5 High for the surgical fix.
-6. Weekly garden PR that fixes stale version stamps and roster wording across `policies/` and `playbooks/` → **Opus 5.5** (Claude Code), **High** (> 70% usage → GPT 6.1 Sol xHigh). Not Luna, even when the edits look mechanical.
+5. Huge flaky race across web + RN + API; intermittent; two loops already burned → **Fable 5.1** (Claude Code), **Medium** (→ **High** / **xhigh** if needed), debug/repro-first. After the root cause is pinned, drop to Claude Haiku 5.5 Max or Opus 5.5 High for the surgical fix.
+6. Weekly garden PR that fixes stale version stamps and roster wording across `policies/` and `playbooks/` → **Opus 5.5** (Claude Code), **High** (> 70% usage → Grok 4.7 xHigh). Not Haiku, even when the edits look mechanical.
 
 ---
 
@@ -157,7 +158,7 @@ Escalate **one knob at a time**. Say why.
 - You have not scoped the files, success criteria, or repro.
 - You only want faster output (that is Fast, not intelligence).
 
-De-escalate as soon as the hard part is done. After a strong-model plan, implement with a lighter model (GPT 6 Luna at Max for mechanical work, Opus 5.5 High — or GPT 6.1 Sol xHigh when Claude Code usage > 70% — for general implementation) unless the remaining work still needs complex reasoning.
+De-escalate as soon as the hard part is done. After a strong-model plan, implement with a lighter model (Claude Haiku 5.5 at Max for mechanical work, Opus 5.5 High for general implementation, or Grok 4.7 xHigh when Claude Code usage > 70%) unless the remaining work still needs complex reasoning.
 
 ---
 
