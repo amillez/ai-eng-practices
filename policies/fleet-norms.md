@@ -10,6 +10,7 @@ Agustín's adaptation of the [x.ai bot guides](https://x.ai/bot/guides).
 4. Turn a correction Agustín gives twice into a saved rule or skill.
 5. Start new routines paused until Agustín confirms them. Start PR-scoped babysit listeners that delete themselves on merge or close, and finite agent-m1 settle-watches and finish pings, live right away.
 6. Treat this repo, `amillez/ai-eng-practices`, as the only source of truth for policy. Keep pointers, not copies, in bot memory. When policy changes, update this repo and announce the change to the affected bots.
+7. For any issue or PR to a repo not owned by `amillez` or `KaikuLabs`, open and follow akit's [`draft-upstream`](https://github.com/amillez/akit/blob/main/skills/draft-upstream/SKILL.md) skill. It drafts in the `amillez/<repo>` fork and Agustín files upstream himself. Grok Bots don't load akit skills on their own, so read the file. See [agent use policy §8](agent-use-policy.md#8-integrations-mcp-vs-cli).
 
 ## Related
 
