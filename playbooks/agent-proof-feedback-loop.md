@@ -83,6 +83,7 @@ Proof media = **screenshots and videos** (screen recordings, before/after clips)
 - Create the media branch as an orphan (unrelated to `main`, hosts media only) only when it does not exist yet.
 - Push from a detached temporary worktree. Never touch the workstream branch.
 - Use a clear path: `proof/<pr-number-or-slug>/<file>`.
+- Save local proof under `~/agent-work/proof/<slug>/` before copying it to the media worktree. The akit install allows Claude Code to Read only that directory outside the working directories, so an auto-mode session does not stop on the first-read prompt while it holds a device.
 - In the **PR description**, embed or link each asset with verification notes next to it.
 - **No raw URLs.** Repos may be private; `raw.githubusercontent.com` and other unauthenticated raw links break for reviewers. Use GitHub UI links built from the actual media branch name (`<media-branch>` below):
   - Images: `![before](https://github.com/<owner>/<repo>/blob/<media-branch>/proof/<slug>/before.png?raw=true)` renders for logged-in viewers, or link the blob page.
@@ -159,6 +160,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `orchestrate-agents`. Size gate, then Orca for large work, with the worker brief template (every brief names `amillez-mode`) and retry by failure mode.
 - `create-verification-skill`, `maintain-verification-skill` (amillez skill, core). Generate and maintain a project's `verify-<app>` skill and feature map.
 - `correct`, `blast-radius`, `reflect`, `show-me-your-work`, `figure-it-out`, `unslop` (amillez skills, core). Run each on an explicit slash command or when an amillez-mode trigger names it, not on every launch. `correct` for a mistake Agustín corrects a second time. `blast-radius` for a diff you don't trust. `reflect` when Agustín asks to reflect on a session. `show-me-your-work` for long, autonomous, or later-reviewed work. `figure-it-out` for long single-agent work no narrower playbook fits. `unslop` for any prose surface. See [steal from pstack](steal-from-pstack.md).
+- `draft-upstream` (amillez skill, core). Loads by description when an agent drafts an issue or PR for a third-party repo. It opens the draft only in the `amillez/<repo>` fork and hands Agustín the text to file. It never writes to the upstream repo.
 - `setup-amillez-models` (amillez skill, core). Install or refresh the Claude Code and Codex model-lane rules that mirror the [agent use policy](../policies/agent-use-policy.md#default-picks).
 - **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
 
