@@ -36,15 +36,15 @@ Rules:
 
 ## Executor vs parent on `agent-m1`
 
-Grok Bot **executor** Task subagents cannot pass `machineId` to Shell — their Shell runs on the **box**, not on `agent-m1`.
+Grok Bot **executor** Task subagents can pass `machineId` to Shell and Read, so they run on `agent-m1` as well as on the box.
 
-- **Parent** Grok Bot must run `agent-m1` Shell/Read with `machineId` (agent-m1 = `cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`), or any machine-aware path.
-- Do **not** delegate “launch Claude on agent-m1” / worktree create on m1 to an executor that expects Shell-with-`machineId`.
-- Executors remain fine for `gh` / API / box work that does not need the Mac.
+- The **parent** Grok Bot or its executor runs `agent-m1` Shell/Read with `machineId` (agent-m1 = `cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`). Either can create the worktree on m1 and launch Claude there.
+- Executors can't message other agents or read agent transcripts. The parent bot sends those messages and reads transcripts.
+- Executors also handle `gh`, API, and box work.
 
 ## Canonical Claude Code background launch on `agent-m1`
 
-Recipe (parent Shell with `machineId`, after host ensure + worktree provision):
+Recipe (parent or executor Shell with `machineId`, after host ensure + worktree provision):
 
 ```bash
 # Prefer positional prompt — do NOT use -p/--print (conflicts with attachable --bg)
@@ -118,7 +118,7 @@ Related: the coding agent's side of a babysit (what it does when sent back with 
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.
 - Leave sims, emulators, or dev servers running after proof.
-- Delegate agent-m1 Shell/`machineId` work to a Grok Bot **executor** Task subagent.
+- Delegate a message to another agent, or a transcript read, to a Grok Bot **executor** Task subagent. The parent bot does those.
 
 ## Related
 
