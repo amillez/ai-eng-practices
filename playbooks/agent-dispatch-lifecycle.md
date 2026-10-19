@@ -110,12 +110,12 @@ Related: the coding agent's side of a babysit (what it does when sent back with 
 
 ## Checks where a repo has no CI
 
-Under [fleet norms rule 9](../policies/fleet-norms.md), these checks count as CI in a repo that has none. Check out the PR head and run them from the repo root:
+[Fleet norms rule 9](../policies/fleet-norms.md) says when these checks count as CI and how to post the results. Check out the exact PR head and run the repo's commands from its root:
 
 - `amillez/akit`: `scripts/check-links.sh && scripts/test-install.sh`
 - `amillez/ai-eng-practices`: `scripts/check-links.sh`
 
-Post the command, the head SHA, and each exit code as a PR comment. A new push needs a new run and a new comment.
+A new push needs a new run on the new head.
 
 ## Roles
 
