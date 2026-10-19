@@ -42,7 +42,8 @@ Workshop notes and citations live under [`sources/`](sources/).
 1. Open a PR against `main`. One topic per PR when you can.
 2. Say what changed, why, and which source it came from (talk, docs, lived practice).
 3. Mark any prices, evals, or model-quality claims as **as of [date / source]**. Do not present them as permanent.
-4. Keep the layout small: `playbooks/`, `policies/`, `sources/`. No extra scaffolding.
+4. Keep the layout small: `playbooks/`, `policies/`, `sources/`, and `scripts/` for checks. No extra scaffolding.
+5. Run `scripts/check-links.sh` before you push. It checks every relative link and `#anchor`.
 
 ## For agents
 
@@ -52,4 +53,4 @@ Treat playbooks and policies in this repo as **standing policy** for any agent p
 - Prefer the latest merged `main` over memory of an older version.
 - Do not invent workshop quotes. Paraphrase practices; cite the source note.
 - Every coding agent you invoke, single or Orca worker, loads and follows [`amillez-mode`](playbooks/amillez-mode.md), and the launch prompt names it. Grok Bots do not load amillez-mode themselves; they must know which skills to attach to launch prompts, and `amillez-mode` is always first.
-- Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → Claude Haiku 5.5 Max (Claude Code `claude-haiku-5-5`); general code, UI, and docs → Opus 5.5 High (Claude Code `claude-opus-5-5`), or Grok 4.7 xHigh (Cursor Agent CLI `grok-4.7-xhigh`) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh. Code review → GPT 6.1 Sol High (Codex `gpt-6.1-sol`, read-only).
+- Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → Claude Haiku 5.5 Max (Claude Code `claude-haiku-5-5`); general code, UI, and docs → Opus 5.5 High (Claude Code `claude-opus-5-5`), or Grok 4.7 xHigh (Cursor Agent CLI `grok-4.7-xhigh`) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh. Code review, when the [Review row](policies/agent-use-policy.md#1-coding-host-routing) requires one → GPT 6.1 Sol High (Codex `gpt-6.1-sol`, read-only).
