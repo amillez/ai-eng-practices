@@ -72,11 +72,13 @@ Rules:
 ```text
 intake → thorough prompt (skills + proof) → provision worktree
   → ensure amillez core+mobile (host) → agent runs
-  → collect & inspect proof → open PR → bot reviews
+  → collect & inspect proof → open PR → checks, plus review when required
   → merge | changes-requested | abandon → teardown worktree
 ```
 
 Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `merged` | `blocked` | `discarded`
+
+The [Review row](../policies/agent-use-policy.md#1-coding-host-routing) says which PRs need a cross-model review.
 
 When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5.5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
 
