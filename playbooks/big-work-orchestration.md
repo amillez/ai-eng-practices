@@ -153,7 +153,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - Assign **`--agent claude`**, **`--model`**, **`--effort`** per slice from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Claude Haiku 5.5 Max / Opus 5.5 High / Fable 5.1 Medium→High). When Claude Code usage is above 70%, start the worker with `--agent cursor --model grok-4.7-xhigh` and no `--effort`. The effort is in the model id.
 - `--model` takes the full id from the lanes table (`claude-opus-5-5`, `claude-haiku-5-5`). Never an alias such as `opus`, and never an id from `~/.codex/models_cache.json`. After each `worker-start`, check the worker banner for the expected model.
 - Do **not** inherit Opus 5.5 xhigh for every worker.
-- `--model` / `--effort` apply to Claude Code launches (Orca docs).
+- Orca's `--model` takes Claude, Codex, and Cursor model ids. `--effort` requires `--model` (`orca orchestration worker-start --help`).
 
 **Rule:** apply the [size gate](#size-gate) first. Small → direct agent, no Orca Run. Large → Opus 5.5 xhigh coordinator inside Orca, then chooser-per-slice workers.
 
