@@ -271,6 +271,7 @@ This rule covers project dependencies in every repo: npm packages, Expo and Reac
 
 - **One Android emulator at a time.** At most one Android emulator runs on `agent-m1` at a time, across the whole fleet. Before you boot one, check what is running. Use `simfleet status` or `simfleet emu list` when simfleet is up, otherwise `adb devices` and `pgrep -fl qemu-system`. If an emulator is already running and it isn't yours, wait for it or reuse it through a simfleet claim. Never boot a second one. simfleet has no emulator-count setting today, so this check is the cap. If simfleet gains that setting, set the cap in its config.
 - **Android teardown.** When an Android job finishes, run `./gradlew --stop` in the project's `android/` directory to stop the Gradle and Kotlin daemons. Then shut down every simulator, emulator, and Metro or Expo server the job started, per the teardown rules in [§1](#1-coding-host-routing). Check with `pgrep -fl 'GradleDaemon|KotlinCompileDaemon'` and kill any daemon from this job that is still listed.
+- **Tell Ben.** When Android work is done, tell Ben, the [infra bot](../playbooks/eng-team-of-bots.md#specialization), so Ben can clear caches safely.
 - **Disk floor.** Don't start a heavy build or an emulator when `agent-m1` has under 20 GB free. Heavy builds are a native iOS or Android build, `expo prebuild`, `pod install`, a Gradle build, and a full test matrix. Check free space with `df -h ~` and read the Avail column. Under 20 GB, ping Ben (the infra bot) with the `df -h ~` output and wait.
 
 ---

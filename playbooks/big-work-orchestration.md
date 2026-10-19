@@ -1,6 +1,6 @@
 # Big-work orchestration
 
-When eng bots (Mark / Sam / Anibal / Emily) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code** workers (Opus or Haiku) inside **Orca** orchestration. Workers start with `--agent claude`. A slice that hits the [Claude Code usage > 70%](../policies/agent-use-policy.md#claude-code-usage--70) rule runs as an Orca worker on the Cursor Agent CLI with `--agent cursor --model grok-4.7-xhigh`. Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception).
+When eng bots (Mark / Sam / Emily) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code** workers (Opus or Haiku) inside **Orca** orchestration. Workers start with `--agent claude`. A slice that hits the [Claude Code usage > 70%](../policies/agent-use-policy.md#claude-code-usage--70) rule runs as an Orca worker on the Cursor Agent CLI with `--agent cursor --model grok-4.7-xhigh`. Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception).
 
 Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktree / babysit rules: [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
@@ -136,7 +136,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 | Role | Owns |
 | --- | --- |
-| **Eng bot (Mark / Sam / Anibal / Emily / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close per [fleet norms rules 8 and 9](../policies/fleet-norms.md). Does **not** replace Orca for the multi-agent DAG. |
+| **Eng bot (Mark / Sam / Emily / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close per [fleet norms rules 8 and 9](../policies/fleet-norms.md). Does **not** replace Orca for the multi-agent DAG. |
 | **Coordinator (Opus 5.5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
 | **Worker agents** | Claude Code Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. |
 
