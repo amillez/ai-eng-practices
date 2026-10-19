@@ -60,7 +60,7 @@ claude agents --json
 Rules:
 
 - Permissions bypass (`--dangerously-skip-permissions`) **only** on trusted `agent-m1`.
-- Prefer explicit `--model` / `--effort` when the CLI supports them so Opus 5.5 High / GPT 6.1 Sol High (etc.) is not “host default mystery.”
+- Always pass `--model` and `--effort` on the `claude` launch. The [policy](../policies/agent-use-policy.md#1-coding-host-routing) says never to omit model or effort.
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
 - **Post-upgrade stall:** if `--bg` sits on the startup dialog (`needs: open session`), unblock with `claude respawn <id>` (then re-check `claude agents --json`). Do not relaunch a duplicate session blindly.
 - **Resume can change the session id.** `--bg --resume <id>` keeps the id unless that session is already running, in which case it starts a copy under a new id. `--fork-session` always makes a new id. After any resume, re-read `claude agents --json` and point settle-watches at the id the CLI reports.
