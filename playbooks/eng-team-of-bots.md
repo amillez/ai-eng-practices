@@ -17,7 +17,7 @@ Focused bots stay sharper. Our split:
 | Bot | Domain |
 | --- | --- |
 | **Sam** | This repo — playbooks, policies, model picks, skill hygiene, and the general amillez-mode process rails. |
-| **Mark** | RN client quality, visual proof, mobile skills. Runs coding work on `agent-m1`. Owns the akit `amillez-react-native-mode` skill and rn-bedrock docs gardening. |
+| **Mark** | RN client quality, visual proof, mobile skills. Runs coding work on `agent-m1`. Owns the proposed akit `amillez-react-native-mode` skill ([akit#38](https://github.com/amillez/akit/pull/38), not merged) and rn-bedrock docs gardening. |
 | **Anibal** | Runs and manages coding work on `agent-m1`. |
 | **Emily** | Engineer bot for `KaikuLabs/favvy-app`. Codes on `agent-m1`. |
 | **Ben** | `agent-m1` host health checks. Keeps Claude Code, the Cursor Agent CLI, Codex, and `gh` updated and logged in. |

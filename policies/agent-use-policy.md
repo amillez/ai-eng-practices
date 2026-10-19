@@ -24,11 +24,11 @@ For heavy coding / engineering agent work:
 
 The Cursor Agent CLI is the only Cursor path. Do **not** use Cursor cloud agents, Cursor Projects, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6.
 
-**Model role labels → harness (as of 2026-10-11):**
+**Model role labels → harness (as of 2026-10-19):**
 
-Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.296, Codex CLI 0.162.0). If a lane cannot run on its harness, use the nearest equivalent or skip that lane.
+Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.303, Codex CLI 0.163.0, Cursor Agent CLI 2026.10.14-0f9edde). If a lane cannot run on its harness, use the nearest equivalent or skip that lane.
 
-| Policy label | Intent | Run on | CLI pick (verified 2026-10-11) |
+| Policy label | Intent | Run on | CLI pick (verified 2026-10-19) |
 | --- | --- | --- | --- |
 | **Haiku** — Claude Haiku 5.5 (Max) | Very direct / super defined; mechanical | **Claude Code** | `claude --model claude-haiku-5-5 --effort max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
