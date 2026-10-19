@@ -18,9 +18,9 @@ Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 For heavy coding / engineering agent work:
 
-- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code** (the default coder), the **Cursor Agent CLI** (`agent`, Grok 4.7 xHigh, the [Claude Code usage > 70%](#claude-code-usage--70) fallback, headless or as an Orca worker), and **Codex** (code review only).
+- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code** (the default coder), the **Cursor Agent CLI** (`agent`, Grok 4.7 xHigh, the [Claude Code usage > 70%](#claude-code-usage--70) fallback, headless or as an Orca worker), and **Codex** (code review only, plus the [raster image exception](#codex-raster-image-exception)).
 - **Grok Bot** is the chat and control plane (intake, dispatch, babysit, proof orchestration). It does not write code.
-- **Which harness** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule. Claude Code (Opus 5.5, Fable 5.1, Haiku 5.5) codes by default. The Cursor Agent CLI runs Grok 4.7 xHigh when Claude Code usage is above 70%. Codex never codes. It runs code review on GPT 6.1 Sol.
+- **Which harness** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule. Claude Code (Opus 5.5, Fable 5.1, Haiku 5.5) codes by default. The Cursor Agent CLI runs Grok 4.7 xHigh when Claude Code usage is above 70%. Codex never codes outside the [raster image exception](#codex-raster-image-exception). It runs code review on GPT 6.1 Sol.
 
 The Cursor Agent CLI is the only Cursor path. Do **not** use Cursor cloud agents, Cursor Projects, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6.
 
@@ -33,10 +33,10 @@ Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** an
 | **Haiku** — Claude Haiku 5.5 (Max) | Very direct / super defined; mechanical | **Claude Code** | `claude --model claude-haiku-5-5 --effort max` |
 | **Opus** — Opus 5.5 (High) | General code / some reasoning **and** UI work (default) | **Claude Code** | `claude --model claude-opus-5-5 --effort high` |
 | **Grok** — Grok 4.7 xHigh | Fallback for general code, UI, and docs when [Claude Code usage > 70%](#claude-code-usage--70) | **Cursor Agent CLI** (headless, or an Orca worker) | `agent -p --force --model grok-4.7-xhigh "<prompt>"`. Inside Orca, `worker-start --agent cursor --model grok-4.7-xhigh` with no `--effort`. |
-| **Sol** — GPT 6.1 Sol (High) | Code review only. Sol never codes. | **Codex** | See the **Review** row. |
+| **Sol** — GPT 6.1 Sol (High) | Code review only. Sol never codes outside the [raster image exception](#codex-raster-image-exception). | **Codex** | See the **Review** row. |
 | **Opus 5.5 xhigh** | Large-work **Orca coordinator** default | **Claude Code** driving Orca CLI | `claude --model claude-opus-5-5 --effort xhigh`; coordinator only plans/dispatches/waits (does not integrate/validate) |
 | **Fable** — Fable 5.1 (Medium → High/xhigh) | Large reasoning / gnarly escalate (non-orch) | **Claude Code** | Fable 5.1 at **Medium**, escalate to **High** then **xhigh** one step at a time (Opus 5.5 at high effort if Fable unavailable). Replan/split if still thrashing. **Not** the Orca coordinator default (**Opus 5.5 xhigh**) |
-| **Review** (other model family) | A cross-model review is required for code changes, for script logic (including a script inside a skill), and for any change under this repo's `policies/`. Docs-only changes (playbooks, READMEs, prose, skill text with no scripts or code, and added, removed, or edited entries in an install list or manifest, such as a skill name in `scripts/install.sh`'s list or an entry in `manifest.json`) and small pin bumps that pass [§11](#11-dependency-versions) need none. For those, the repo's own checks passing (CI, or the [no-CI checks](../playbooks/agent-dispatch-lifecycle.md#checks-where-a-repo-has-no-ci)) is enough. When a review runs, Codex GPT 6.1 Sol High reviews Claude Code and Grok work, read-only, and Opus 5.5 High reviews Codex work. Same-family review and self-review don't count. Code review means PR review, cross-model review of a diff, and the review step in babysit or proof. | **Codex** (Claude Code when Opus reviews Codex work) | `codex exec -m gpt-6.1-sol -c model_reasoning_effort=high --sandbox read-only - < brief.md`, or the built-in reviewer `codex exec review -m gpt-6.1-sol -c model_reasoning_effort=high --base main < /dev/null`. |
+| **Review** (other model family) | A cross-model review is required for code changes, for script logic (including a script inside a skill), and for any change under this repo's `policies/`. Docs-only changes (playbooks, READMEs, prose, skill text with no scripts or code, and added, removed, or edited entries in an install list or manifest, such as a skill name in `scripts/install.sh`'s list or an entry in `manifest.json`) and small pin bumps that pass [§11](#11-dependency-versions) need none. For those, the repo's own checks passing (CI, or the [no-CI checks](../playbooks/agent-dispatch-lifecycle.md#checks-where-a-repo-has-no-ci)) is enough. When a review runs, Codex GPT 6.1 Sol High reviews Claude Code and Grok work, read-only, and Opus 5.5 High reviews Codex work. Same-family review and self-review don't count. Code review means PR review, cross-model review of a diff, and the review step in babysit or proof. Codex writes only under the [raster image exception](#codex-raster-image-exception). | **Codex** (Claude Code when Opus reviews Codex work) | `codex exec -m gpt-6.1-sol -c model_reasoning_effort=high --sandbox read-only - < brief.md`, or the built-in reviewer `codex exec review -m gpt-6.1-sol -c model_reasoning_effort=high --base main < /dev/null`. |
 
 Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code (Opus 5.5) is the default for general code and UI. The Cursor Agent CLI (Grok 4.7 xHigh) takes over when Claude Code usage is above 70%. Claude Code (Haiku 5.5) takes super-defined work. When the **Review** row requires a code review, it goes to Codex (GPT 6.1 Sol, High, read-only).
 
@@ -76,6 +76,10 @@ Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code
 - **Fast:** leave off unless the human explicitly asks.
 - **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up clone/ref access up front on `agent-m1`. Do not expect the agent to invent trees without access.
 
+### Codex raster image exception
+
+Codex writes only for a raster image edit, such as an icon or a screenshot, that needs Codex's image tooling. A scripted edit with ImageMagick or Python stays in the normal Opus 5.5 lane.
+
 ---
 
 ## 2. Default model posture
@@ -97,7 +101,7 @@ Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code
 
 #### Claude Code usage > 70%
 
-Before launching a Claude Code lane (general code, UI, or docs), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to **Grok 4.7 xHigh** on the Cursor Agent CLI instead (`agent -p --force --model grok-4.7-xhigh "<prompt>"`). Inside an Orca Run, start that worker with `--agent cursor --model grok-4.7-xhigh`. At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected. If usage is exhausted, say so and use the Grok lane rather than stalling. Codex is never the fallback, since Codex does not code.
+Before launching a Claude Code lane (general code, UI, or docs), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to **Grok 4.7 xHigh** on the Cursor Agent CLI instead (`agent -p --force --model grok-4.7-xhigh "<prompt>"`). Inside an Orca Run, start that worker with `--agent cursor --model grok-4.7-xhigh`. At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected. If usage is exhausted, say so and use the Grok lane rather than stalling. Codex is never the fallback, since Codex does not code outside the [raster image exception](#codex-raster-image-exception).
 
 ### Agent chooser examples
 

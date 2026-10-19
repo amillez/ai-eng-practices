@@ -2,7 +2,7 @@
 
 Living, opinionated practices for AI-assisted software engineering.
 
-**Coding host:** `agent-m1` running **Claude Code** (default coder), the **Cursor Agent CLI** (Grok 4.7 xHigh when Claude Code usage > 70%, headless or as an Orca worker), and **Codex** (code review only). Grok Bot is the chat and control plane. See [agent use policy](policies/agent-use-policy.md).
+**Coding host:** `agent-m1` running **Claude Code** (default coder), the **Cursor Agent CLI** (Grok 4.7 xHigh when Claude Code usage > 70%, headless or as an Orca worker), and **Codex** (code review only, plus the [raster image exception](policies/agent-use-policy.md#codex-raster-image-exception)). Grok Bot is the chat and control plane. See [agent use policy](policies/agent-use-policy.md).
 
 This repo is a small set of playbooks and standing policies. Prefer checklists and decision guides over essays. Keep advice cost-aware and anti-hype. When a number comes from a talk or eval, treat it as a snapshot, not eternal truth.
 

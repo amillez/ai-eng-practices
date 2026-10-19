@@ -1,6 +1,6 @@
 # Agent proof feedback loop
 
-Standing practice for eng work on `agent-m1` (Claude Code, or Grok on the Cursor Agent CLI, with Codex for review). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
+Standing practice for eng work on `agent-m1` (Claude Code, or Grok on the Cursor Agent CLI, with Codex for review and the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
 
 Related: pstack's prove-it-works and verification-skill pattern — see [Steal from pstack](steal-from-pstack.md). Checks that must fail closed: [Hard constraints](hard-constraints.md).
 

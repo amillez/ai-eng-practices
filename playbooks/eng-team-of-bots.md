@@ -58,7 +58,7 @@ Rules:
 
 ## How bots dispatch coding agents
 
-Coding agents run on **agent-m1** (Claude Code, or Grok on the Cursor Agent CLI when Claude Code usage > 70%). Codex only reviews. The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
+Coding agents run on **agent-m1** (Claude Code, or Grok on the Cursor Agent CLI when Claude Code usage > 70%). Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
 Every launch includes:
 
