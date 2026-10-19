@@ -2,7 +2,7 @@
 
 How bots dispatch work to coding agents: projects, worktrees, and teardown.
 
-Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%, headless or as an Orca worker), and Codex (code review only). Dispatch = Grok Bot → agent-m1 coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
+Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%, headless or as an Orca worker), and Codex (code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Dispatch = Grok Bot → agent-m1 coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
 
 ## Units
 

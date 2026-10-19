@@ -83,7 +83,7 @@ That blip is small. **Do not fear switching** when the task needs a different en
 
 **No single model wins every category.** Do not lock to one provider. Use a **portfolio**.
 
-Our lanes span three providers. Opus 5.5, Fable 5.1, and Haiku 5.5 run on Claude Code. Grok 4.7 runs on the Cursor Agent CLI as the fallback when Claude Code usage is above 70%. GPT 6.1 Sol runs on Codex for code review only. The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
+Our lanes span three providers. Opus 5.5, Fable 5.1, and Haiku 5.5 run on Claude Code. Grok 4.7 runs on the Cursor Agent CLI as the fallback when Claude Code usage is above 70%. GPT 6.1 Sol runs on Codex for code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ---
 
