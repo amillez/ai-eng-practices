@@ -90,7 +90,7 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 
 ## Babysit until merged
 
-1. **Own the workstream until a terminal status.** Terminal = merge, close, or abandon. Agent idle or session settle is not done.
+1. **Own the workstream until a terminal status.** Terminal = merge, close, or abandon. Agent idle or session settle is not done. The bot merges only per [fleet norms rules 8 and 9](../policies/fleet-norms.md).
 2. **Hop 1 — session settle: arm a finite settle-watch.** Do not rely on silent background Shell wakes alone. The bot arms a finite weekday `*/10` Europe/Madrid routine that checks the coding session on `agent-m1`, **must message** the user on settle, block, or deadline, then deletes itself. See standing skill `agent-m1-completion-ping`. A routine run cannot create, update, resume, or enable routines, so the settle-watch hands back to the parent bot, which arms hop 2 and does any re-arming.
 3. **Hop 2 — PR open: switch to GitHub listeners.** Babysit with PR-scoped GitHub event listeners (review, CI, push, `pr-merged`, `pr-closed`), not polling. `pr-merged` and `pr-closed` are always in the pack. Listeners do not reliably self-delete on merge, so every babysit routine prompt says explicitly to delete its own routine on the `pr-merged` or `pr-closed` wake. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook. After setting up the PR watch, the bot lists its routines and listeners, confirms the listener for this PR exists with the right PR number and events, and says so in its report. If setup fails or the listener is missing, the bot tells the user and quotes the error. It never stays quiet or assumes the watch works.
 4. **Match the PR on every listener wake.** On every GitHub listener wake, confirm the event's PR number matches this workstream's `pr_number`; ignore cross-PR payloads.
@@ -103,17 +103,26 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 
 Related: the coding agent's side of a babysit (what it does when sent back with review comments or red CI) is the amillez-mode [Babysit playbook](https://github.com/amillez/akit/blob/main/skills/amillez-mode/playbooks/babysit.md). The bot side stays here.
 
+## Checks where a repo has no CI
+
+Under [fleet norms rule 9](../policies/fleet-norms.md), these checks count as CI in a repo that has none. Check out the PR head and run them from the repo root:
+
+- `amillez/akit`: `scripts/check-links.sh && scripts/test-install.sh`
+- `amillez/ai-eng-practices`: `scripts/check-links.sh`
+
+Post the command, the head SHA, and each exit code as a PR comment. A new push needs a new run and a new comment.
+
 ## Roles
 
 - **Eng bots (Mark / Sam / Anibal / Emily):** write the prompt, pick skills and proof type (always attach `amillez-mode` for coding agents; knowing which skills to attach is one of the bot's most important jobs), start the agent on `agent-m1`, follow up, verify proof and the PR the agent opens, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
-- **Coding agent:** works only in its own workstream, under `amillez-mode`, and opens its PR. Never merges, arms auto-merge, or closes the PR.
+- **Coding agent:** works only in its own workstream, under `amillez-mode`, and opens its PR. Never merges, arms auto-merge, or closes the PR. Bots merge per [fleet norms rules 8 and 9](../policies/fleet-norms.md).
 - **Jarvis:** postmortems when the lifecycle breaks (merged without proof, orphan worktrees).
 
 ## Do not
 
 - Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. The Cursor Agent CLI, headless or as an Orca worker, is the only Cursor path.
 - Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5.5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
-- Auto-merge.
+- Merge outside [fleet norms rules 8 and 9](../policies/fleet-norms.md).
 - Paraphrase a report into your own diagnosis in the launch prompt. Pass the raw report and ask for a restatement.
 - Let agents share the `main` checkout.
 - Put two agents in the same worktree.

@@ -67,7 +67,7 @@ Every launch includes:
 3. **Monitor** — transcript, artifacts, CI; queue follow-ups when a run stalls.
 4. **Bar** — iterate until proof passes or escalate to a human. No "mostly works" merges on production paths.
 
-Never auto-merge. Merges wait for Agustín per [fleet norms rule 8](../policies/fleet-norms.md).
+Merges follow [fleet norms rules 8 and 9](../policies/fleet-norms.md).
 
 ---
 
