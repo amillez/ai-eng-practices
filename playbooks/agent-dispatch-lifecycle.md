@@ -66,7 +66,7 @@ Rules:
 
 ### Review in the same worktree session
 
-When the [Review row](../policies/agent-use-policy.md#1-coding-host-routing) requires a review, start the reviewer as a second agent tab in the author's worktree. Do not start a review with a direct `claude -p` or `codex exec` call.
+When the [Review row](../policies/agent-use-policy.md#1-coding-host-routing) requires a review, start the reviewer as a second agent tab in the same Orca worktree session as the main agent, with `--worktree path:<main worktree>`. Never start a review in a new child worktree. Do not use `orca worktree create` or `worker-start --worktree new-child` for a review, and do not start one with a direct `claude -p` or `codex exec` call.
 
 ```bash
 orca agent launch --agent codex --worktree path:$HOME/agent-work/<repo>-<slug> --surface terminal \

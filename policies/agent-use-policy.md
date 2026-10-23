@@ -79,7 +79,7 @@ Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code
 ### Start every coding session through Orca
 
 - **Every coding session starts through Orca**, even a single session with no orchestration. Agustín and every bot can then reach it. This covers Claude Code (`--agent claude`), Codex (`--agent codex`), and the Cursor Agent CLI (`--agent cursor`) on `agent-m1` and on the M4. The M4 is the paired Orca environment `m4`, so commands for it add `--environment m4`.
-- **Reviews run in the author's Orca worktree session.** Start the reviewer as a second agent tab in the same worktree. Do not start a review with a direct `claude -p` or `codex exec` call.
+- **Reviews run in the same Orca worktree session as the main agent.** Start the reviewer as a second agent tab with `orca agent launch --worktree path:<main worktree>`. Never start a review in a new child worktree, so no `orca worktree create` and no `worker-start --worktree new-child` for reviews. Do not start a review with a direct `claude -p` or `codex exec` call.
 - **Use the recipe.** It is in [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca). Worktrees stay under `~/agent-work`, every prompt names amillez-mode first, and every launch passes `--model` and `--effort` from the lanes above (Grok takes no `--effort`).
 
 ### Codex raster image exception
