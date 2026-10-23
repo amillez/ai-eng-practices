@@ -2,31 +2,31 @@
 
 How bots dispatch work to coding agents: projects, worktrees, and teardown.
 
-Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%, headless or as an Orca worker), and Codex (code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Dispatch = Grok Bot → agent-m1 coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
+Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%), and Codex (code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Every session starts through Orca, per [start every coding session through Orca](../policies/agent-use-policy.md#start-every-coding-session-through-orca). Dispatch = Grok Bot → Orca coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
 
 ## Units
 
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion).
-- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) directly; no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Cursor Agent CLI on Grok 4.7 xHigh when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) as one Orca session ([launch recipe](#launch-a-coding-session-through-orca)); no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Cursor Agent CLI on Grok 4.7 xHigh when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on `agent-m1`
 
 Layout:
 
 ```text
-~/agent-work/<repo>/
-  main/                    # sync/human only — agents do not work here
-  wt-<slug>-<shortid>/     # one agent = one worktree = one branch
+~/agent-work/
+  <repo>/                  # main checkout, sync/human only — agents do not work here
+  <repo>-<slug>/           # one workstream = one worktree = one branch
 ```
 
 Rules:
 
-1. **On dispatch:** fetch, then `git worktree add -b agent/<bot>/<slug> <path> <base-ref>` from an up-to-date base (usually `main`).
-   - `claude --bg` does not run in a new worktree until Claude trusts it ("Workspace not trusted"). `claude --help` has no trust flag, and only `-p` skips the dialog, which the launch recipe forbids. After `git worktree add`, set `projects["<worktree path>"].hasTrustDialogAccepted = true` in `~/.claude.json` before launching.
+1. **On dispatch:** fetch, then create the worktree and launch the session per [launch a coding session through Orca](#launch-a-coding-session-through-orca), from an up-to-date base (usually `main`).
+   - Claude Code does not run in a new worktree until it trusts the directory ("Workspace not trusted"). After `git worktree add`, set `projects["<worktree path>"].hasTrustDialogAccepted = true` in `~/.claude.json` before launching.
 2. **Ensure the amillez plugin on the host before coding.** Run [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`. It installs **core+mobile** at `~/.claude` and `~/.agents` (plus user rules and stamp, nothing under `~/.codex`) and continues when already present. Refresh with `scripts/update-install.sh` when policy or skills change or a human asks. Never install the plugin into the worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills stay in-repo. **Grok Bot dispatch prompts to Claude/Codex include this host ensure step first.**
-3. **One agent per worktree.** Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
+3. **One coding agent per worktree.** The reviewer tab from [review in the same worktree session](#review-in-the-same-worktree-session) is the one second agent allowed, and it does not write. Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two coding agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
    - Before launch, check free disk and running emulators per [agent-m1 resource limits](../policies/agent-use-policy.md#12-agent-m1-resource-limits). Under 20 GB free, ping Ben and wait.
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)). Proof is captured after the last UI-affecting commit, per [prove and inspect](agent-proof-feedback-loop.md#prove-and-inspect).
    - Screenshots/videos live on the repo's media branch (`media` or per-PR `media/<slug>`, per the repo's convention), never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
@@ -38,34 +38,44 @@ Rules:
 
 Grok Bot **executor** Task subagents can pass `machineId` to Shell and Read, so they run on `agent-m1` as well as on the box.
 
-- The **parent** Grok Bot or its executor runs `agent-m1` Shell/Read with `machineId` (agent-m1 = `cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`). Either can create the worktree on m1 and launch Claude there.
+- The **parent** Grok Bot or its executor runs `agent-m1` Shell/Read with `machineId` (agent-m1 = `cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`). Either can create the worktree on m1 and launch the session through Orca.
 - Executors can't message other agents or read agent transcripts. The parent bot sends those messages and reads transcripts.
 - Executors also handle `gh`, API, and box work.
 
-## Canonical Claude Code background launch on `agent-m1`
+## Launch a coding session through Orca
 
-Recipe (parent or executor Shell with `machineId`, after host ensure + worktree provision):
+Every coding session starts through Orca, even without orchestration, so Agustín and every bot can reach it. Recipe (parent or executor Shell with `machineId`, after the host ensure step):
 
 ```bash
-# Prefer positional prompt — do NOT use -p/--print (conflicts with attachable --bg)
-claude --bg --dangerously-skip-permissions \
+git -C ~/agent-work/<repo> fetch origin
+git -C ~/agent-work/<repo> worktree add -b agent/<bot>/<slug> ~/agent-work/<repo>-<slug> origin/main
+orca repo add --path ~/agent-work/<repo>-<slug> --json
+orca agent launch --agent claude --worktree path:$HOME/agent-work/<repo>-<slug> \
   --model claude-opus-5-5 --effort high \
-  "<thorough launch prompt>"
-# --model is the full lanes-table id, never an alias such as opus
-
-# Capture session id
-claude agents --json
+  --prompt "Use amillez-mode first. <thorough launch prompt>" --json
 ```
 
 Rules:
 
-- Permissions bypass (`--dangerously-skip-permissions`) **only** on trusted `agent-m1`.
-- Always pass `--model` and `--effort` on the `claude` launch. The [policy](../policies/agent-use-policy.md#1-coding-host-routing) says never to omit model or effort.
+- Pick `--agent`, `--model`, and `--effort` from the [lanes table](../policies/agent-use-policy.md#1-coding-host-routing). Always pass `--model` and `--effort`, except Grok (`--agent cursor --model grok-4.7-xhigh`), which takes no `--effort`. `--model` is the full id, never an alias such as `opus`.
+- The launch JSON returns the session's terminal handle. List live sessions in a worktree with `orca terminal list --worktree path:<worktree> --json`.
+- **M4.** The M4 is the paired Orca environment `m4`. Add `--environment m4` to each `orca` command, and run the `git` steps on the M4. Terminal handles belong to the environment that issued them.
+- **Lost launch reply.** Re-issue the same command from the same directory with `--retry-launch <operationId>` from the error. Never retry as a fresh launch.
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
-- **Post-upgrade stall:** if `--bg` sits on the startup dialog (`needs: open session`), unblock with `claude respawn <id>` (then re-check `claude agents --json`). Do not relaunch a duplicate session blindly.
-- **Resume can change the session id.** `--bg --resume <id>` keeps the id unless that session is already running, in which case it starts a copy under a new id. `--fork-session` always makes a new id. After any resume, re-read `claude agents --json` and point settle-watches at the id the CLI reports.
-- **Headless Codex and Cursor Agent CLI.** `nohup … &` from a machine Shell dies when that Shell exits. Start it with `screen -dmS <name> …` or the `zsh -l` wrapper.
-- **agent-m1 disconnected.** If Grok Bot shows `agent-m1` disconnected, do not relaunch jobs. Claude Code, Cursor Agent CLI, and Codex sessions keep running locally on `agent-m1`, so wait for the reconnect, then check the session with `claude agents --json`.
+- **agent-m1 disconnected.** If Grok Bot shows `agent-m1` disconnected, do not relaunch jobs. Orca sessions keep running locally on `agent-m1`, so wait for the reconnect, then check them with `orca terminal list --json`.
+
+### Review in the same worktree session
+
+When the [Review row](../policies/agent-use-policy.md#1-coding-host-routing) requires a review, start the reviewer as a second agent tab in the author's worktree. Do not start a review with a direct `claude -p` or `codex exec` call.
+
+```bash
+orca agent launch --agent codex --worktree path:$HOME/agent-work/<repo>-<slug> \
+  --model gpt-6.1-sol --effort high --prompt "<review brief>" --json
+orca terminal wait --terminal <handle> --for tui-idle --json
+orca terminal read --terminal <handle> --json
+```
+
+For Codex-authored work, launch `--agent claude --model claude-opus-5-5 --effort high` instead. The review brief is amillez-mode's [code-review brief](https://github.com/amillez/akit/blob/main/skills/amillez-mode/references/code-review.md), and it tells the reviewer to stay read-only.
 
 ## Lifecycle
 
@@ -101,7 +111,7 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 4. **Match the PR on every listener wake.** On every GitHub listener wake, confirm the event's PR number matches this workstream's `pr_number`; ignore cross-PR payloads.
 5. **Do not stop at settle.** While the PR is OPEN and review threads are unresolved, do not delete the settle-watch or stop babysitting just because the coding session finished.
 6. **Filter listener noise, keep watching.** Empty-body COMMENTED reviews and agent fix-ack replies on unresolved threads can wake as review-commented. Stay quiet on pure noise, but do not treat it as a hard failure that abandons babysit. Coding sessions post thread replies with `gh` as `amillez`. A wake whose only new activity is in-thread replies from the session the bot launched, with no new review and no new reviewer comment, is a no-op. Start no session and leave the Amillez Tasks card unchanged. Real feedback still follows item 7.
-7. **Apply Agustín's review comments once per submitted review.** Start a coding session only after a review is submitted, never one per inline comment. Before the launch, check `claude agents --json` for a busy session on the PR's branch, and never resume a busy session. Batch every unresolved thread into one session. No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close. Carve-out: a comment that can only be met by overriding platform behavior (new native module, dependency patch, native build change, dynamic font linking) ships the platform default plus a thread reply that names the override's cost. Build the override only on the reviewer's go.
+7. **Apply Agustín's review comments once per submitted review.** Start a coding session only after a review is submitted, never one per inline comment. Before the launch, check `orca terminal list --worktree branch:<branch> --json` for a busy session on the PR's branch, and never reuse a busy session. Batch every unresolved thread into one session. No asking permission, no "I'll follow it" chatter. Ping only for real blockers, requested settle/proof results, or merge/close. Carve-out: a comment that can only be met by overriding platform behavior (new native module, dependency patch, native build change, dynamic font linking) ships the platform default plus a thread reply that names the override's cost. Build the override only on the reviewer's go.
 8. **Changes requested or CI fails → follow up.** Send the coding agent back in, or open a follow-up workstream. Never go silent.
 9. **Tear down in two stages.** Sims, emulators, dev servers, and matching Expo CLI processes go when proof is done; PR listeners and worktree stay until terminal. On terminal, the babysit routine deletes itself, and the bot sweeps any stale babysit routines left for the merged or closed PR. Verify every Metro port used is no longer listening.
 10. **Keep status current.** `blocked` is not terminal — report it with evidence and keep watching or close it out.
@@ -125,12 +135,12 @@ A new push needs a new run on the new head.
 
 ## Do not
 
-- Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. The Cursor Agent CLI, headless or as an Orca worker, is the only Cursor path.
+- Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. The Cursor Agent CLI, launched through Orca, is the only Cursor path.
 - Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5.5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Merge outside [fleet norms rules 8 and 9](../policies/fleet-norms.md).
 - Paraphrase a report into your own diagnosis in the launch prompt. Pass the raw report and ask for a restatement.
 - Let agents share the `main` checkout.
-- Put two agents in the same worktree.
+- Put two coding agents in the same worktree.
 - Leave sims, emulators, or dev servers running after proof.
 - Delegate a message to another agent, or a transcript read, to a Grok Bot **executor** Task subagent. The parent bot does those.
 
