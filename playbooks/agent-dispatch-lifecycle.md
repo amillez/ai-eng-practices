@@ -50,7 +50,7 @@ Every coding session starts through Orca, even without orchestration, so Agustí
 git -C ~/agent-work/<repo> fetch origin
 git -C ~/agent-work/<repo> worktree add -b agent/<bot>/<slug> ~/agent-work/<repo>-<slug> origin/main
 orca repo add --path ~/agent-work/<repo>-<slug> --json
-orca agent launch --agent claude --worktree path:$HOME/agent-work/<repo>-<slug> \
+orca agent launch --agent claude --worktree path:$HOME/agent-work/<repo>-<slug> --surface terminal \
   --model claude-opus-5-5 --effort high \
   --prompt "Use amillez-mode first. <thorough launch prompt>" --json
 ```
@@ -58,7 +58,7 @@ orca agent launch --agent claude --worktree path:$HOME/agent-work/<repo>-<slug> 
 Rules:
 
 - Pick `--agent`, `--model`, and `--effort` from the [lanes table](../policies/agent-use-policy.md#1-coding-host-routing). Always pass `--model` and `--effort`, except Grok (`--agent cursor --model grok-4.7-xhigh`), which takes no `--effort`. `--model` is the full id, never an alias such as `opus`.
-- The launch JSON returns the session's terminal handle. List live sessions in a worktree with `orca terminal list --worktree path:<worktree> --json`.
+- `--surface terminal` makes the session a terminal, so `orca terminal` commands can address it. The launch JSON returns its handle at `result.outcome.handle`. List live sessions in a worktree with `orca terminal list --worktree path:<worktree> --json`.
 - **M4.** The M4 is the paired Orca environment `m4`. Add `--environment m4` to each `orca` command, and run the `git` steps on the M4. Terminal handles belong to the environment that issued them.
 - **Lost launch reply.** Re-issue the same command from the same directory with `--retry-launch <operationId>` from the error. Never retry as a fresh launch.
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
@@ -69,7 +69,7 @@ Rules:
 When the [Review row](../policies/agent-use-policy.md#1-coding-host-routing) requires a review, start the reviewer as a second agent tab in the author's worktree. Do not start a review with a direct `claude -p` or `codex exec` call.
 
 ```bash
-orca agent launch --agent codex --worktree path:$HOME/agent-work/<repo>-<slug> \
+orca agent launch --agent codex --worktree path:$HOME/agent-work/<repo>-<slug> --surface terminal \
   --model gpt-6.1-sol --effort high --prompt "<review brief>" --json
 orca terminal wait --terminal <handle> --for tui-idle --json
 orca terminal read --terminal <handle> --json
@@ -90,7 +90,7 @@ Statuses: `queued` → `running` → `needs-proof` → `ready-for-review` → `m
 
 The [Review row](../policies/agent-use-policy.md#1-coding-host-routing) says which PRs need a cross-model review.
 
-When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5.5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips Orca. See [big-work orchestration](big-work-orchestration.md).
+When the size gate says large/needs-orch, a parent **Orca Run** with an **Opus 5.5 xhigh** coordinator fans out Dispatches before integrate/prove; babysit still owns the landing PR(s) until terminal. Small work skips the Orca Run. See [big-work orchestration](big-work-orchestration.md).
 
 ## Restate reports before acting
 
