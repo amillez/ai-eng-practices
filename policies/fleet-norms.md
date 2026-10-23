@@ -19,7 +19,7 @@ Agustín's adaptation of the [x.ai bot guides](https://x.ai/bot/guides).
    - When the Review row in [agent use policy §1](agent-use-policy.md#1-coding-host-routing) requires a cross-model review (code, script logic, policy changes), it passes with no blocking findings. Docs-only changes and §11 pin bumps need none.
 
    These always wait for Agustín: code changes that aren't low risk with a small blast radius, policy changes (any edit under this repo's `policies/`, this file included), and anything a reviewer flags. Pin the squash-merge to the head SHA that the checks and any review ran on with `gh pr merge --squash --match-head-commit <sha>`. Every Monday, Ivy's merge list includes the PRs that auto-merged.
-10. Run routines that open PRs or start coding sessions on `agent-m1` between 00:00 and 06:00 Madrid time. Stagger them so only one heavy job or emulator runs at a time, per [agent use policy §12](agent-use-policy.md#12-agent-m1-resource-limits). Run non-coding routines on weekday mornings, spread across the week rather than all on Monday.
+10. Run scheduled Grok Bot routines that open PRs or start coding sessions on `agent-m1` between 00:00 and 06:00 Madrid time. Stagger them so only one heavy job or emulator runs at a time, per [agent use policy §12](agent-use-policy.md#12-agent-m1-resource-limits). Run non-coding scheduled Grok Bot routines on weekday mornings, spread across the week rather than all on Monday. These time windows apply only to scheduled Grok Bot routines. Work that Agustín or another bot asks for starts right away, at any hour. A bot never defers its own session for requested work to the night. That session still follows the §12 limits.
 
 ## Related
 
