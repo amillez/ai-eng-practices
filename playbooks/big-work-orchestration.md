@@ -14,10 +14,10 @@ Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktre
 
 | Gate | Condition | Action |
 | --- | --- | --- |
-| **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Haiku / Opus on Claude Code, Grok on the Cursor Agent CLI). **No Orca Run. No orchestrator layer.** |
+| **Small** | Single surface/package, one PR, already-scoped paths, fits one focused session, blast radius clear | Dispatch the **corresponding agent directly** as one Orca session ([launch recipe](agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca)) — model + harness from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples) (Haiku / Opus on Claude Code, Grok on the Cursor Agent CLI). **No Orca Run. No orchestrator layer.** |
 | **Needs orch (large)** | Any of: multi-surface, multi-package, clearly parallelizable slices, multi-PR / stacked landings, multi-session, unclear blast radius, or more than one focused session | Start an **Orca Run** with an **Opus 5.5 xhigh** coordinator. Coordinator only plans, dispatches, waits, and routes decisions. Workers implement, integrate, and prove as **worker tasks**, each with **model + effort per slice** from the chooser via `orca orchestration worker-start --agent claude --model … --effort …` (or `--agent cursor --model grok-4.7-xhigh` when Claude Code usage > 70%), not all Opus xhigh. The eng bot babysits the PR. |
 
-### Small examples (direct agent — no Orca)
+### Small examples (direct agent — no Orca Run)
 
 - Rename a prop in one component folder → **Haiku** (Claude Code) Max.
 - Fix a known auth bug in one package → **Opus** (Claude Code) High, or **Grok 4.7** (Cursor Agent CLI) xHigh when Claude Code usage > 70%.
@@ -51,7 +51,7 @@ Grok Bot ensures the amillez plugin, kicks off the coordinator, babysits the PR,
 ## Default path (needs orch)
 
 1. **Eng bot intakes** the ask: success criteria, proof type, constraints; applies the [size gate](#size-gate).
-2. Eng bot (or a kickoff hop) verifies [prerequisites](#prerequisites-needs-orch-only), then launches an **Opus 5.5 xhigh** coordinator session that owns the Orca Run (see [Model assignment](#model-assignment)).
+2. Eng bot (or a kickoff hop) verifies [prerequisites](#prerequisites-needs-orch-only), then launches an **Opus 5.5 xhigh** coordinator session that owns the Orca Run (`orca agent launch --agent claude --model claude-opus-5-5 --effort xhigh`, per the [launch recipe](agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca); see [Model assignment](#model-assignment)).
 3. Coordinator runs the [supervised Orca loop](#preferred-supervised-orca-loop) below and picks **worker `--agent` / `--model` / `--effort` per slice** from the chooser.
 4. Eng bot arms babysit on the resulting PR(s) per [dispatch lifecycle](agent-dispatch-lifecycle.md#babysit-until-merged).
 
