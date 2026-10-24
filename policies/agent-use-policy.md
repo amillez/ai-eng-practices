@@ -58,7 +58,7 @@ Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code
 - **Host install.** Before coding on `agent-m1`, run `./scripts/ensure-install.sh` from the akit checkout (or `AMILLEZ_SKILLS_ROOT`). It installs the **core+mobile** groups at **`~/.claude`** and **`~/.agents`** (skills, user rules `amillez-models.md`, stamp) when they are missing and continues when they are present. Codex reads `~/.agents`; nothing goes under `~/.codex`. Refresh with `./scripts/update-install.sh` when policy or skills change or a human asks.
 - **Project trees.** The plugin never installs into a project or worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills live in the repo.
 - **Dispatch prompts.** Every Grok Bot dispatch prompt to a coding agent on `agent-m1` starts with the host ensure step, or the bot runs it before launch.
-- **No install on the M4.** Bots never run the install scripts on the M4. It keeps Agustín's own install.
+- **No install on the M4.** Bots never run the install or update scripts on the M4, and never change its logins. Sessions there use Agustín's own install and logins.
 
 **Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
 
@@ -302,10 +302,10 @@ These rules are for bots. Before Agustín launches a session, akit shows him fre
 
 1. Check `agent-m1`. `df -h ~` gives free disk in the Avail column, and `sysctl -n vm.loadavg` gives load, where the second number is the 5-minute average. These are plain shell checks with no model run.
 2. If `agent-m1` is under the disk hard stop or over the load soft limit, run the [finished-session cleanup](../playbooks/agent-dispatch-lifecycle.md#delete-the-session-when-the-task-is-done) there first, then check again.
-3. If `agent-m1` is still blocked, check the M4. Run the same commands there through Orca with `--environment m4`. If the M4 is not blocked, run the session there. Bots may use the M4 at any time, whether or not Agustín is using it. Only disk and load limit them.
+3. If `agent-m1` is still blocked, check the M4. Run the same commands there through Orca with `--environment m4`. If the M4 is blocked, run the finished-session cleanup there for bot sessions only, then check again. If the M4 is not blocked, run the session there. Bots may use the M4 at any time, whether or not Agustín is using it. Only disk and load limit them.
 4. If both hosts are blocked, wait. Recheck both at the recheck interval with the same plain checks. After the wait in the host table, message Agustín once with both hosts' numbers.
 
-Disk is a hard stop. Never start a session on a host under the disk hard stop. Load is soft. A short urgent fix may still start on a host over the load soft limit.
+Disk is a hard stop. Never start a session on a host under the disk hard stop. A session already running checks the lower heavy-build disk floor before each heavy build or emulator boot, so it can finish its proof. Load is soft. A short urgent fix may still start on a host over the load soft limit.
 
 Ben owns the host health checks on both hosts, including the script that runs the disk and load checks. Until that script exists, use the commands in step 1.
 

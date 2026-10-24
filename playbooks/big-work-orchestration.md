@@ -123,9 +123,9 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 ## Prove
 
 - Follow [agent proof feedback loop](agent-proof-feedback-loop.md).
-- **RN / mobile visual proof:** prove hop **must** run on `agent-m1` with Argent (Orca emulator bridge is optional assist — Argent remains the RN proof path).
+- **RN / mobile visual proof:** prove hop **must** run on the Run's [Orca host](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) with Argent (Orca emulator bridge is optional assist — Argent remains the RN proof path).
 - **Prove before PR.** Do not open a prove-empty PR and backfill later.
-- **Sim mutex on `agent-m1`:** one prove owner at a time for Argent/sim work; max **2** sims host-wide.
+- **Sim mutex on each Orca host:** one prove owner at a time for Argent/sim work, within the host's simulator cap in the [host table](../policies/agent-use-policy.md#host-table).
 
 ## Babysit
 
@@ -176,7 +176,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 - `--agent codex` for a coding worker. Codex only reviews.
 - `--agent cursor` with any model other than `grok-4.7-xhigh`, or with `--effort`.
 - Cursor cloud agents, Cursor Projects, My Machines, Composer, or Grok 4.6.
-- Claiming Argent/sim proof from anywhere other than `agent-m1`.
+- Claiming Argent/sim proof from anywhere other than an Orca host.
 - Parallel sim proves or opening a PR before prove.
 - Eng bot juggling N chats as forever-orchestrator instead of an Orca Run when the gate says large.
 - Stamping Opus 5.5 xhigh on every worker, or running the coordinator on any lane other than **Opus 5.5 xhigh**.
