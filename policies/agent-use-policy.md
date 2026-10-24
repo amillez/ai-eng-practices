@@ -18,9 +18,9 @@ Heuristics and savings numbers are **as of the cited source**, not eternal.
 
 For heavy coding / engineering agent work:
 
-- **Only coding host**: `agent-m1` (dedicated Mac) running **Claude Code** (the default coder), the **Cursor Agent CLI** (`agent`, Grok 4.7 xHigh, the [Claude Code usage > 70%](#claude-code-usage--70) fallback), and **Codex** (code review only, plus the [raster image exception](#codex-raster-image-exception)).
+- **Coding hosts**: the [Orca hosts](#12-orca-hosts-and-resource-limits), `agent-m1` by default and the M4 as overflow, running **Claude Code** (the default coder), the **Cursor Agent CLI** (`agent`, Grok 4.7 xHigh, the [Claude Code usage > 70%](#claude-code-usage--70) fallback), and **Codex** (code review only, plus the [raster image exception](#codex-raster-image-exception)).
 - **Grok Bot** is the chat and control plane (intake, dispatch, babysit, proof orchestration). It does not write code.
-- **Which harness** on `agent-m1` is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule. Claude Code (Opus 5.5, Fable 5.1, Haiku 5.5) codes by default. The Cursor Agent CLI runs Grok 4.7 xHigh when Claude Code usage is above 70%. Codex never codes outside the [raster image exception](#codex-raster-image-exception). It runs code review on GPT 6.1 Sol.
+- **Which harness** is decided by the model lanes below plus the [Claude Code usage > 70%](#claude-code-usage--70) rule. Claude Code (Opus 5.5, Fable 5.1, Haiku 5.5) codes by default. The Cursor Agent CLI runs Grok 4.7 xHigh when Claude Code usage is above 70%. Codex never codes outside the [raster image exception](#codex-raster-image-exception). It runs code review on GPT 6.1 Sol.
 
 Every session on these harnesses starts through Orca, per [start every coding session through Orca](#start-every-coding-session-through-orca). The Cursor Agent CLI is the only Cursor path. Do **not** use Cursor cloud agents, Cursor Projects, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6.
 
@@ -49,22 +49,23 @@ Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code
 - **Proof media on `media` branch.** Never commit screenshots/videos to the PR branch. Link them in the PR body via GitHub blob URLs, not raw URLs. See [proof media hosting](../playbooks/agent-proof-feedback-loop.md#proof-media-hosting).
 - **Prove on the real surface.** Launch the app, run a read-only doctor check, drive the real user path, and capture evidence, following the project's `verify-<app>` skill when the repo has one. See [prove and inspect](../playbooks/agent-proof-feedback-loop.md#prove-and-inspect).
 - **Inspect proof against the success criteria.** The agent that drove the app reads every asset and reports pass or fail with specifics. A second judge is not required when the implementer already proved the change on device. A separate verification session is optional. If you start one, it only inspects proof and never implements, and you pick its model per task from the [agent chooser](#agent-chooser-examples).
-- **Argent on `agent-m1` for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs; skills alone are not enough.
+- **Argent for RN/UI.** Use Argent CLI + MCP with provisioned simulators/AVDs on the session's host; skills alone are not enough. Stay within the host's simulator cap in the [host table](#host-table).
 - **Mismatch → iterate or report the blocker with evidence.** Never claim "verified" without reading the proof.
-- **Tear down after proof.** Shut down sims/emulators, dev servers, and matching Expo CLI processes (`expo/bin/cli`, `expo start`, `expo run`), then verify no used Metro port is listening. For Android jobs, also stop the Gradle and Kotlin daemons per [§12](#12-agent-m1-resource-limits). See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
+- **Tear down after proof.** Shut down sims/emulators, dev servers, and matching Expo CLI processes (`expo/bin/cli`, `expo start`, `expo run`), then verify no used Metro port is listening. For Android jobs, also stop the Gradle and Kotlin daemons per [§12](#12-orca-hosts-and-resource-limits). See [teardown after proof](../playbooks/agent-proof-feedback-loop.md#teardown-after-proof).
 
 **Amillez plugin before coding** (see [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`):
 
 - **Host install.** Before coding on `agent-m1`, run `./scripts/ensure-install.sh` from the akit checkout (or `AMILLEZ_SKILLS_ROOT`). It installs the **core+mobile** groups at **`~/.claude`** and **`~/.agents`** (skills, user rules `amillez-models.md`, stamp) when they are missing and continues when they are present. Codex reads `~/.agents`; nothing goes under `~/.codex`. Refresh with `./scripts/update-install.sh` when policy or skills change or a human asks.
 - **Project trees.** The plugin never installs into a project or worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills live in the repo.
-- **Dispatch prompts.** Every Grok Bot dispatch prompt to a coding agent starts with the host ensure step, or the bot runs it before launch.
+- **Dispatch prompts.** Every Grok Bot dispatch prompt to a coding agent on `agent-m1` starts with the host ensure step, or the bot runs it before launch.
+- **No install on the M4.** Bots never run the install scripts on the M4. It keeps Agustín's own install.
 
 **Dispatch and worktrees** (see [agent dispatch lifecycle](../playbooks/agent-dispatch-lifecycle.md)):
 
 - **Worktree per agent.** Dispatch each workstream into its own Orca worktree, created with `orca worktree create --repo name:<repo> --name <slug>` from an up-to-date base, and rename its branch to `agent/<bot>/<slug>` before the launch. Agents never work in the `main` checkout.
 - **One coding agent per tree.** Parallel work uses separate worktrees with disjoint paths. A read-only reviewer tab in the same worktree is allowed.
-- **Executors can run `agent-m1` Shell.** A Grok Bot parent or its **executor** Task subagent runs agent-m1 Shell/Read with `machineId` (`cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`), so either can create the worktree and launch the coding session through Orca. Executors can't message other agents or read agent transcripts, so the parent bot does those. Recipe: [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca).
-- **Size gate before launch.** **Small** (single surface or package, one PR, clear blast radius, one focused session) → launch the matching agent from this chooser as one Orca session. No Orca Run, no orchestrator. **Large** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, or unclear blast radius) → an **Orca** Run on `agent-m1` with an **Opus 5.5 xHigh** coordinator (`orca agent launch --agent claude --model claude-opus-5-5 --effort xhigh`). The coordinator only plans, dispatches, and waits. Workers implement, integrate, and prove, each with model and effort per slice from this chooser. Grok Bot ensures the amillez plugin and babysits the PRs. Do not collapse large work into one mega agent. **Needs parallel workers → Orca; one agent can own the whole loop but the work is long, cross-cutting, or reviewed after stepping away → the akit [`figure-it-out`](https://github.com/amillez/akit/blob/main/skills/figure-it-out/SKILL.md) skill.** Prerequisites and the Orca loop are in [big-work orchestration](../playbooks/big-work-orchestration.md).
+- **Executors can run `agent-m1` Shell.** A Grok Bot parent or its **executor** Task subagent runs agent-m1 Shell/Read with `machineId` (`cbfdfd05-8447-4018-ad6b-26eb8a0e83b1`), so either can create the worktree and launch the coding session through Orca. They reach the M4 through Orca from `agent-m1` with `--environment m4`. Executors can't message other agents or read agent transcripts, so the parent bot does those. Recipe: [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca).
+- **Size gate before launch.** **Small** (single surface or package, one PR, clear blast radius, one focused session) → launch the matching agent from this chooser as one Orca session. No Orca Run, no orchestrator. **Large** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, or unclear blast radius) → an **Orca** Run on the host picked per [pick a host](#pick-a-host), with an **Opus 5.5 xHigh** coordinator (`orca agent launch --agent claude --model claude-opus-5-5 --effort xhigh`). The coordinator only plans, dispatches, and waits. Workers implement, integrate, and prove, each with model and effort per slice from this chooser. Grok Bot ensures the amillez plugin and babysits the PRs. Do not collapse large work into one mega agent. **Needs parallel workers → Orca; one agent can own the whole loop but the work is long, cross-cutting, or reviewed after stepping away → the akit [`figure-it-out`](https://github.com/amillez/akit/blob/main/skills/figure-it-out/SKILL.md) skill.** Prerequisites and the Orca loop are in [big-work orchestration](../playbooks/big-work-orchestration.md).
 - **Babysit until merged.** Bots own the workstream until `merged` or `discarded`; agent idle is not done. Bots babysit an open PR with PR-scoped GitHub event listeners, and every babysit routine deletes itself on the `pr-merged` or `pr-closed` wake. A babysitter starts one coding session per submitted review with every unresolved thread batched in, never one per inline comment. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook. See [babysit until merged](../playbooks/agent-dispatch-lifecycle.md#babysit-until-merged).
 - **Delete the session when the task is done.** When the PR merges or closes, or the task is abandoned, close the session's terminals, `orca worktree rm` its worktree, and delete its branch. Runtime teardown and Metro-port verification still apply. Leave nothing behind. See [delete the session when the task is done](../playbooks/agent-dispatch-lifecycle.md#delete-the-session-when-the-task-is-done).
 
@@ -74,11 +75,11 @@ Bot orchestrators (Grok Bots) pick the harness from the lanes above. Claude Code
 
 - **Never omit model or effort.** Harness defaults are not the Agent chooser.
 - **Fast:** leave off unless the human explicitly asks.
-- **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up clone/ref access up front on `agent-m1`. Do not expect the agent to invent trees without access.
+- **Private-ref docs / knowledge PRs:** if the agent needs private reference repos, set up clone/ref access up front on the session's host. Do not expect the agent to invent trees without access.
 
 ### Start every coding session through Orca
 
-- **Every coding session starts through Orca**, even a single session with no orchestration. Agustín and every bot can then reach it. This covers Claude Code (`--agent claude`), Codex (`--agent codex`), and the Cursor Agent CLI (`--agent cursor`) on `agent-m1` and on the M4. The M4 is the paired Orca environment `m4`, so commands for it add `--environment m4`.
+- **Every coding session starts through Orca**, even a single session with no orchestration. Agustín and every bot can then reach it. This covers Claude Code (`--agent claude`), Codex (`--agent codex`), and the Cursor Agent CLI (`--agent cursor`) on every [Orca host](#12-orca-hosts-and-resource-limits). Commands for the M4 add `--environment m4`.
 - **One Orca project per repo, many worktree sessions.** Register each repo in Orca once, from its main clone `~/agent-work/<repo>`. Never `orca repo add` a worktree path. Each session is an Orca worktree in that project, created with `orca worktree create --repo name:<repo> --name <slug>`. When the task is done (PR merged or closed), close the session's terminals, `orca worktree rm` it, and delete its branch.
 - **Reviews run in the same Orca worktree session as the main agent.** Start the reviewer as a second agent tab with `orca agent launch --worktree path:<main worktree>`. Never start a review in a new child worktree, so no `orca worktree create` and no `worker-start --worktree new-child` for reviews. Do not start a review with a direct `claude -p` or `codex exec` call.
 - **Use the recipe.** It is in [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca). Main clones stay under `~/agent-work`, session worktrees live where `orca worktree create` puts them, every prompt names amillez-mode first, and every launch passes `--model` and `--effort` from the lanes above (Grok takes no `--effort`).
@@ -108,7 +109,7 @@ Codex writes only for a raster image edit, such as an icon or a screenshot, that
 
 #### Claude Code usage > 70%
 
-Before launching a Claude Code lane (general code, UI, or docs), check plan usage on `agent-m1`: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to **Grok 4.7 xHigh** on the Cursor Agent CLI instead (`orca agent launch --agent cursor --model grok-4.7-xhigh`). Inside an Orca Run, start that worker with `worker-start --agent cursor --model grok-4.7-xhigh`. At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected. If usage is exhausted, say so and use the Grok lane rather than stalling. Codex is never the fallback, since Codex does not code outside the [raster image exception](#codex-raster-image-exception).
+Before launching a Claude Code lane (general code, UI, or docs), check plan usage on the host that will run it: run `/usage` (or `/status`) in a Claude Code session — it shows plan usage for the current window. If the current window is **above 70%**, route that task to **Grok 4.7 xHigh** on the Cursor Agent CLI instead (`orca agent launch --agent cursor --model grok-4.7-xhigh`). Inside an Orca Run, start that worker with `worker-start --agent cursor --model grok-4.7-xhigh`. At or below 70%, stay on **Opus 5.5 High**. Orca coordinator (Opus 5.5 xHigh) and Fable lanes are unaffected. If usage is exhausted, say so and use the Grok lane rather than stalling. Codex is never the fallback, since Codex does not code outside the [raster image exception](#codex-raster-image-exception).
 
 ### Agent chooser examples
 
@@ -237,7 +238,7 @@ When both a dedicated MCP / connector and an ad-hoc CLI/`curl` path exist for th
 
 **Third-party commits.** Commits meant for a third-party repo, including those on `amillez/<repo>` fork branches, are plain commits authored by Agustín's GitHub user (`amillez`), with no AI `Co-authored-by` trailer and no "Generated with" line in the commit message or PR body.
 
-**Prefer CLI** when no MCP exists; for CLI-native host tooling (`git`, `gh` for forge ops already done that way, Orca CLI, Argent CLI on `agent-m1`, package managers); or for one-off scripts / pipes / batch shell MCP does not cover well.
+**Prefer CLI** when no MCP exists; for CLI-native host tooling (`git`, `gh` for forge ops already done that way, Orca CLI, Argent CLI, package managers); or for one-off scripts / pipes / batch shell MCP does not cover well.
 
 **Anti-patterns:** signed-in browser or invented HTTP when an MCP exists; dual-pathing MCP + CLI for the same mutation without a reason; enabling unused MCPs (see §7).
 
@@ -267,19 +268,57 @@ This rule covers project dependencies in every repo: npm packages, Expo and Reac
 - A newer version waits until it is a month old. Pick the newest version that passes both checks. Do not take `@latest` or `@next` blindly, and that includes skill steps such as `expo-upgrade`'s `npx expo install expo@latest`.
 - Before the change, check the publish date (`npm view <pkg> time --json`, the GitHub release, or the CocoaPods or Maven publish date) and the issue tracker. State the version, its release date, and the issue check in the PR description.
 - Where the package manager supports it, enforce the age check in config, for example pnpm `minimumReleaseAge: 43200` (30 days in minutes) in `pnpm-workspace.yaml`. See [hard constraints](../playbooks/hard-constraints.md).
-- Host tooling on `agent-m1` (Claude Code, Codex, `gh`, Argent) is out of scope and keeps its own update rules.
+- Host tooling on the Orca hosts (Claude Code, Codex, `gh`, Argent) is out of scope and keeps its own update rules.
 - Skill or doc text copied from an upstream such as pstack is not a dependency, so the age rule does not apply to it. Its pin is tracked in the skill's `UPSTREAM.md` (for pstack, akit [`skills/amillez-mode/UPSTREAM.md`](https://github.com/amillez/akit/blob/main/skills/amillez-mode/UPSTREAM.md)) and moves with the weekly [pstack revisit](../playbooks/steal-from-pstack.md#upstream).
 
 ---
 
-## 12. agent-m1 resource limits
+## 12. Orca hosts and resource limits
 
-`agent-m1` has 16 GB of RAM and a 245 GB disk, and on 2026-10-10 three Android emulators plus Gradle and Kotlin daemons filled memory and disk, froze the host, and killed a Codex job with `ENOSPC`.
+Coding sessions run on two Orca hosts. Bots pick one per [pick a host](#pick-a-host). Agustín picks his own host. Every limit is a number in the host table, so change it there. Launch commands, including `--environment m4`, are in akit's [Orca launches](https://github.com/amillez/akit/blob/main/skills/amillez-mode/references/orca-launch.md).
 
-- **One Android emulator at a time.** At most one Android emulator runs on `agent-m1` at a time, across the whole fleet. Before you boot one, check what is running. Use `simfleet status` or `simfleet emu list` when simfleet is up, otherwise `adb devices` and `pgrep -fl qemu-system`. If an emulator is already running and it isn't yours, wait for it or reuse it through a simfleet claim. Never boot a second one. simfleet has no emulator-count setting today, so this check is the cap. If simfleet gains that setting, set the cap in its config.
+### Host table
+
+| | `agent-m1` | M4 |
+| --- | --- | --- |
+| Role for bots | Default host | Overflow host, used when `agent-m1` is blocked |
+| Owner | Bots | Agustín. It is his day-job laptop. |
+| Orca environment | Local runtime, no flag | `m4` (`--environment m4`) |
+| Host id | `cbfdfd05-8447-4018-ad6b-26eb8a0e83b1` (Grok Bot `machineId`) | `bbe089fa-62c6-4081-8850-f3c23fd4d303` |
+| Hardware | 16 GB RAM, 245 GB disk | Not recorded |
+| Disk hard stop (free space) | 30 GB | 30 GB |
+| Heavy-build disk floor (free space) | 20 GB | 20 GB |
+| Load soft limit | 5-minute load average above the CPU core count (8) | 5-minute load average above the CPU core count |
+| Simulator and emulator cap | 2 in total, at most 1 Android | 2 iOS and 1 Android in total, Agustín's included |
+| Off-limits to bots | Nothing beyond this policy | Agustín's own repos, checkouts, and credentials. Bots work only in Orca's worktree folder. |
+| Secrets | Fleet secrets live here | None. Sessions use the `git`, `gh`, and agent CLI logins already on the M4. |
+| Recheck interval while both hosts are blocked | 5 minutes | 5 minutes |
+| Wait before messaging Agustín | 2 hours | 2 hours |
+| Health checks | Ben | Ben |
+
+### Pick a host
+
+These rules are for bots. Before Agustín launches a session, akit shows him free disk, load, and running simulators as a warning that does not block the launch.
+
+1. Check `agent-m1`. `df -h ~` gives free disk in the Avail column, and `sysctl -n vm.loadavg` gives load, where the second number is the 5-minute average. These are plain shell checks with no model run.
+2. If `agent-m1` is under the disk hard stop or over the load soft limit, run the [finished-session cleanup](../playbooks/agent-dispatch-lifecycle.md#delete-the-session-when-the-task-is-done) there first, then check again.
+3. If `agent-m1` is still blocked, check the M4. Run the same commands there through Orca with `--environment m4`. If the M4 is not blocked, run the session there. Bots may use the M4 at any time, whether or not Agustín is using it. Only disk and load limit them.
+4. If both hosts are blocked, wait. Recheck both at the recheck interval with the same plain checks. After the wait in the host table, message Agustín once with both hosts' numbers.
+
+Disk is a hard stop. Never start a session on a host under the disk hard stop. Load is soft. A short urgent fix may still start on a host over the load soft limit.
+
+Ben owns the host health checks on both hosts, including the script that runs the disk and load checks. Until that script exists, use the commands in step 1.
+
+### Simulators and emulators
+
+`agent-m1` has 16 GB of RAM, and on 2026-10-10 three Android emulators plus Gradle and Kotlin daemons filled memory and disk, froze the host, and killed a Codex job with `ENOSPC`. The `agent-m1` caps come from that incident.
+
+- **Count what is running, not what bots started.** Before you boot a simulator or emulator, count every one on the host. Use `simfleet status` or `simfleet emu list` when simfleet is up. Otherwise use `xcrun simctl list devices booted` for iOS, and `adb devices` and `pgrep -fl qemu-system` for Android. On the M4, the count includes Agustín's own simulators.
+- **At the cap, move or wait.** On `agent-m1`, wait for a running emulator or reuse it through a simfleet claim. Never boot past the cap. On the M4, run the simulator task on `agent-m1` or wait. simfleet has no emulator-count setting today, so this check is the cap. If simfleet gains that setting, set the cap in its config.
+- **Shut down only your own.** Bots shut down only the simulators and emulators they booted.
 - **Android teardown.** When an Android job finishes, run `./gradlew --stop` in the project's `android/` directory to stop the Gradle and Kotlin daemons. Then shut down every simulator, emulator, and Metro or Expo server the job started, per the teardown rules in [§1](#1-coding-host-routing). Check with `pgrep -fl 'GradleDaemon|KotlinCompileDaemon'` and kill any daemon from this job that is still listed.
 - **Tell Ben.** When Android work is done, tell Ben, the [infra bot](../playbooks/eng-team-of-bots.md#specialization), so Ben can clear caches safely.
-- **Disk floor.** Don't start a heavy build or an emulator when `agent-m1` has under 20 GB free. Heavy builds are a native iOS or Android build, `expo prebuild`, `pod install`, a Gradle build, and a full test matrix. Check free space with `df -h ~` and read the Avail column. Under 20 GB, ping Ben (the infra bot) with the `df -h ~` output and wait.
+- **Heavy-build disk floor.** Don't start a heavy build or an emulator on a host under the heavy-build disk floor. Heavy builds are a native iOS or Android build, `expo prebuild`, `pod install`, a Gradle build, and a full test matrix. Under the floor, ping Ben with the `df -h ~` output and wait.
 
 ---
 

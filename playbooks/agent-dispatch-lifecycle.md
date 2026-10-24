@@ -2,7 +2,7 @@
 
 How bots dispatch work to coding agents: projects, worktrees, and teardown.
 
-Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%), and Codex (code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Every session starts through Orca, per [start every coding session through Orca](../policies/agent-use-policy.md#start-every-coding-session-through-orca). Dispatch = Grok Bot → Orca coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
+Standing stack: the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits), `agent-m1` by default and the M4 as overflow, running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%), and Codex (code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Every session starts through Orca, per [start every coding session through Orca](../policies/agent-use-policy.md#start-every-coding-session-through-orca). Dispatch = Grok Bot → Orca coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
 
 ## Units
 
@@ -11,7 +11,7 @@ Standing stack: `agent-m1` running Claude Code (default coder), the Cursor Agent
 - **Project** (optional) — multi-task effort; thin tracker later (Notion).
 - **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) as one Orca session ([launch recipe](#launch-a-coding-session-through-orca)); no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Cursor Agent CLI on Grok 4.7 xHigh when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
-## Worktrees on `agent-m1`
+## Worktrees on an Orca host
 
 Layout:
 
@@ -29,7 +29,7 @@ Rules:
    - `orca agent launch` starts Claude Code in a new Orca worktree with no "Workspace not trusted" prompt (verified 2026-10-24), so do not edit `~/.claude.json`.
 2. **Ensure the amillez plugin on the host before coding.** Run [`amillez/akit`](https://github.com/amillez/akit) `scripts/ensure-install.sh`. It installs **core+mobile** at `~/.claude` and `~/.agents` (plus user rules and stamp, nothing under `~/.codex`) and continues when already present. Refresh with `scripts/update-install.sh` when policy or skills change or a human asks. Never install the plugin into the worktree. A project may commit selected stack skills (e.g. `uniwind`) as a teammate mirror, not the whole mobile set. Project `verify-*` skills stay in-repo. **Grok Bot dispatch prompts to Claude/Codex include this host ensure step first.**
 3. **One coding agent per worktree.** The reviewer tab from [review in the same worktree session](#review-in-the-same-worktree-session) is the one second agent allowed, and it does not write. Parallel work = Orca `worker-start` with disjoint paths (`--worktree new-child`, max 2 under disk pressure) or sequential `--worktree current`. Never two coding agents on one checkout — see [Worktrees and disk](big-work-orchestration.md#worktrees-and-disk).
-   - Before launch, check free disk and running emulators per [agent-m1 resource limits](../policies/agent-use-policy.md#12-agent-m1-resource-limits). Under 20 GB free, ping Ben and wait.
+   - Before launch, pick the host per [pick a host](../policies/agent-use-policy.md#pick-a-host). It covers free disk, load, and running simulators.
 4. **PR is the exit artifact.** Include or link proof in the PR body or bot message (see [agent proof feedback loop](agent-proof-feedback-loop.md)). Proof is captured after the last UI-affecting commit, per [prove and inspect](agent-proof-feedback-loop.md#prove-and-inspect).
    - Screenshots/videos live on the repo's media branch (`media` or per-PR `media/<slug>`, per the repo's convention), never the PR branch; link them via GitHub blob URLs, not raw URLs. See [proof media hosting](agent-proof-feedback-loop.md#proof-media-hosting).
 5. **After merge, close, or abandon:** delete the session per [delete the session when the task is done](#delete-the-session-when-the-task-is-done). Close its terminals, `orca worktree rm` the worktree, and delete its branch. Leave nothing behind.
@@ -65,7 +65,7 @@ Rules:
 - `orca worktree create` checks out `origin/main` into `~/orca/workspaces/<repo>/<slug>` on branch `amillez/<slug>`, because Orca prefixes the branch with the repo's git username. Rename it to `agent/<bot>/<slug>` before the launch. Orca follows the rename. `--no-parent` keeps the session out of the caller's Orca lineage.
 - Pick `--agent`, `--model`, and `--effort` from the [lanes table](../policies/agent-use-policy.md#1-coding-host-routing). Always pass `--model` and `--effort`, except Grok (`--agent cursor --model grok-4.7-xhigh`), which takes no `--effort`. `--model` is the full id, never an alias such as `opus`.
 - `--surface terminal` makes the session a terminal, so `orca terminal` commands can address it. The launch JSON returns its handle at `result.outcome.handle`. List live sessions in a worktree with `orca terminal list --worktree path:<worktree> --json`.
-- **M4.** The M4 is the paired Orca environment `m4`. Add `--environment m4` to each `orca` command, and run the `git` steps on the M4. Terminal handles belong to the environment that issued them.
+- **M4.** Run on the M4 only when [pick a host](../policies/agent-use-policy.md#pick-a-host) sends the session there. Add `--environment m4` to each `orca` command. Terminal handles belong to the environment that issued them. On the M4, run `git` only inside the session worktree. Agustín's own clones back the Orca projects there, so never `orca repo add`, fetch, or run any other `git` command in them.
 - **Lost launch reply.** Re-issue the same command from the same directory with `--retry-launch <operationId>` from the error. Never retry as a fresh launch.
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
 - **agent-m1 disconnected.** If Grok Bot shows `agent-m1` disconnected, do not relaunch jobs. Orca sessions keep running locally on `agent-m1`, so wait for the reconnect, then check them with `orca terminal list --json`.
@@ -104,7 +104,7 @@ When the ask comes from a bug report, an issue, a user-feedback message, or a ch
 
 ## Teardown
 
-After proof, the task owner shuts down the iOS Simulator, Android emulator, Metro/dev servers, watchers, and tunnels started for the worktree. For Expo/RN work, also find and kill the matching `expo/bin/cli`, `expo start`, and `expo run` processes — they may not match `metro` or `Simulator` filters — then verify that no process is listening on every Metro port used (including 8081 or 8090). Ben's infra bot sweep of `agent-m1` is a backstop, not a substitute for the task owner's teardown. Use the [copy-pasteable check](agent-proof-feedback-loop.md#teardown-after-proof). For Android jobs, also run `./gradlew --stop` per [agent-m1 resource limits](../policies/agent-use-policy.md#12-agent-m1-resource-limits).
+After proof, the task owner shuts down the iOS Simulator, Android emulator, Metro/dev servers, watchers, and tunnels started for the worktree. For Expo/RN work, also find and kill the matching `expo/bin/cli`, `expo start`, and `expo run` processes — they may not match `metro` or `Simulator` filters — then verify that no process is listening on every Metro port used (including 8081 or 8090). Ben's infra bot sweep of the Orca hosts is a backstop, not a substitute for the task owner's teardown. Use the [copy-pasteable check](agent-proof-feedback-loop.md#teardown-after-proof). For Android jobs, also run `./gradlew --stop` per [Orca hosts and resource limits](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits).
 
 ### Delete the session when the task is done
 
@@ -126,10 +126,10 @@ git -C ~/agent-work/<repo> push origin --delete "$br"      # if the remote branc
 ## Babysit until merged
 
 1. **Own the workstream until a terminal status.** Terminal = merge, close, or abandon. Agent idle or session settle is not done. The bot merges only per [fleet norms rules 8 and 9](../policies/fleet-norms.md).
-2. **Hop 1 — session settle: arm a finite settle-watch.** Do not rely on silent background Shell wakes alone. The bot arms a finite weekday `*/10` Europe/Madrid routine that checks the coding session on `agent-m1`, **must message** the user on settle, block, or deadline, then deletes itself. See standing skill `agent-m1-completion-ping`. A routine run cannot create, update, resume, or enable routines, so the settle-watch hands back to the parent bot, which arms hop 2 and does any re-arming.
+2. **Hop 1 — session settle: arm a finite settle-watch.** Do not rely on silent background Shell wakes alone. The bot arms a finite weekday `*/10` Europe/Madrid routine that checks the coding session on its Orca host, **must message** the user on settle, block, or deadline, then deletes itself. See standing skill `agent-m1-completion-ping`. A routine run cannot create, update, resume, or enable routines, so the settle-watch hands back to the parent bot, which arms hop 2 and does any re-arming.
    - **Handoff.** When the session settles with a PR open, the settle-watch run reports the babysit spec to the parent bot: the repo, the PR number, and the listener events (the default pack, always including `pr-merged` and `pr-closed`). The parent bot arms the babysit from that spec and confirms that it exists, per item 3.
    - **No self-edits.** Settle-watch and babysit routines never pause, resume, or edit their own routine. The self-delete at the end is the only change a routine makes to itself.
-   - **Isolated private repos.** For an isolated private repo such as `KaikuLabs/favvy-app`, the settle-watch reads the PR body before review and checks it for host or fleet references: disk numbers, host names such as `agent-m1`, and bot names. If it finds one, its report names it, and the parent bot sends the coding agent back to remove it before review.
+   - **Isolated private repos.** For an isolated private repo such as `KaikuLabs/favvy-app`, the settle-watch reads the PR body before review and checks it for host or fleet references: disk numbers, host names such as `agent-m1` or `m4`, and bot names. If it finds one, its report names it, and the parent bot sends the coding agent back to remove it before review.
 3. **Hop 2 — PR open: switch to GitHub listeners.** Babysit with PR-scoped GitHub event listeners (review, CI, push, `pr-merged`, `pr-closed`), not polling. `pr-merged` and `pr-closed` are always in the pack. Listeners do not reliably self-delete on merge, so every babysit routine prompt says explicitly to delete its own routine on the `pr-merged` or `pr-closed` wake. Launch prompts carry no Grok Bot webhook keys, and coding agents send no finish pings to a webhook. After setting up the PR watch, the bot lists its routines and listeners, confirms the listener for this PR exists with the right PR number and events, and says so in its report. If setup fails or the listener is missing, the bot tells the user and quotes the error. It never stays quiet or assumes the watch works.
 4. **Match the PR on every listener wake.** On every GitHub listener wake, confirm the event's PR number matches this workstream's `pr_number`; ignore cross-PR payloads.
 5. **Do not stop at settle.** While the PR is OPEN and review threads are unresolved, do not delete the settle-watch or stop babysitting just because the coding session finished.
@@ -152,7 +152,7 @@ A new push needs a new run on the new head.
 
 ## Roles
 
-- **Eng bots (Mark / Sam / Emily):** write the prompt, pick skills and proof type (always attach `amillez-mode` for coding agents; knowing which skills to attach is one of the bot's most important jobs), start the agent on `agent-m1`, follow up, verify proof and the PR the agent opens, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
+- **Eng bots (Mark / Sam / Emily):** write the prompt, pick skills and proof type (always attach `amillez-mode` for coding agents; knowing which skills to attach is one of the bot's most important jobs), start the agent on the host picked per [pick a host](../policies/agent-use-policy.md#pick-a-host), follow up, verify proof and the PR the agent opens, babysit it until merged or closed, tear down. Responsibility ends at merge/teardown, not at agent launch.
 - **Coding agent:** works only in its own workstream, under `amillez-mode`, and opens its PR. Never merges, arms auto-merge, or closes the PR. Bots merge per [fleet norms rules 8 and 9](../policies/fleet-norms.md).
 - **Jarvis:** postmortems when the lifecycle breaks (merged without proof, orphan worktrees).
 

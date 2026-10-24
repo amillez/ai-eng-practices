@@ -19,7 +19,7 @@ Focused bots stay sharper. Our split:
 | **Sam** | This repo — playbooks, policies, model picks, skill hygiene, and the general amillez-mode process rails. |
 | **Mark** | RN client quality, visual proof, mobile skills. Runs coding work on `agent-m1`. Owns the proposed akit `amillez-react-native-mode` skill ([akit#38](https://github.com/amillez/akit/pull/38), not merged) and rn-bedrock docs gardening. |
 | **Emily** | Engineer bot for `KaikuLabs/favvy-app`. Codes on `agent-m1`. |
-| **Ben** | `agent-m1` host health checks. Keeps Claude Code, the Cursor Agent CLI, Codex, and `gh` updated and logged in. |
+| **Ben** | Host health checks on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits), `agent-m1` and the M4, including the disk and load check script. Keeps Claude Code, the Cursor Agent CLI, Codex, and `gh` updated and logged in. |
 | **Stella** | Designs new Grok Bots. |
 | **Jarvis and Friday (hub)** | Cross-project intake and routing to other bots. Plan and delegate; do not write feature code. |
 

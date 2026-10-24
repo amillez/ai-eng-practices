@@ -2,7 +2,7 @@
 
 Living, opinionated practices for AI-assisted software engineering.
 
-**Coding host:** `agent-m1` running **Claude Code** (default coder), the **Cursor Agent CLI** (Grok 4.7 xHigh when Claude Code usage > 70%), and **Codex** (code review only, plus the [raster image exception](policies/agent-use-policy.md#codex-raster-image-exception)). Every coding session and review starts through Orca. Grok Bot is the chat and control plane. See [agent use policy](policies/agent-use-policy.md).
+**Coding hosts:** the [Orca hosts](policies/agent-use-policy.md#host-table), `agent-m1` by default and the M4 as overflow, running **Claude Code** (default coder), the **Cursor Agent CLI** (Grok 4.7 xHigh when Claude Code usage > 70%), and **Codex** (code review only, plus the [raster image exception](policies/agent-use-policy.md#codex-raster-image-exception)). Every coding session and review starts through Orca. Grok Bot is the chat and control plane. See [agent use policy](policies/agent-use-policy.md).
 
 This repo is a small set of playbooks and standing policies. Prefer checklists and decision guides over essays. Keep advice cost-aware and anti-hype. When a number comes from a talk or eval, treat it as a snapshot, not eternal truth.
 
@@ -11,7 +11,7 @@ This repo is a small set of playbooks and standing policies. Prefer checklists a
 | Playbook | Use when |
 | --- | --- |
 | [Model selection & token efficiency](playbooks/model-selection-and-token-efficiency.md) | Choosing a model, writing a prompt, or diagnosing spend / blurry context |
-| [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized eng bots that dispatch/babysit agent-m1 coding agents |
+| [Eng team of bots](playbooks/eng-team-of-bots.md) | Running specialized eng bots that dispatch and babysit coding agents on the Orca hosts |
 | [Agent proof feedback loop](playbooks/agent-proof-feedback-loop.md) | Deciding when a coding agent is done and what proof it must produce |
 | [Agent dispatch lifecycle](playbooks/agent-dispatch-lifecycle.md) | Dispatching work to a coding agent: worktree, PR, teardown |
 | [Big-work orchestration](playbooks/big-work-orchestration.md) | Large work: an Orca Run whose Opus 5.5 xHigh coordinator plans and dispatches while workers implement, integrate, and prove |
