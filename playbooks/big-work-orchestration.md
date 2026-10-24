@@ -105,7 +105,7 @@ Notes from Orca docs:
 | **Workers** | Claude Code via Orca, or the Cursor Agent CLI for Grok | `worker-start --agent claude --model … --effort …`, or `--agent cursor --model grok-4.7-xhigh` when Claude Code usage > 70%; disk modes below. |
 | **Integrate** | Worker task (delegated) | Merge outputs, resolve conflicts, re-run unit/typecheck. Coordinator does **not** integrate — dispatch an integrate worker (often sequential `--worktree current`). |
 | **Structure review** | Worker task (delegated) | Review the integrated diff against the repo's own practice docs so structure settles before proof rounds start. Runs after integrate, before prove. |
-| **Prove** | Worker task on `agent-m1` | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex / max **2** sims. |
+| **Prove** | Worker task on the Run's Orca host | [Proof loop](agent-proof-feedback-loop.md); RN visual → Argent; **prove before PR**; sim mutex within the [host table](../policies/agent-use-policy.md#host-table) cap. |
 | **Babysit** | Eng bot (Grok) | Until `merged`\|`discarded`; PR listeners — does not replace Orca during the Run. |
 
 ## Worktrees and disk

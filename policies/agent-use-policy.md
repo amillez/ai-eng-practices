@@ -281,44 +281,46 @@ Coding sessions run on two Orca hosts. Bots pick one per [pick a host](#pick-a-h
 
 | | `agent-m1` | M4 |
 | --- | --- | --- |
-| Role for bots | Default host | Overflow host, used when `agent-m1` is blocked |
+| Role for bots | Default host | Overflow host, used when `agent-m1` is `blocked` or `busy` |
 | Owner | Bots | Agustín. It is his day-job laptop. |
 | Orca environment | Local runtime, no flag | `m4` (`--environment m4`) |
 | Host id | `cbfdfd05-8447-4018-ad6b-26eb8a0e83b1` (Grok Bot `machineId`) | `bbe089fa-62c6-4081-8850-f3c23fd4d303` |
 | Hardware | 16 GB RAM, 245 GB disk | Not recorded |
+| Health check | `bash ~/agent-work/bin/host-health.sh` | `bash ~/orca/host-health.sh` |
 | Disk hard stop (free space) | 30 GB | 30 GB |
-| Heavy-build disk floor (free space) | 20 GB | 20 GB |
-| Load soft limit | 5-minute load average above the CPU core count (8) | 5-minute load average above the CPU core count |
-| Simulator and emulator cap | 2 in total, at most 1 Android | 2 iOS and 1 Android in total, Agustín's included |
+| Busy (soft) when any of | 1-minute load per core at or above 1.0, memory free under 15%, swap used over 6 GB | Same as `agent-m1` |
+| Simulator and emulator cap | 1 Android emulator | 2 iOS and 1 Android in total, Agustín's included |
 | Off-limits to bots | Nothing beyond this policy | Agustín's own repos, checkouts, and credentials. Bots work only in Orca's worktree folder. |
 | Secrets | Fleet secrets live here | None. Sessions use the `git`, `gh`, and agent CLI logins already on the M4. |
 | Recheck interval while both hosts are blocked | 5 minutes | 5 minutes |
 | Wait before messaging Agustín | 2 hours | 2 hours |
 | Health checks | Ben | Ben |
 
+Ben's health check script prints one JSON line with free disk, load per core, free memory, swap, booted simulators and emulators, free simulator slots, `status`, and `reasons`. Add `--human` for a readable summary. It exits 0 when `status` is `ok` or `busy`, 1 when `blocked` (under the disk hard stop), and 2 on a script error. The script holds the same numbers as this table. When a number changes, change both. Ben owns the script.
+
+On 2026-10-24, `agent-m1` had about 34 GB free and the M4 about 40 GB. One Android build worktree takes about 9 GB, so Android work is the likeliest to hit the disk hard stop.
+
 ### Pick a host
 
 These rules are for bots. Before Agustín launches a session, akit shows him free disk, load, and running simulators as a warning that does not block the launch.
 
-1. Check `agent-m1`. `df -h ~` gives free disk in the Avail column, and `sysctl -n vm.loadavg` gives load, where the second number is the 5-minute average. These are plain shell checks with no model run.
-2. If `agent-m1` is under the disk hard stop or over the load soft limit, run the [finished-session cleanup](../playbooks/agent-dispatch-lifecycle.md#delete-the-session-when-the-task-is-done) there first, then check again.
-3. If `agent-m1` is still blocked, check the M4. Run the same commands there through Orca with `--environment m4`. If the M4 is blocked, run the finished-session cleanup there for bot sessions only, then check again. If the M4 is not blocked, run the session there. Bots may use the M4 at any time, whether or not Agustín is using it. Only disk and load limit them.
-4. If both hosts are blocked, wait. Recheck both at the recheck interval with the same plain checks. After the wait in the host table, message Agustín once with both hosts' numbers.
+1. Run the health check on `agent-m1`. It is a plain shell check with no model run.
+2. If `agent-m1` is `blocked` or `busy`, run the [finished-session cleanup](../playbooks/agent-dispatch-lifecycle.md#delete-the-session-when-the-task-is-done) there first, then check again.
+3. If `agent-m1` is still `blocked` or `busy`, run the health check on the M4, through Orca with `--environment m4` or over ssh, per akit's [Orca launches](https://github.com/amillez/akit/blob/main/skills/amillez-mode/references/orca-launch.md). If the M4 is `blocked` or `busy`, run the finished-session cleanup there for bot sessions only, then check again. If the M4 is `ok`, run the session there.
+4. If both hosts are still `blocked` or `busy`, wait. Recheck both at the recheck interval with the health check alone. After the wait in the host table, message Agustín once with both hosts' `--human` output.
 
-Disk is a hard stop. Never start a session on a host under the disk hard stop. A session already running checks the lower heavy-build disk floor before each heavy build or emulator boot, so it can finish its proof. Load is soft. A short urgent fix may still start on a host over the load soft limit.
-
-Ben owns the host health checks on both hosts, including the script that runs the disk and load checks. Until that script exists, use the commands in step 1.
+Disk is a hard stop. Never start a session, a heavy build, or an emulator on a host the health check reports as `blocked`. Busy is soft. A short urgent fix may still start on a `busy` host.
 
 ### Simulators and emulators
 
-`agent-m1` has 16 GB of RAM, and on 2026-10-10 three Android emulators plus Gradle and Kotlin daemons filled memory and disk, froze the host, and killed a Codex job with `ENOSPC`. The `agent-m1` caps come from that incident.
+`agent-m1` has 16 GB of RAM, and on 2026-10-10 three Android emulators plus Gradle and Kotlin daemons filled memory and disk, froze the host, and killed a Codex job with `ENOSPC`. The `agent-m1` Android cap comes from that incident.
 
-- **Count what is running, not what bots started.** Before you boot a simulator or emulator, count every one on the host. Use `simfleet status` or `simfleet emu list` when simfleet is up. Otherwise use `xcrun simctl list devices booted` for iOS, and `adb devices` and `pgrep -fl qemu-system` for Android. On the M4, the count includes Agustín's own simulators.
+- **Count what is running, not what bots started.** Before you boot a simulator or emulator, run the health check. `ios_slots_free` and `android_slots_free` count every simulator and emulator on the host, Agustín's included on the M4. Use `simfleet status` or `simfleet emu list` for claims when simfleet is up.
 - **At the cap, move or wait.** On `agent-m1`, wait for a running emulator or reuse it through a simfleet claim. Never boot past the cap. On the M4, run the simulator task on `agent-m1` or wait. simfleet has no emulator-count setting today, so this check is the cap. If simfleet gains that setting, set the cap in its config.
 - **Shut down only your own.** Bots shut down only the simulators and emulators they booted.
 - **Android teardown.** When an Android job finishes, run `./gradlew --stop` in the project's `android/` directory to stop the Gradle and Kotlin daemons. Then shut down every simulator, emulator, and Metro or Expo server the job started, per the teardown rules in [§1](#1-coding-host-routing). Check with `pgrep -fl 'GradleDaemon|KotlinCompileDaemon'` and kill any daemon from this job that is still listed.
 - **Tell Ben.** When Android work is done, tell Ben, the [infra bot](../playbooks/eng-team-of-bots.md#specialization), so Ben can clear caches safely.
-- **Heavy-build disk floor.** Don't start a heavy build or an emulator on a host under the heavy-build disk floor. Heavy builds are a native iOS or Android build, `expo prebuild`, `pod install`, a Gradle build, and a full test matrix. Under the floor, ping Ben with the `df -h ~` output and wait.
+- **Disk before heavy work.** Run the health check before a heavy build or an emulator boot. Heavy builds are a native iOS or Android build, `expo prebuild`, `pod install`, a Gradle build, and a full test matrix. If the host is `blocked`, run the finished-session cleanup first. If it is still `blocked`, ping Ben with the `--human` output and wait.
 
 ---
 
