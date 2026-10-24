@@ -121,7 +121,7 @@ git -C ~/agent-work/<repo> push origin --delete "$br"      # if the remote branc
 ```
 
 - `orca worktree rm` removes the checkout and its git worktree. It also deletes the local branch, but it can keep one it cannot prove merged, such as a branch with an unpushed commit. If `git branch --list "$br"` still shows it, delete it with `git branch -D`. Skip `push origin --delete` when GitHub already deleted the branch on merge.
-- **On the M4**, add `--environment m4` to the `orca` commands, and skip the two `git -C ~/agent-work/<repo>` lines, since Agustín's own clones back the projects there. Delete the remote branch from the `agent-m1` main clone instead. If `orca worktree rm` leaves the local branch on the M4, leave it and say so in the report.
+- **On the M4**, add `--environment m4` to the `orca` commands, and skip the two `git -C ~/agent-work/<repo>` lines, since Agustín's own clones back the projects there. Delete the remote branch from the `agent-m1` main clone instead. If `orca worktree rm` leaves the local branch on the M4, leave it and say so in the report. To verify, use only `orca worktree list --environment m4 --json`, `orca terminal list --environment m4 --json`, and `git ls-remote` from `agent-m1`.
 - The removal can finish a few seconds after the command returns. Check after that: `orca worktree list --json` and `git -C ~/agent-work/<repo> worktree list` no longer list the path, `git branch --list "$br"` and `git ls-remote --heads origin "$br"` print nothing, and `orca terminal list --json` lists none of the session's handles.
 
 ## Babysit until merged

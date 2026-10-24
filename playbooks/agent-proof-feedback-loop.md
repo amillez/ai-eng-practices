@@ -168,4 +168,4 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 
 ### Skill store
 
-Canonical install/update lives in the private repo [amillez/akit](https://github.com/amillez/akit). **Before coding, run `./scripts/ensure-install.sh`**. It ensures **core+mobile** on the host at `~/.claude` / `~/.agents` (no `~/.codex`, never into the project tree) and continues when already present. Use `./scripts/install.sh` for a full install and `./scripts/update-install.sh` / `./scripts/update-upstream.sh` to refresh or pull upstream updates. Machines should not hand-duplicate skill folders.
+Canonical install/update lives in the private repo [amillez/akit](https://github.com/amillez/akit). **Before coding on `agent-m1`, run `./scripts/ensure-install.sh`**. Skip it on the M4, which keeps Agustín's own install. It ensures **core+mobile** on the host at `~/.claude` / `~/.agents` (no `~/.codex`, never into the project tree) and continues when already present. Use `./scripts/install.sh` for a full install and `./scripts/update-install.sh` / `./scripts/update-upstream.sh` to refresh or pull upstream updates. Machines should not hand-duplicate skill folders.
