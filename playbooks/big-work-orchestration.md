@@ -116,7 +116,7 @@ On `agent-m1`, prefer disk-conscious modes in this order:
 
 1. **Default under disk pressure / RN-sized repos:** one shared worktree, **sequential** workers — `worker-start … --worktree current` one at a time (or release then reuse). Fan-out is **temporal**. Saves N copies of `node_modules` / Pods.
 2. **Limited parallel:** at most **2** worktrees (`new-child`) unless Agustín explicitly raises the cap. Prefer package-level cuts.
-3. **If using multiple worktrees:** tear down / `worker-release` promptly after integrate; shared pnpm store where possible; stay aware of Colima/Docker disk. Branch naming stays `agent/<bot>/<slug>` when creating git branches outside Orca's naming, per [dispatch lifecycle](agent-dispatch-lifecycle.md#worktrees-on-agent-m1).
+3. **If using multiple worktrees:** tear down / `worker-release` promptly after integrate; shared pnpm store where possible; stay aware of Colima/Docker disk. Branch naming stays `agent/<bot>/<slug>` when creating git branches outside Orca's naming, per [dispatch lifecycle](agent-dispatch-lifecycle.md#worktrees-on-an-orca-host).
 
 Hardware / device validation is **never** parallel — schedule after integrate (or as a single later hop).
 
