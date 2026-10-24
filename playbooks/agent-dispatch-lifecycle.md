@@ -19,7 +19,7 @@ Layout:
 ~/agent-work/
   <repo>/                  # main clone = the repo's one Orca project, sync/human only, agents do not work here
 ~/orca/workspaces/<repo>/
-  <slug>/                  # one workstream = one Orca worktree = one branch (amillez/<slug>)
+  <slug>/                  # one workstream = one Orca worktree = one branch (agent/<bot>/<slug>)
 ```
 
 Rules:
@@ -52,8 +52,9 @@ Every coding session starts through Orca, even without orchestration, so Agustí
 orca repo list --json | jq -r '.result.repos[].path'   # once per repo: is ~/agent-work/<repo> listed?
 orca repo add --path ~/agent-work/<repo> --json        # only if it is not
 git -C ~/agent-work/<repo> fetch origin
-wt=$(orca worktree create --repo name:<repo> --name <slug> --no-parent --json | jq -r .result.worktree.path)
-orca agent launch --agent claude --worktree path:$wt --surface terminal \
+W=$(orca worktree create --repo name:<repo> --name <slug> --no-parent --json | jq -r .result.worktree.path)
+git -C "$W" branch -m agent/<bot>/<slug>
+orca agent launch --agent claude --worktree path:$W --surface terminal \
   --model claude-opus-5-5 --effort high \
   --prompt "Use amillez-mode first. <thorough launch prompt>" --json
 ```
@@ -61,7 +62,7 @@ orca agent launch --agent claude --worktree path:$wt --surface terminal \
 Rules:
 
 - `orca repo add` takes only the main clone, `~/agent-work/<repo>`. Never pass it a worktree path.
-- `orca worktree create` checks out `origin/main` into `~/orca/workspaces/<repo>/<slug>` on branch `amillez/<slug>`. Orca prefixes the branch with the repo's git username and turns a slash in `--name` into a dash. `--no-parent` keeps the session out of the caller's Orca lineage.
+- `orca worktree create` checks out `origin/main` into `~/orca/workspaces/<repo>/<slug>` on branch `amillez/<slug>`, because Orca prefixes the branch with the repo's git username. Rename it to `agent/<bot>/<slug>` before the launch. Orca follows the rename. `--no-parent` keeps the session out of the caller's Orca lineage.
 - Pick `--agent`, `--model`, and `--effort` from the [lanes table](../policies/agent-use-policy.md#1-coding-host-routing). Always pass `--model` and `--effort`, except Grok (`--agent cursor --model grok-4.7-xhigh`), which takes no `--effort`. `--model` is the full id, never an alias such as `opus`.
 - `--surface terminal` makes the session a terminal, so `orca terminal` commands can address it. The launch JSON returns its handle at `result.outcome.handle`. List live sessions in a worktree with `orca terminal list --worktree path:<worktree> --json`.
 - **M4.** The M4 is the paired Orca environment `m4`. Add `--environment m4` to each `orca` command, and run the `git` steps on the M4. Terminal handles belong to the environment that issued them.
@@ -74,7 +75,7 @@ Rules:
 When the [Review row](../policies/agent-use-policy.md#1-coding-host-routing) requires a review, start the reviewer as a second agent tab in the same Orca worktree session as the main agent, with `--worktree path:<main worktree>`. Never start a review in a new child worktree. Do not use `orca worktree create` or `worker-start --worktree new-child` for a review, and do not start one with a direct `claude -p` or `codex exec` call.
 
 ```bash
-orca agent launch --agent codex --worktree path:$wt --surface terminal \
+orca agent launch --agent codex --worktree path:$W --surface terminal \
   --model gpt-6.1-sol --effort high --prompt "<review brief>" --json
 orca terminal wait --terminal <handle> --for tui-idle --json
 orca terminal read --terminal <handle> --json
@@ -110,16 +111,16 @@ After proof, the task owner shuts down the iOS Simulator, Android emulator, Metr
 When the PR merges or closes, or the task is abandoned, delete the session. The Orca project for the repo stays.
 
 ```bash
-wt=$HOME/orca/workspaces/<repo>/<slug>; br=amillez/<slug>
-for h in $(orca terminal list --worktree path:$wt --json | jq -r '.result.terminals[].handle'); do
+W=$HOME/orca/workspaces/<repo>/<slug>; br=agent/<bot>/<slug>
+for h in $(orca terminal list --worktree path:$W --json | jq -r '.result.terminals[].handle'); do
   orca terminal close --terminal "$h" --tab --json
 done
-orca worktree rm --worktree path:$wt --json
+orca worktree rm --worktree path:$W --json
 git -C ~/agent-work/<repo> branch -D "$br"                 # if it is still listed
 git -C ~/agent-work/<repo> push origin --delete "$br"      # if the remote branch is still listed
 ```
 
-- `orca worktree rm` removes the checkout and its git worktree. It also deletes the local branch, but only when it can prove the changes merged. A closed PR's branch stays, so delete it with `git branch -D`.
+- `orca worktree rm` removes the checkout and its git worktree. It also deletes the local branch, but it can keep one it cannot prove merged, such as a branch with an unpushed commit. If `git branch --list "$br"` still shows it, delete it with `git branch -D`. Skip `push origin --delete` when GitHub already deleted the branch on merge.
 - The removal can finish a few seconds after the command returns. Check after that: `orca worktree list --json` and `git -C ~/agent-work/<repo> worktree list` no longer list the path, `git branch --list "$br"` and `git ls-remote --heads origin "$br"` print nothing, and `orca terminal list --json` lists none of the session's handles.
 
 ## Babysit until merged
