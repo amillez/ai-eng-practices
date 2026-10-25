@@ -165,7 +165,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `draft-upstream` (amillez skill, core). Loads by description when an agent drafts an issue or PR for a third-party repo. It opens the draft only in the `amillez/<repo>` fork and hands Agustín the text to file. It never writes to the upstream repo. Required for every third-party issue or PR per the [agent use policy](../policies/agent-use-policy.md#8-integrations-mcp-vs-cli).
 - [`sharpen`](https://github.com/amillez/akit/blob/main/skills/sharpen/SKILL.md) (amillez skill, core). Runs only on an explicit `/sharpen`. Before starting a task, it checks how a top expert would approach it, what the user is really after, and whether the task is over- or underspecified, and keeps one outside check that the result is right. Then it does the work.
 - `setup-amillez-models` (amillez skill, core). Install or refresh the Claude Code and Codex model-lane rules that mirror the [agent use policy](../policies/agent-use-policy.md#default-picks).
-- **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
+- **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `nitro-fetch`, `react-native-vision-camera`; pick by description.
 
 ### Skill store
 
