@@ -24,9 +24,9 @@ For heavy coding / engineering agent work:
 
 Every session on these harnesses starts through Orca, per [start every coding session through Orca](#start-every-coding-session-through-orca). The Cursor Agent CLI is the only Cursor path. Do **not** use Cursor cloud agents, Cursor Projects, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6.
 
-**Model role labels → harness (as of 2026-10-19):**
+**Model role labels → harness (as of 2026-10-26):**
 
-Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.303, Codex CLI 0.163.0, Cursor Agent CLI 2026.10.14-0f9edde). Each **Orca launch** cell gives the `orca agent launch` flags for that lane (Orca 1.4.237, verified 2026-10-23). The full recipe is in [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca). If a lane cannot run on its harness, use the nearest equivalent or skip that lane.
+Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.310, Codex CLI 0.164.0, Cursor Agent CLI 2026.10.22-27dcf5f). Each **Orca launch** cell gives the `orca agent launch` flags for that lane (Orca 1.4.237, verified 2026-10-26). The full recipe is in [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca). If a lane cannot run on its harness, use the nearest equivalent or skip that lane.
 
 | Policy label | Intent | Run on | Orca launch |
 | --- | --- | --- | --- |

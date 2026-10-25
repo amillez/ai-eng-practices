@@ -1,6 +1,6 @@
 # Eng team of bots
 
-How **we** run specialized engineering bots that dispatch coding agents on `agent-m1` (Claude Code, the Cursor Agent CLI, and Codex for review).
+How **we** run specialized engineering bots that dispatch coding agents on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) (Claude Code, the Cursor Agent CLI, and Codex for review).
 
 **Snapshot, not scripture** — fleet patterns as of October 2026.
 
@@ -57,7 +57,7 @@ Rules:
 
 ## How bots dispatch coding agents
 
-Coding agents run on **agent-m1** (Claude Code, or Grok on the Cursor Agent CLI when Claude Code usage > 70%). Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
+Coding agents run on the Orca hosts, `agent-m1` by default and the M4 as overflow (Claude Code, or Grok on the Cursor Agent CLI when Claude Code usage > 70%). Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
 Every launch includes:
 

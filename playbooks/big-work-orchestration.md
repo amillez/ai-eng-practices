@@ -1,6 +1,6 @@
 # Big-work orchestration
 
-When eng bots (Mark / Sam / Emily) face work that needs more than one focused coding session, use this playbook. Standing stack: **`agent-m1`** running **Claude Code** workers (Opus or Haiku) inside **Orca** orchestration. Workers start with `--agent claude`. A slice that hits the [Claude Code usage > 70%](../policies/agent-use-policy.md#claude-code-usage--70) rule runs as an Orca worker on the Cursor Agent CLI with `--agent cursor --model grok-4.7-xhigh`. Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception).
+When eng bots (Mark / Sam / Emily) face work that needs more than one focused coding session, use this playbook. Standing stack: the [Orca host](../policies/agent-use-policy.md#pick-a-host) picked for the Run, `agent-m1` by default, running **Claude Code** workers (Opus or Haiku) inside **Orca** orchestration. Workers start with `--agent claude`. A slice that hits the [Claude Code usage > 70%](../policies/agent-use-policy.md#claude-code-usage--70) rule runs as an Orca worker on the Cursor Agent CLI with `--agent cursor --model grok-4.7-xhigh`. Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception).
 
 Proof follows [agent proof feedback loop](agent-proof-feedback-loop.md). Worktree / babysit rules: [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
