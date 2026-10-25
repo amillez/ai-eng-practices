@@ -1,6 +1,6 @@
 # Hard constraints
 
-A repo-shape practice that makes coding agents on `agent-m1` (Claude Code and the Cursor Agent CLI) land correct changes with less thrash. Inspired by Lauren Tan (poteto)'s GrokBot workshop, as shared on X by Sheema; paraphrased, not quoted.
+A repo-shape practice that makes coding agents on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) (Claude Code and the Cursor Agent CLI) land correct changes with less thrash. Inspired by Lauren Tan (poteto)'s GrokBot workshop, as shared on X by Sheema; paraphrased, not quoted.
 
 Related: [agent proof feedback loop](agent-proof-feedback-loop.md), [agent use policy](../policies/agent-use-policy.md), [steal from pstack](steal-from-pstack.md).
 

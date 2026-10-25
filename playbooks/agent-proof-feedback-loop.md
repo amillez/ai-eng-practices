@@ -1,6 +1,6 @@
 # Agent proof feedback loop
 
-Standing practice for eng work on `agent-m1` (Claude Code, or Grok on the Cursor Agent CLI, with Codex for review and the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
+Standing practice for eng work on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) (Claude Code, or Grok on the Cursor Agent CLI, with Codex for review and the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
 
 Related: pstack's prove-it-works and verification-skill pattern — see [Steal from pstack](steal-from-pstack.md). Checks that must fail closed: [Hard constraints](hard-constraints.md).
 
@@ -150,7 +150,8 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `animate-expo` — building animations.
 - `apple-design` — building UIs.
 - `review-animations` (Emil) — reviewing / critiquing existing motion against Emil's craft bar. **Not auto-invoked** (`disable-model-invocation: true` upstream): name it explicitly in launch prompts for critique passes.
-- `grill-me`. Settle a contested product or preference call that a prototype can't settle.
+- `grill-me` (installs with `grilling`, which it forwards to). Settle a contested product or preference call that a prototype can't settle.
+- `simfleet` (amillez skill, mobile). Boot, claim, and shut down simulators and emulators, and run worktree lanes with leased Metro ports, whenever `simfleet serve` is up or the project has `.sim-fleet/project.json`. Argent still drives the UI and captures proof.
 - **Expo** (`expo/skills`):
   - `expo-dev-client` — build and distribute Expo development clients locally or via TestFlight for internal testing. For production TestFlight releases and store submission, use `eas-app-stores`.
   - `expo-upgrade` — per skill description: Expo SDK upgrades, dependency conflicts, deprecated packages, cache cleanup. The target SDK must meet the [dependency age rule](../policies/agent-use-policy.md#11-dependency-versions), not the skill's `expo@latest` or `expo@next` step.
@@ -164,7 +165,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `draft-upstream` (amillez skill, core). Loads by description when an agent drafts an issue or PR for a third-party repo. It opens the draft only in the `amillez/<repo>` fork and hands Agustín the text to file. It never writes to the upstream repo. Required for every third-party issue or PR per the [agent use policy](../policies/agent-use-policy.md#8-integrations-mcp-vs-cli).
 - [`sharpen`](https://github.com/amillez/akit/blob/main/skills/sharpen/SKILL.md) (amillez skill, core). Runs only on an explicit `/sharpen`. Before starting a task, it checks how a top expert would approach it, what the user is really after, and whether the task is over- or underspecified, and keeps one outside check that the result is right. Then it does the work.
 - `setup-amillez-models` (amillez skill, core). Install or refresh the Claude Code and Codex model-lane rules that mirror the [agent use policy](../policies/agent-use-policy.md#default-picks).
-- **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `nitro-fetch`, `react-native-vision-camera`; pick by description.
+- **Native / Nitro** (only when building native modules): `api-design`, `build-nitro-modules`, `cpp`, `kotlin`, `swift`, `react-native-mmkv`, `react-native-nitro-fetch`, `react-native-vision-camera`; pick by description.
 
 ### Skill store
 
