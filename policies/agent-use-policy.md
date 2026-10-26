@@ -322,6 +322,24 @@ Disk is a hard stop. Never start a session, a heavy build, or an emulator on a h
 - **Tell Ben.** When Android work is done, tell Ben, the [infra bot](../playbooks/eng-team-of-bots.md#specialization), so Ben can clear caches safely.
 - **Disk before heavy work.** Run the health check before a heavy build or an emulator boot. Heavy builds are a native iOS or Android build, `expo prebuild`, `pod install`, a Gradle build, and a full test matrix. If the host is `blocked`, run the finished-session cleanup first. If it is still `blocked`, ping Ben with the `--human` output and wait.
 
+### Slim devices by default
+
+On 2026-10-25, Agustín decided that both hosts run slimmed simulators and emulators by default. The tools are simfleet 0.1.1, simslim 0.11.0, avdslim 1.0.15, baguette, and scrcpy. Boot fleet devices with `simfleet sim boot` or `simfleet emu boot`, which slim them. Use a stock device only when the task needs something slim disables. akit's simfleet skill lists those features under "Go stock when the task needs what slim disables" in its [rules](https://github.com/amillez/akit/blob/main/skills/simfleet/SKILL.md#rules).
+
+Ben measured the savings on 2026-10-25:
+
+| | Stock | Slim |
+| --- | --- | --- |
+| iOS host footprint | 4.0 to 4.4 GB | 1.0 to 1.1 GB |
+| Android cold boot | 4.2 GB | 3.2 to 3.7 GB |
+
+- **Slim Android from boot.** Android slim helps only when it is on from boot. Slimming a running emulator saved nothing on `agent-m1`.
+- **Restore for a stock baseline.** `simfleet sim boot --stock` only skips the auto-slim. For a stock baseline, run `simfleet sim restore <udid>` or `simfleet emu restore <avd>`.
+- **Let an Android restore settle.** After `simfleet emu restore`, wait about 30 seconds and let adb sync before you shut the emulator down. If you shut it down sooner, the restore is lost.
+- **Measure with the slim tools.** Use `simslim measure` or `avdslim measure`. Never sum process RSS.
+
+**Open item, waiting for Agustín.** The four AVDs are still untuned, with `hw.ramSize=2G` and `tuned: false` in simfleet. `tune-avd` (1536M RAM, Metal GPU) is not applied. It is not a rule until Agustín decides.
+
 ---
 
 ## 13. Overrides
