@@ -37,7 +37,7 @@ Do **not** over-orchestrate a rename. Do **not** skip the gate and send everythi
 
 Pick the Run's host per [agent use policy §12](../policies/agent-use-policy.md#pick-a-host). Run the health check first. `agent-m1` is the default, and the M4 is the overflow host, reached through Orca with `--environment m4`. A Run on the M4 needs nothing beyond §12 and akit's [Run on the M4](https://github.com/amillez/akit/blob/main/skills/amillez-mode/references/orca-launch.md#run-on-the-m4). That section also says its `--environment m4` commands have not yet run against the M4.
 
-On the Run's host, before creating a Run, go through the steps below. Each install is one-time per host. On the M4, the steps are checks only. Install or enable nothing there, because akit says never to change global settings on the M4. If a check fails on the M4, start the Run on `agent-m1`.
+On the Run's host, before creating a Run, go through the steps below. Each install is one-time per host.
 
 0. **One-time host gate (first large orch on each host):** Orca installed on the host (brew cask + open the app) so `orca status --json` can succeed. Skip once the host already has it.
 1. **Orca runtime up:** `orca status --json` succeeds ([CLI overview](https://www.onorca.dev/docs/cli/overview)).
