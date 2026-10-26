@@ -35,9 +35,11 @@ Do **not** over-orchestrate a rename. Do **not** skip the gate and send everythi
 
 ## Prerequisites (needs orch only)
 
-On `agent-m1`, before creating a Run:
+Pick the Run's host per [agent use policy §12](../policies/agent-use-policy.md#pick-a-host). Run the health check first. `agent-m1` is the default, and the M4 is the overflow host, reached through Orca with `--environment m4`. A Run on the M4 needs nothing beyond §12 and akit's [Run on the M4](https://github.com/amillez/akit/blob/main/skills/amillez-mode/references/orca-launch.md#run-on-the-m4). That section also says its `--environment m4` commands have not yet run against the M4.
 
-0. **One-time host gate (first large orch):** Orca installed on `agent-m1` (brew cask + open the app) so `orca status --json` can succeed. Skip once the host already has it.
+On the Run's host, before creating a Run, go through the steps below. Each install is one-time per host. On the M4, the steps are checks only. Install or enable nothing there, because akit says never to change global settings on the M4. If a check fails on the M4, start the Run on `agent-m1`.
+
+0. **One-time host gate (first large orch on each host):** Orca installed on the host (brew cask + open the app) so `orca status --json` can succeed. Skip once the host already has it.
 1. **Orca runtime up:** `orca status --json` succeeds ([CLI overview](https://www.onorca.dev/docs/cli/overview)).
 2. **Orchestration enabled:** Settings → Experimental → orchestration on ([Orchestration](https://www.onorca.dev/docs/cli/orchestration)).
 3. **Skills installed** for the coordinator (and workers that need them):
@@ -112,7 +114,7 @@ Notes from Orca docs:
 
 **Hard rule:** parallel workers must **not** share one working tree. Same checkout = colliding git index, dirty files, locks, Metro/Pods. Map to Orca: do not start two `--worktree current` workers on the same checkout; use `new-child` (or sequential reuse of one tree).
 
-On `agent-m1`, prefer disk-conscious modes in this order:
+On either Orca host, prefer disk-conscious modes in this order:
 
 1. **Default under disk pressure / RN-sized repos:** one shared worktree, **sequential** workers — `worker-start … --worktree current` one at a time (or release then reuse). Fan-out is **temporal**. Saves N copies of `node_modules` / Pods.
 2. **Limited parallel:** at most **2** worktrees (`new-child`) unless Agustín explicitly raises the cap. Prefer package-level cuts.
@@ -145,7 +147,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 ### Coordinator label: Opus 5.5 xhigh
 
 - **Policy label.** **Opus 5.5 xhigh** is the standing name for the large-work Orca coordinator. Use this name in prompts, PR titles, and bot messages.
-- **Harness:** Claude Code on `agent-m1` (Opus at **xhigh** effort), driving the Orca CLI.
+- **Harness:** Claude Code on the Run's Orca host (Opus at **xhigh** effort), driving the Orca CLI.
 - Plans / fans out via Orca; does **not** implement, integrate, or validate — those are worker tasks.
 
 ### Workers
@@ -163,7 +165,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 
 ## Out of scope / later
 
-- Federated workers (`--on <remote>`) — optional; default stays local `agent-m1`.
+- Federated workers (`--on <remote>`) are optional. By default, workers run on the Run's host.
 - The pstack fan-out skills (`how`, `why`, `architect`, `arena`, `swarm`, `interrogate`) are not part of amillez-mode. Use recon and a plan, a prototype for empirical questions, `grill-me` for contested product or preference calls, and Orca. `reflect` is the one we adopted, as the standalone akit skill [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md). See [Steal from pstack](steal-from-pstack.md).
 
 ## Anti-patterns
