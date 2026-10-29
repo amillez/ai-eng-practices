@@ -67,42 +67,30 @@ Host: agent-m1 | M4 — Claude Code | Cursor Agent CLI — <pick + reason>
 
 1. Launch with a [thorough prompt](#thorough-launch-prompt) — success criteria, skills, and expected proof stated up front.
 2. Implement.
-3. Collect proof with Launch, Doctor, Drive, and Evidence ([prove and inspect](#prove-and-inspect)). [Host media](#proof-media-hosting) on the repo's media branch.
+3. Collect proof with Launch, Doctor, Drive, and Evidence ([prove and inspect](#prove-and-inspect)). Publish it in a [review guide artifact](#review-guide-artifact).
 4. **Inspect** proof against the success criteria. The coding agent that drove the app reads every asset, visual or not, and reports pass or fail with specifics.
 5. If mismatch: follow up and repeat until proof matches — or report the blocker with evidence.
 6. [Tear down](#teardown-after-proof) everything booted for the task.
 7. Package repeated unblock steps into a skill/playbook note (avoid re-discovering env flakiness).
 
-## Proof media hosting
+## Review guide artifact
 
-Proof media = **screenshots and videos** (screen recordings, before/after clips). Video is first-class proof for visual/UI flows when a still is insufficient.
+Proof and the review guide live in one Orca artifact that akit's `review-guide` skill builds. Nothing goes into git: no proof media on the PR branch and no media branch. Video is first-class proof for visual/UI flows when a still is insufficient.
 
-- **Do not** commit proof media on the PR/workstream branch.
-- Push media to a media branch in the **same repo** the PR targets. Before pushing, list `git ls-remote --heads origin 'media*'` and follow the repo's existing convention: one `media` branch, or per-PR `media/<slug>` branches.
-- Do not create a `media` branch beside an existing `media/<slug>` tree, and do not create `media/<slug>` beside a `media` branch. Git rejects both refs together.
-- Create the media branch as an orphan (unrelated to `main`, hosts media only) only when it does not exist yet.
-- Push from a detached temporary worktree. Never touch the workstream branch.
-- Use a clear path: `proof/<pr-number-or-slug>/<file>`.
-- Save local proof under `~/agent-work/proof/<slug>/` before copying it to the media worktree. The akit install allows Claude Code to Read only that directory outside the working directories, so an auto-mode session does not stop on the first-read prompt while it holds a device.
-- In the **PR description**, embed or link each asset with verification notes next to it.
-- **No raw URLs.** Repos may be private; `raw.githubusercontent.com` and other unauthenticated raw links break for reviewers. Use GitHub UI links built from the actual media branch name (`<media-branch>` below):
-  - Images: `![before](https://github.com/<owner>/<repo>/blob/<media-branch>/proof/<slug>/before.png?raw=true)` renders for logged-in viewers, or link the blob page.
-  - Videos: link the blob page `https://github.com/<owner>/<repo>/blob/<media-branch>/proof/<slug>/flow.mp4` — GitHub plays common formats there.
+- Save local proof under `~/agent-work/proof/<slug>/` before the skill builds the artifact. The akit install allows Claude Code to Read only that directory outside the working directories, so an auto-mode session does not stop on the first-read prompt while it holds a device.
+- Put verification notes next to each asset in the guide.
+- The PR body keeps a short summary: summary and risk, what changed, blast radius, and proof highlights. It ends with a "Review guide" link to the artifact.
+- Never include secrets, tokens, or personal user data in screenshots.
+- Keep the artifact file under about 800 KiB. The hard cap is 10 MiB.
+- If sharing fails, for example with `artifact_sharing_disabled`, write a text-only guide in the PR body and say there that the artifact failed.
+- After the PR merges, delete the artifact with `orca artifacts delete <id>`.
 
-```bash
-git ls-remote --heads origin 'media*'
-MEDIA=media   # or media/<slug> when the repo keeps per-PR media branches
-if git ls-remote --exit-code --heads origin "$MEDIA" >/dev/null; then
-  git fetch origin "$MEDIA" && git worktree add --detach ../media-wt FETCH_HEAD
-else
-  git worktree add --orphan -b "$MEDIA" ../media-wt   # branch does not exist yet
-fi
-mkdir -p ../media-wt/proof/<slug> && cp <files> ../media-wt/proof/<slug>/
-git -C ../media-wt add proof && git -C ../media-wt commit -m "Proof for <slug>"
-git -C ../media-wt push origin "HEAD:refs/heads/$MEDIA"
-git worktree remove ../media-wt
-git branch -D "$MEDIA" 2>/dev/null || true   # local orphan branch only
-```
+Orca artifact facts, verified 2026-10-29:
+
+- A link is an unguessable 12-character slug: `share.onorca.dev/a/<slug>`.
+- Anyone with the link can open it without signing in, and the page is not marked `noindex`. Treat every artifact as public until it is deleted.
+- An artifact expires after 30 days. `orca artifacts delete <id>` revokes it immediately.
+- Publishing must be enabled per host in Orca **Settings > Artifacts**. Headless hosts fail with `sharing_unavailable_on_host`.
 
 ## Prove and inspect
 
@@ -111,14 +99,14 @@ Prove the change on the real surface with the project's `verify-<app>` skill whe
 1. **Launch.** Start the app for verification and confirm it is ready. For Expo/RN, use Argent simulator or emulator setup.
 2. **Doctor.** Run one read-only check that the instance is worth driving: process up, right build, port owned by this task. Run it again after any surprising drive.
 3. **Drive.** Exercise the real user path with stable handles (accessibility labels, test IDs, routes), not internal setters or test-only endpoints. For Expo/RN, drive with Argent.
-4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots and videos go to the [media branch](#proof-media-hosting). Logs, test output, and exit codes go in the PR body or a linked artifact. Proof must be captured after the last UI-affecting commit. After any UI change, re-capture proof before calling the PR ready.
+4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots, videos, logs, test output, and exit codes go in the [review guide artifact](#review-guide-artifact), with highlights in the PR body. Proof must be captured after the last UI-affecting commit. After any UI change, re-capture proof before calling the PR ready.
 
 Then inspect the evidence against the success criteria in the launch prompt:
 
 - The coding agent that drove the app inspects every asset and reports **pass or fail with specifics**: what matched, what did not, and which asset shows it.
 - When the task matches a visual reference, the success criteria list per-element checks: each icon's glyph, relative sizes, presentation type, and native versus drawn chrome. Whoever inspects reports pass or fail per element, not an overall match.
 - A second judge is not required when the implementer already proved the change on device.
-- A separate verification session is optional. Give it the success criteria and the media links. It only inspects proof and never implements. Pick its model per task from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples).
+- A separate verification session is optional. Give it the success criteria and the review guide link. It only inspects proof and never implements. Pick its model per task from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ## Teardown after proof
 
