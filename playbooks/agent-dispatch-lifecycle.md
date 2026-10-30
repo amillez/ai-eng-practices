@@ -63,6 +63,13 @@ Rules:
 
 - `orca repo add` takes only the main clone, `~/agent-work/<repo>`. Never pass it a worktree path.
 - `orca worktree create` checks out `origin/main` into `~/orca/workspaces/<repo>/<slug>` on branch `amillez/<slug>`, because Orca prefixes the branch with the repo's git username. Rename it to `agent/<bot>/<slug>` before the launch. Orca follows the rename. `--no-parent` keeps the session out of the caller's Orca lineage.
+- **Existing branch.** For a session on a branch that already exists, such as a [pre-Orca PR branch](../policies/agent-use-policy.md#start-every-coding-session-through-orca), create the worktree from that branch, switch to it, and delete Orca's placeholder branch. Orca follows the switch (verified 2026-10-30, Orca 1.4.237). Git refuses a branch that another worktree has checked out, so first commit or push what is left in the old worktree and run `git -C <old worktree> switch --detach`.
+
+  ```bash
+  W=$(orca worktree create --repo name:<repo> --name <slug> --no-parent --base-branch origin/<branch> --json | jq -r .result.worktree.path)
+  git -C "$W" switch <branch>
+  git -C "$W" branch -D amillez/<slug>
+  ```
 - Pick `--agent`, `--model`, and `--effort` from the [lanes table](../policies/agent-use-policy.md#1-coding-host-routing). Always pass `--model` and `--effort`, except Grok (`--agent cursor --model grok-4.7-xhigh`), which takes no `--effort`. `--model` is the full id, never an alias such as `opus`.
 - `--surface terminal` makes the session a terminal, so `orca terminal` commands can address it. The launch JSON returns its handle at `result.outcome.handle`. List live sessions in a worktree with `orca terminal list --worktree path:<worktree> --json`.
 - **M4.** Run on the M4 only when [pick a host](../policies/agent-use-policy.md#pick-a-host) sends the session there. Add `--environment m4` to each `orca` command. Terminal handles belong to the environment that issued them. On the M4, run `git` only inside the session worktree. Agustín's own clones back the Orca projects there, so never `orca repo add`, fetch, or run any other `git` command in them.
