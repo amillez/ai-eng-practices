@@ -24,9 +24,9 @@ For heavy coding / engineering agent work:
 
 Every session on these harnesses starts through Orca, per [start every coding session through Orca](#start-every-coding-session-through-orca). The Cursor Agent CLI is the only Cursor path. Do **not** use Cursor cloud agents, Cursor Projects, Cursor My Machines workers (`register-worker-dir`), Composer, or Grok 4.6.
 
-**Model role labels → harness (as of 2026-10-26):**
+**Model role labels → harness (as of 2026-11-02):**
 
-Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.310, Codex CLI 0.164.0, Cursor Agent CLI 2026.10.22-27dcf5f). Each **Orca launch** cell gives the `orca agent launch` flags for that lane (Orca 1.4.237, verified 2026-10-26). The full recipe is in [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca). If a lane cannot run on its harness, use the nearest equivalent or skip that lane.
+Policy keeps the role names (Haiku / Opus / Grok / Sol / Fable) as **labels** and pins each to a verified CLI model id on `agent-m1` (Claude Code 2.1.316, Codex CLI 0.166.0, Cursor Agent CLI 2026.10.22-27dcf5f). Each **Orca launch** cell gives the `orca agent launch` flags for that lane (Orca 1.4.237, verified 2026-11-02). The full recipe is in [launch a coding session through Orca](../playbooks/agent-dispatch-lifecycle.md#launch-a-coding-session-through-orca). If a lane cannot run on its harness, use the nearest equivalent or skip that lane.
 
 | Policy label | Intent | Run on | Orca launch |
 | --- | --- | --- | --- |
@@ -339,7 +339,7 @@ Ben measured the savings on 2026-10-25:
 - **Let an Android restore settle.** After `simfleet emu restore`, wait about 30 seconds and let adb sync before you shut the emulator down. If you shut it down sooner, the restore is lost.
 - **Measure with the slim tools.** Use `simslim measure` or `avdslim measure`. Never sum process RSS.
 
-**Open item, waiting for Agustín.** The four AVDs are still untuned, with `hw.ramSize=2G` and `tuned: false` in simfleet. `tune-avd` (1536M RAM, Metal GPU) is not applied. It is not a rule until Agustín decides.
+**Open item, waiting for Agustín.** On 2026-11-02, `agent-m1` has two AVDs. `agent-Pixel7-api35` is untuned, with `hw.ramSize=2G` and `tuned: false` in simfleet. `agent-Pixel7-api35-fonts` is tuned, with `hw.ramSize=1536` and `tuned: true`. `tune-avd` (1536M RAM, Metal GPU) is not a rule until Agustín decides.
 
 ---
 

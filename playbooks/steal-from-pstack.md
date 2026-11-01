@@ -52,6 +52,6 @@ What we adopt from poteto's pstack vs what we only link. pstack skills are plain
 
 https://github.com/cursor/plugins/tree/main/pstack
 
-Pinned revisit baseline: pstack **0.15.32**, commit `e73df471cd4bd918367e99f3dd9c51bd53ddf5f0` (2026-10-26). Last revisit: 2026-10-26. The weekly revisit diffs upstream from this pin with the script in amillez-mode [`UPSTREAM.md`](https://github.com/amillez/akit/blob/main/skills/amillez-mode/UPSTREAM.md#friday-revisit-tracking-upstream) and bumps the pin there and here in the same PR.
+Pinned revisit baseline: pstack **0.15.32**, commit `e73df471cd4bd918367e99f3dd9c51bd53ddf5f0` (2026-10-23). Last revisit: 2026-10-26. The weekly revisit diffs upstream from this pin with the script in amillez-mode [`UPSTREAM.md`](https://github.com/amillez/akit/blob/main/skills/amillez-mode/UPSTREAM.md#friday-revisit-tracking-upstream) and bumps the pin there and here in the same PR.
 
 Poteto's guide, [The Complete Guide to pstack Pt. 1](https://x.com/poteto/status/2094457600259842065) (verification, app CLI, feature maps) and [Pt. 2](https://x.com/poteto/status/2097732320606507506) (restate in your own words, plan with prototypes, recall), maps to these parts of amillez/akit: the app CLI and weekly maintenance routine in the verification skills, restate-first in Bug fix and Investigation (and in dispatch launches here), same-project earlier sessions in Session pickup, and prototype before `grill-me`. Cloud agents, `/swarm`, and `/architect` are not adopted.

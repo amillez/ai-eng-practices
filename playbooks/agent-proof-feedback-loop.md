@@ -21,7 +21,7 @@ A coding agent is not done when CI is green or files changed. It is done when it
 
 ## Thorough launch prompt
 
-A thin prompt produces thin proof. When Mark, Sam, or Jarvis kicks off a coding agent on an Orca host, write the launch prompt so the agent can close the loop on its own. Every launch prompt **must** include:
+A thin prompt produces thin proof. When a Grok Bot kicks off a coding agent on an Orca host, write the launch prompt so the agent can close the loop on its own. Every launch prompt **must** include:
 
 1. **Goal / success criteria.** State what "done" looks like in observable terms. Not "fix the header" — "header title no longer truncates on iPhone SE; tapping back returns to Home."
 2. **Scope and constraints.** Name the files, packages, or areas in play. Say what is off-limits (no dependency bumps, no API changes, don't touch `ios/Podfile`, etc.).
@@ -83,7 +83,7 @@ Proof and the review guide live in one Orca artifact that akit's `review-guide` 
 - Never include secrets, tokens, or personal user data in screenshots.
 - Keep the artifact file under about 800 KiB. The hard cap is 10 MiB.
 - If sharing fails, for example with `artifact_sharing_disabled`, write a text-only guide in the PR body and say there that the artifact failed.
-- After the PR merges, delete the artifact with `orca artifacts delete <id>`.
+- After the PR merges or closes, delete the artifact with `orca artifacts delete <id>`.
 
 Orca artifact facts, verified 2026-10-29:
 
@@ -149,6 +149,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `orchestrate-agents`. Size gate, then Orca for large work, with the worker brief template (every brief names `amillez-mode`) and retry by failure mode.
 - `create-verification-skill`, `maintain-verification-skill` (amillez skill, core). Generate and maintain a project's `verify-<app>` skill and feature map.
 - `create-formal-verification-skill`, `maintain-formal-verification-skill` (amillez skills, core). Run only on an explicit slash command. Use them for a race, retry, state machine, parser, or invariant that tests rarely reach, and to bring the check back in line after the covered code changes.
+- `review-guide` (amillez skill, core). Builds the PR's [review guide artifact](#review-guide-artifact) and links it from the PR body. Use it when you open or update a non-trivial PR, and skip it for docs-only PRs.
 - `correct`, `blast-radius`, `reflect`, `show-me-your-work`, `figure-it-out`, `unslop` (amillez skills, core). Run each on an explicit slash command or when an amillez-mode trigger names it, not on every launch. `correct` for a mistake Agustín corrects a second time. `blast-radius` for a diff you don't trust. `reflect` when Agustín asks to reflect on a session. `show-me-your-work` for long, autonomous, or later-reviewed work. `figure-it-out` for long single-agent work no narrower playbook fits. `unslop` for any prose surface. See [steal from pstack](steal-from-pstack.md).
 - `draft-upstream` (amillez skill, core). Loads by description when an agent drafts an issue or PR for a third-party repo. It opens the draft only in the `amillez/<repo>` fork and hands Agustín the text to file. It never writes to the upstream repo. Required for every third-party issue or PR per the [agent use policy](../policies/agent-use-policy.md#8-integrations-mcp-vs-cli).
 - [`sharpen`](https://github.com/amillez/akit/blob/main/skills/sharpen/SKILL.md) (amillez skill, core). Runs only on an explicit `/sharpen`. It answers four questions about a task (what a top professional would add, the rawest material to start from, their methods and tools, and an outside check that the result is right). Then it returns only a rewritten prompt and does not do the task.

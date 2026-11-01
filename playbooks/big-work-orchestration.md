@@ -140,7 +140,7 @@ Hardware / device validation is **never** parallel — schedule after integrate 
 | --- | --- |
 | **Eng bot (Mark / Sam / Emily / Grok Bot)** | Intake, [size gate](#size-gate), prerequisites check, kick off coordinator / direct agent, ensure amillez plugin, arm babysit, human pings, verify final proof bar, merge or close per [fleet norms rules 8 and 9](../policies/fleet-norms.md). Does **not** replace Orca for the multi-agent DAG. |
 | **Coordinator (Opus 5.5 xhigh)** | Inside Orca: `run-create`, decompose, `task-create`, `worker-start` with per-slice agent/model/effort, `check --wait`, route gates/`ask`. Does **not** implement, integrate, or validate — those are worker tasks. |
-| **Worker agents** | Claude Code Dispatches under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. |
+| **Worker agents** | Claude Code Dispatches, or Cursor Agent CLI Dispatches on Grok 4.7 xHigh when Claude Code usage > 70%, under `amillez-mode` (named in every brief). Slice-appropriate chooser pick; return `worker_done` with evidence. |
 
 ## Model assignment
 
