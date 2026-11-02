@@ -88,7 +88,7 @@ Proof and the review guide live in one Orca artifact that akit's `review-guide` 
 Orca artifact facts, verified 2026-10-29:
 
 - A link is an unguessable 12-character slug: `share.onorca.dev/a/<slug>`.
-- Access is link-only. Opening a link needs no sign-in, and no listing shows or indexes artifacts. Links can be forwarded, so keep secrets and personal data out.
+- Artifacts are link-only and forwardable. Opening a link needs no sign-in. Artifacts are not guaranteed to stay unindexed, so keep secrets and personal data out.
 - An artifact expires after 30 days. `orca artifacts delete <id>` revokes it immediately.
 - Publishing must be enabled per host in Orca **Settings > Artifacts**. Headless hosts fail with `sharing_unavailable_on_host`.
 
