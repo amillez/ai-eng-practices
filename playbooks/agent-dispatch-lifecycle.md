@@ -2,14 +2,14 @@
 
 How bots dispatch work to coding agents: projects, worktrees, and teardown.
 
-Standing stack: the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits), `agent-m1` by default and the M4 as overflow, running Claude Code (default coder), the Cursor Agent CLI (Grok 4.7 xHigh when Claude Code usage > 70%), and Codex (code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Every session starts through Orca, per [start every coding session through Orca](../policies/agent-use-policy.md#start-every-coding-session-through-orca). Dispatch = Grok Bot → Orca coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
+Standing stack: the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits), `agent-m1` by default and the M4 as overflow, running Claude Code (default coder), the Grok CLI (Grok 4.7 xHigh when Claude Code usage > 70%), and Codex (code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Every session starts through Orca, per [start every coding session through Orca](../policies/agent-use-policy.md#start-every-coding-session-through-orca). Dispatch = Grok Bot → Orca coding session → proof → PR → teardown. Host rules: [agent use policy](../policies/agent-use-policy.md#1-coding-host-routing).
 
 ## Units
 
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion).
-- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) as one Orca session ([launch recipe](#launch-a-coding-session-through-orca)); no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Cursor Agent CLI on Grok 4.7 xHigh when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) as one Orca session ([launch recipe](#launch-a-coding-session-through-orca)); no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Grok CLI on Grok 4.7 xHigh when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on an Orca host
 
@@ -70,9 +70,10 @@ Rules:
   git -C "$W" switch <branch>
   git -C "$W" branch -D amillez/<slug>
   ```
-- Pick `--agent`, `--model`, and `--effort` from the [lanes table](../policies/agent-use-policy.md#1-coding-host-routing). Always pass `--model` and `--effort`, except Grok (`--agent cursor --model grok-4.7-xhigh`), which takes no `--effort`. `--model` is the full id, never an alias such as `opus`.
+- Pick `--agent`, `--model`, and `--effort` from the [lanes table](../policies/agent-use-policy.md#1-coding-host-routing). Always pass `--model` and `--effort`, except Grok (`--agent grok`), which takes neither. Orca rejects `--model` for `grok`, and `--effort` requires `--model`. Grok gets xHigh from `default_reasoning_effort = "xhigh"` under `[models]` in `~/.grok/config.toml`, set on both Orca hosts. `--model` is the full id, never an alias such as `opus`.
 - `--surface terminal` makes the session a terminal, so `orca terminal` commands can address it. The launch JSON returns its handle at `result.outcome.handle`. List live sessions in a worktree with `orca terminal list --worktree path:<worktree> --json`.
-- **M4.** Run on the M4 only when [pick a host](../policies/agent-use-policy.md#pick-a-host) sends the session there. Add `--environment m4` to each `orca` command. Terminal handles belong to the environment that issued them. On the M4, run `git` only inside the session worktree. Agustín's own clones back the Orca projects there, so never `orca repo add`, fetch, or run any other `git` command in them.
+- **Grok trust prompt.** The first `--agent grok` launch per repo can show a one-time "Do you trust the contents of this directory?" prompt, even with the permissions bypass. Answer it with `orca terminal send --terminal <handle> --text y`.
+- **M4.** Run on the M4 only when [pick a host](../policies/agent-use-policy.md#pick-a-host) sends the session there. Add `--environment m4` to each `orca` command. From `agent-m1` on 2026-11-02, `orca worktree create`, `orca repo list`, and `orca terminal list` worked with the flag, and `orca agent launch --environment m4 --agent grok` failed with `agent_launch_replay_unsupported` (`agent-m1` Orca 1.4.237, M4 Orca 1.4.246, likely version skew, unconfirmed). The verified Grok launches on the M4 ran Orca locally there. Terminal handles belong to the environment that issued them. On the M4, run `git` only inside the session worktree. Agustín's own clones back the Orca projects there, so never `orca repo add`, fetch, or run any other `git` command in them.
 - **Lost launch reply.** Re-issue the same command from the same directory with `--retry-launch <operationId>` from the error. Never retry as a fresh launch.
 - Then arm hop-1 finite settle-watch per standing skill `agent-m1-completion-ping` / [Babysit until merged](#babysit-until-merged).
 - **agent-m1 disconnected.** If Grok Bot shows `agent-m1` disconnected, do not relaunch jobs. Orca sessions keep running locally on `agent-m1`, so wait for the reconnect, then check them with `orca terminal list --json`.
@@ -166,7 +167,7 @@ A new push needs a new run on the new head.
 
 ## Do not
 
-- Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. The Cursor Agent CLI, launched through Orca, is the only Cursor path.
+- Use Cursor cloud agents, Cursor Projects, My Machines, `register-worker-dir`, Composer, or Grok 4.6. No Cursor path is allowed.
 - Skip the size gate: Orca Run for a rename, or one mega-agent for large multi-surface work. Small → direct agent; large → Orca + Opus 5.5 xhigh coordinator (see [big-work orchestration](big-work-orchestration.md)).
 - Merge outside [fleet norms rules 8 and 9](../policies/fleet-norms.md).
 - Paraphrase a report into your own diagnosis in the launch prompt. Pass the raw report and ask for a restatement.
