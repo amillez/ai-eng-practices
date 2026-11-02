@@ -58,7 +58,7 @@ Rules:
 
 ## How bots dispatch coding agents
 
-Coding agents run on the Orca hosts, `agent-m1` by default and the M4 as overflow (Claude Code, or the Grok CLI when Claude Code usage > 70%). Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
+Coding agents run on the Orca hosts, `agent-m1` by default and the M4 as overflow (Claude Code, or the Grok CLI at xHigh when Claude Code usage > 70%). Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
 Every launch includes:
 
