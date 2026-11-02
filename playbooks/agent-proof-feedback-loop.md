@@ -1,6 +1,6 @@
 # Agent proof feedback loop
 
-Standing practice for eng work on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) (Claude Code, or Grok on the Cursor Agent CLI, with Codex for review and the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
+Standing practice for eng work on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) (Claude Code, or the Grok CLI, with Codex for review and the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception)). Inspired by Lingxi's "complete feedback loop" — adapted to flexible proof.
 
 Related: pstack's prove-it-works and verification-skill pattern — see [Steal from pstack](steal-from-pstack.md). Checks that must fail closed: [Hard constraints](hard-constraints.md).
 
@@ -30,7 +30,7 @@ A thin prompt produces thin proof. When a Grok Bot kicks off a coding agent on a
    - UI: before/after screenshots of named screens/states (or `argent-screenshot-diff` output).
    - Behavior: specific log lines, network requests, or profiler summaries.
    - Logic: the test command to run and the pass criteria (e.g. `yarn test src/cart` — all green, new test covers the empty-cart case).
-5. **Host routing.** Note the host from [pick a host](../policies/agent-use-policy.md#pick-a-host) (Claude Code or the Cursor Agent CLI, with Argent + provisioned sims/AVDs). Pick the harness per the [model lanes](../policies/agent-use-policy.md#default-picks) + Claude Code usage > 70% rule.
+5. **Host routing.** Note the host from [pick a host](../policies/agent-use-policy.md#pick-a-host) (Claude Code or the Grok CLI, with Argent + provisioned sims/AVDs). Pick the harness per the [model lanes](../policies/agent-use-policy.md#default-picks) + Claude Code usage > 70% rule.
 
 Do not launch until all five are in the prompt. If you cannot state the proof expected, the task is not defined enough to launch.
 
@@ -60,7 +60,7 @@ Goal: <what done looks like, observable>
 Scope: <files/areas>. Constraints: <what not to touch / limits>
 Skills: amillez-mode, <craft skills from chooser>, <proof skills>. Use other skills if the task clearly needs them; list any you add.
 Proof expected: <screenshots before/after of X | logs showing Y | run `<cmd>` and all pass>. Inspect the proof before reporting done; if it doesn't match, iterate or report the blocker with evidence.
-Host: agent-m1 | M4 — Claude Code | Cursor Agent CLI — <pick + reason>
+Host: agent-m1 | M4 — Claude Code | Grok CLI — <pick + reason>
 ```
 
 ## Loop

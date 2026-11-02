@@ -1,6 +1,6 @@
 # Eng team of bots
 
-How **we** run specialized engineering bots that dispatch coding agents on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) (Claude Code, the Cursor Agent CLI, and Codex for review).
+How **we** run specialized engineering bots that dispatch coding agents on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits) (Claude Code, the Grok CLI, and Codex for review).
 
 **Snapshot, not scripture** — fleet patterns as of October 2026.
 
@@ -19,7 +19,7 @@ Focused bots stay sharper. Our split:
 | **Sam** | This repo — playbooks, policies, model picks, skill hygiene, and the general amillez-mode process rails. |
 | **Mark** | RN client quality, visual proof, mobile skills. Runs coding work on `agent-m1`. Owns the proposed akit `amillez-react-native-mode` skill ([akit#38](https://github.com/amillez/akit/pull/38), not merged) and rn-bedrock docs gardening. |
 | **Emily** | Engineer bot for `KaikuLabs/favvy-app`. Codes on `agent-m1`. |
-| **Ben** | Host health checks on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits), `agent-m1` and the M4, including the disk and load check script. Keeps Claude Code, the Cursor Agent CLI, Codex, and `gh` updated and logged in on `agent-m1` only. |
+| **Ben** | Host health checks on the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits), `agent-m1` and the M4, including the disk and load check script. Keeps Claude Code, the Grok CLI (`grok update`, `grok login`), Codex, and `gh` updated and logged in on `agent-m1` only. |
 | **Ivy** | Fleet gardener. Runs the weekly AEP and akit gardens and the pstack sync. Owns the Monday merge list in [fleet norms rule 9](../policies/fleet-norms.md). |
 | **Stella** | Designs new Grok Bots. |
 | **Jarvis and Friday (hub)** | Cross-project intake and routing to other bots. Plan and delegate; do not write feature code. |
@@ -58,7 +58,7 @@ Rules:
 
 ## How bots dispatch coding agents
 
-Coding agents run on the Orca hosts, `agent-m1` by default and the M4 as overflow (Claude Code, or Grok on the Cursor Agent CLI when Claude Code usage > 70%). Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
+Coding agents run on the Orca hosts, `agent-m1` by default and the M4 as overflow (Claude Code, or the Grok CLI when Claude Code usage > 70%). Codex only reviews, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The full flow is in [agent dispatch lifecycle](agent-dispatch-lifecycle.md).
 
 Every launch includes:
 

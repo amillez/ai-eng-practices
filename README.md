@@ -2,7 +2,7 @@
 
 Living, opinionated practices for AI-assisted software engineering.
 
-**Coding hosts:** the [Orca hosts](policies/agent-use-policy.md#host-table), `agent-m1` by default and the M4 as overflow, running **Claude Code** (default coder), the **Cursor Agent CLI** (Grok 4.7 xHigh when Claude Code usage > 70%), and **Codex** (code review only, plus the [raster image exception](policies/agent-use-policy.md#codex-raster-image-exception)). Every coding session and review starts through Orca. Grok Bot is the chat and control plane. See [agent use policy](policies/agent-use-policy.md).
+**Coding hosts:** the [Orca hosts](policies/agent-use-policy.md#host-table), `agent-m1` by default and the M4 as overflow, running **Claude Code** (default coder), the **Grok CLI** (Grok 4.7 xHigh when Claude Code usage > 70%), and **Codex** (code review only, plus the [raster image exception](policies/agent-use-policy.md#codex-raster-image-exception)). Every coding session and review starts through Orca. Grok Bot is the chat and control plane. See [agent use policy](policies/agent-use-policy.md).
 
 This repo is a small set of playbooks and standing policies. Prefer checklists and decision guides over essays. Keep advice cost-aware and anti-hype. When a number comes from a talk or eval, treat it as a snapshot, not eternal truth.
 
@@ -53,4 +53,4 @@ Treat playbooks and policies in this repo as **standing policy** for any agent p
 - Prefer the latest merged `main` over memory of an older version.
 - Do not invent workshop quotes. Paraphrase practices; cite the source note.
 - Every coding agent you invoke, single or Orca worker, loads and follows [`amillez-mode`](playbooks/amillez-mode.md), and the launch prompt names it. Grok Bots do not load amillez-mode themselves; they must know which skills to attach to launch prompts, and `amillez-mode` is always first.
-- Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → Claude Haiku 5.5 Max (Claude Code `claude-haiku-5-5`); general code, UI, and docs → Opus 5.5 High (Claude Code `claude-opus-5-5`), or Grok 4.7 xHigh (Cursor Agent CLI `grok-4.7-xhigh`) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh. Code review, when the [Review row](policies/agent-use-policy.md#1-coding-host-routing) requires one → GPT 6.1 Sol High (Codex `gpt-6.1-sol`, read-only).
+- Model lanes ([agent use policy](policies/agent-use-policy.md#default-picks)): super defined → Claude Haiku 5.5 Max (Claude Code `claude-haiku-5-5`); general code, UI, and docs → Opus 5.5 High (Claude Code `claude-opus-5-5`), or Grok 4.7 xHigh (Grok CLI `grok-4.7`) when Claude Code usage > 70%; large-work orch → Opus 5.5 xHigh Orca coordinator; large reasoning → Fable 5.1 Medium→High/xhigh. Code review, when the [Review row](policies/agent-use-policy.md#1-coding-host-routing) requires one → GPT 6.1 Sol High (Codex `gpt-6.1-sol`, read-only).
