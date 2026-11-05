@@ -25,6 +25,14 @@ Agustín's adaptation of the [x.ai bot guides](https://x.ai/bot/guides).
    - Give an app-scoped or org-scoped secret its owner's prefix. Use `FAVVY_` for Favvy only, such as `FAVVY_PLAY_SA_JSON`. Use `KAIKULABS_` for all of KaikuLabs, such as `KAIKULABS_ASC_*` and `KAIKULABS_EXPO_TOKEN`. Use `PEERSYST_` for Peersyst scope, such as the store and Sentry secrets of `Peersyst/near-mobile`. A Sentry token there would be `PEERSYST_SENTRY_AUTH_TOKEN`. Use `AMILLEZ_` for amillez scope. Leave a name unprefixed only when the secret is fleet-wide, or personal with no narrower owner. When in doubt, prefix it.
    - After the prefix, name the service and then what the secret is. Write `FAVVY_ASC_SUPPORT_KEY_ID`, not `ASC_SUPPORT_KEY_ID`.
    - Retired names may stay orphaned on the box, but no bot or script reads them, not even as a fallback such as `${FAVVY_X:-$X}`, `os.environ.get("X")`, or `process.env.X`. The retired names are `PLAY_SA_JSON`, `ASC_ISSUER_ID`, `ASC_KEY_ID`, `ASC_PRIVATE_KEY`, `EXPO_TOKEN`, `ASC_SUPPORT_P8`, `ASC_SUPPORT_KEY_ID`, and `ASC_SUPPORT_ISSUER_ID`. Never read a retired name.
+13. Replace, don't add. This applies whenever a bot changes a bot profile, routine prompt, skill, memory fact, or instruction file.
+   - Edit or remove the existing rule instead of stacking a new one on top. Forget the superseded memory fact when you save its replacement.
+   - Before you save, search the bot's own profile, routines, skills, and memory for older or contradictory versions. Search this repo too, per rule 6. Fix each one or flag it.
+   - After the change, re-read what the bot or routine actually loads, such as the saved routine prompt through get, the profile, or the skill. Confirm that the old wording is gone. Flag anything you can't inspect.
+   - Tell Agustín in one line what you replaced and what is still active.
+   - Never delete or archive another bot's files or skills without Agustín's yes.
+
+   Keep always-on text short, per [agent use policy §7](agent-use-policy.md#7-rules-skills-and-mcp-hygiene).
 
 ## Related
 
