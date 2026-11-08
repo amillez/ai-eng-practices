@@ -235,7 +235,7 @@ When both a dedicated MCP / connector and an ad-hoc CLI/`curl` path exist for th
 
 **X reads.** Grok Bots read public X (posts, users, search, trends, news) through the built-in free X connector. They don't scrape X, call the paid X API, or need an X connection. The built-in connector can't act as Agustín. DMs, bookmarks, and the home timeline need the X plugin, which can't post. Limits per user are 30 calls a minute, 1000 a day (UTC day), and at most 25 results per call.
 
-**Third-party repos.** Use akit's [`draft-upstream`](https://github.com/amillez/akit/blob/main/skills/draft-upstream/SKILL.md) skill for every issue or PR to a repo not owned by `amillez` or `KaikuLabs`. It drafts in the `amillez/<repo>` fork, and Agustín files upstream himself. Agents never write to the upstream repo.
+**Third-party repos.** Use akit's [`draft-upstream`](https://github.com/amillez/akit/blob/main/skills/draft-upstream/SKILL.md) skill for every issue or PR to a repo outside `amillez`, `KaikuLabs`, and `Peersyst`. It drafts in the `amillez/<repo>` fork, and Agustín files upstream himself. Agents never write to the upstream repo.
 
 **Third-party commits.** Commits meant for a third-party repo, including those on `amillez/<repo>` fork branches, are plain commits authored by Agustín's GitHub user (`amillez`), with no AI `Co-authored-by` trailer and no "Generated with" line in the commit message or PR body.
 
