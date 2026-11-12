@@ -75,7 +75,7 @@ Host: agent-m1 | M4 — Claude Code | Grok CLI xHigh — <pick + reason>
 
 ## Review guide in the PR description
 
-The PR description is the review guide. akit's [`review-guide`](https://github.com/amillez/akit/blob/main/skills/review-guide/SKILL.md) skill writes it. There is no Orca artifact, no HTML file, no link-out, and no "Review guide" section with a URL. Nothing goes into git: no proof media on the PR branch, no media branch, and no `review.md`. Video is first-class proof for visual/UI flows when a still is insufficient.
+The PR description is the review guide. akit's [`review-guide`](https://github.com/amillez/akit/blob/main/skills/review-guide/SKILL.md) skill writes it. There is no Orca artifact, no HTML file, no link-out, and no "Review guide" section with a URL. Nothing goes into git: no proof media on the PR branch and no `review.md`. Proof is never pushed to a media branch. The `media` branches in `KaikuLabs/favvy-app` and `Peersyst/near-mobile` stay as read-only history, not deleted and with no new pushes, so old PR images keep working. New proof uses `gh pr create --attach`, `gh pr edit --attach`, or `gh pr comment --attach`. Video is first-class proof for visual/UI flows when a still is insufficient.
 
 The body has these sections, in this order:
 
