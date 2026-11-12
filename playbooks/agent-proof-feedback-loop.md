@@ -90,7 +90,7 @@ The body has these sections, in this order:
 
 Diagrams and media:
 
-- Draw diagrams as Mermaid fenced blocks in the body, in the light theme. Make `%%{init: {'theme': 'default'}}%%` the first line of each block, so a reader in dark mode still sees the light theme.
+- Draw diagrams as Mermaid fenced blocks in the body, in the light theme. Make `%%{init: {'theme': 'default'}}%%` the first line of each block. Without it, GitHub draws the dark theme for a reader in dark mode. With it, the diagram stays light (verified on github.com in dark mode, 2026-11-12).
 - Hand-built HTML or SVG diagrams are a fallback for when Mermaid is too limited. Export one as SVG or PNG and attach it like a screenshot.
 - Screenshots and video must render in the description itself, never only behind a link. Save them under `~/agent-work/proof/<slug>/`. The akit install allows Claude Code to Read only that directory outside the working directories, so an auto-mode session does not stop on the first-read prompt while it holds a device.
 - Write the body to a file in that directory and reference each asset as `![alt](./x.png)`. Pass the file and each asset to `gh pr create --body-file <file> --attach ./x.png`. `gh` resolves a path relative to the body file, uploads it to `https://github.com/user-attachments/assets/<uuid>`, and rewrites the reference in place. It appends an attachment the body does not reference.
