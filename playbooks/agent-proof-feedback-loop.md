@@ -67,30 +67,42 @@ Host: agent-m1 | M4 — Claude Code | Grok CLI xHigh — <pick + reason>
 
 1. Launch with a [thorough prompt](#thorough-launch-prompt) — success criteria, skills, and expected proof stated up front.
 2. Implement.
-3. Collect proof with Launch, Doctor, Drive, and Evidence ([prove and inspect](#prove-and-inspect)). Publish it in a [review guide artifact](#review-guide-artifact).
+3. Collect proof with Launch, Doctor, Drive, and Evidence ([prove and inspect](#prove-and-inspect)). Publish it in the PR description, which is the [review guide](#review-guide-in-the-pr-description).
 4. **Inspect** proof against the success criteria. The coding agent that drove the app reads every asset, visual or not, and reports pass or fail with specifics.
 5. If mismatch: follow up and repeat until proof matches — or report the blocker with evidence.
 6. [Tear down](#teardown-after-proof) everything booted for the task.
 7. Package repeated unblock steps into a skill/playbook note (avoid re-discovering env flakiness).
 
-## Review guide artifact
+## Review guide in the PR description
 
-Proof and the review guide live in one Orca artifact that akit's [`review-guide`](https://github.com/amillez/akit/blob/main/skills/review-guide/SKILL.md) skill builds. Nothing goes into git: no proof media on the PR branch and no media branch. Video is first-class proof for visual/UI flows when a still is insufficient.
+The PR description is the review guide. akit's [`review-guide`](https://github.com/amillez/akit/blob/main/skills/review-guide/SKILL.md) skill writes it. There is no Orca artifact, no HTML file, no link-out, and no "Review guide" section with a URL. Nothing goes into git: no proof media on the PR branch and no `review.md`. Proof is never pushed to a media branch. The `media` branches in `KaikuLabs/favvy-app` and `Peersyst/near-mobile` stay as read-only history, not deleted and with no new pushes, so old PR images keep working. New proof uses `gh pr create --attach`, `gh pr edit --attach`, or `gh pr comment --attach`. Video is first-class proof for visual/UI flows when a still is insufficient.
 
-- Save local proof under `~/agent-work/proof/<slug>/` before the skill builds the artifact. The akit install allows Claude Code to Read only that directory outside the working directories, so an auto-mode session does not stop on the first-read prompt while it holds a device.
-- Put verification notes next to each asset in the guide.
-- The PR body keeps a short summary: summary and risk, what changed, blast radius, and proof highlights. It ends with a "Review guide" link to the artifact.
+The body has these sections, in this order:
+
+1. Summary and risk.
+2. What changed and why.
+3. Blast radius.
+4. Proof. Put the pass or fail against the success criteria next to each asset.
+5. How to reproduce.
+6. Review order. List critical files first, each linked to exact lines on the PR head.
+7. Critical parts and why.
+8. Diagrams, when the change spans modules or changes a flow.
+
+Diagrams and media:
+
+- Draw diagrams as Mermaid fenced blocks in the body, in the light theme. Make `%%{init: {'theme': 'default'}}%%` the first line of each block. Without it, GitHub draws the dark theme for a reader in dark mode. With it, the diagram stays light (verified on github.com in dark mode, 2026-11-12).
+- Hand-built HTML or SVG diagrams are a fallback for when Mermaid is too limited. Export one as SVG or PNG and attach it like a screenshot.
+- Screenshots and video must render in the description itself, never only behind a link. Save them under `~/agent-work/proof/<slug>/`. The akit install allows Claude Code to Read only that directory outside the working directories, so an auto-mode session does not stop on the first-read prompt while it holds a device.
+- Write the body to a file in that directory and reference each asset as `![alt](./x.png)`. Pass absolute paths to `gh`, for example `proof_dir="$HOME/agent-work/proof/<slug>"` and then `gh pr create --body-file "$proof_dir/body.md" --attach "$proof_dir/x.png"`. `gh` resolves the two kinds of path differently. It resolves an `--attach` argument from the working directory. It resolves a relative reference inside the body file from the body file's directory first, then from the working directory. It uploads each attached file to `https://github.com/user-attachments/assets/<uuid>`, rewrites the matching reference in place, and appends an attachment the body does not reference.
+- After each push, update the body in place with `gh pr edit --body-file "$proof_dir/body.md"`. Keep the user-attachments URLs already in the body, and pass `--attach "$proof_dir/<file>"` only for new or changed media.
 - Never include secrets, tokens, or personal user data in screenshots.
-- Keep the artifact file under about 800 KiB. The hard cap is 10 MiB.
-- If sharing fails, for example with `artifact_sharing_disabled`, write a text-only guide in the PR body and say there that the artifact failed.
-- After the PR merges or closes, delete the artifact with `orca artifacts delete <id>`.
 
-Orca artifact facts, verified 2026-10-29:
+`--attach` facts, checked 2026-11-12 against gh 2.103.3, the gh v2.99.0 release notes, GitHub's attaching-files docs, and the gh source:
 
-- A link is an unguessable 12-character slug: `share.onorca.dev/a/<slug>`.
-- Artifacts are link-only and forwardable. Opening a link needs no sign-in. Artifacts are not guaranteed to stay unindexed, so keep secrets and personal data out.
-- An artifact expires after 30 days. `orca artifacts delete <id>` revokes it immediately.
-- Publishing must be enabled per host in Orca **Settings > Artifacts**. Headless hosts fail with `sharing_unavailable_on_host`.
+- It needs gh 2.99.0 or later and write access to the repo. It takes PNG, JPEG, GIF, WebP, SVG, MP4, MOV, and WebM. Images and GIFs can be up to 10 MB each. One command takes up to 50 files.
+- Uploads in a public repo open without sign-in. Uploads in a private or internal repo open only for people with access to the repo, so they do not render in email notifications either.
+- GitHub.com and GitHub Enterprise Cloud support it. GitHub Enterprise Server does not.
+- The upload endpoint accepts tokens from only some GitHub Apps. The Actions `GITHUB_TOKEN` is a GitHub App token, so attach from a bot host's `gh` login, not from CI.
 
 ## Prove and inspect
 
@@ -99,14 +111,14 @@ Prove the change on the real surface with the project's `verify-<app>` skill whe
 1. **Launch.** Start the app for verification and confirm it is ready. For Expo/RN, use Argent simulator or emulator setup.
 2. **Doctor.** Run one read-only check that the instance is worth driving: process up, right build, port owned by this task. Run it again after any surprising drive.
 3. **Drive.** Exercise the real user path with stable handles (accessibility labels, test IDs, routes), not internal setters or test-only endpoints. For Expo/RN, drive with Argent.
-4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots, videos, logs, test output, and exit codes go in the [review guide artifact](#review-guide-artifact), with highlights in the PR body. Proof must be captured after the last UI-affecting commit. After any UI change, re-capture proof before calling the PR ready.
+4. **Evidence.** Capture the action and the resulting state, plus side effects such as files written or requests sent. Screenshots, videos, logs, test output, and exit codes go in the Proof section of the [PR description](#review-guide-in-the-pr-description). Proof must be captured after the last UI-affecting commit. After any UI change, re-capture proof before calling the PR ready.
 
 Then inspect the evidence against the success criteria in the launch prompt:
 
 - The coding agent that drove the app inspects every asset and reports **pass or fail with specifics**: what matched, what did not, and which asset shows it.
 - When the task matches a visual reference, the success criteria list per-element checks: each icon's glyph, relative sizes, presentation type, and native versus drawn chrome. Whoever inspects reports pass or fail per element, not an overall match.
 - A second judge is not required when the implementer already proved the change on device.
-- A separate verification session is optional. Give it the success criteria and the review guide link. It only inspects proof and never implements. Pick its model per task from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples).
+- A separate verification session is optional. Give it the success criteria and the PR link. It only inspects proof and never implements. Pick its model per task from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ## Teardown after proof
 
@@ -150,7 +162,7 @@ Only these skills are approved for launch prompts. Use each when its skill descr
 - `create-verification-skill`, `maintain-verification-skill` (amillez skill, core). Generate and maintain a project's `verify-<app>` skill and feature map.
 - `create-formal-verification-skill`, `maintain-formal-verification-skill` (amillez skills, core). Run only on an explicit slash command. Use them for a race, retry, state machine, parser, or invariant that tests rarely reach, and to bring the check back in line after the covered code changes.
 - `statechart` (amillez skill, core, verbatim from pstack). Runs only on an explicit `/statechart`. Reads TLA+ results and models a feature that is mainly a state machine; pairs with `create-formal-verification-skill`.
-- [`review-guide`](https://github.com/amillez/akit/blob/main/skills/review-guide/SKILL.md) (amillez skill, core). Builds the PR's [review guide artifact](#review-guide-artifact) and links it from the PR body. Use it when you open or update a non-trivial PR, and skip it for docs-only PRs.
+- [`review-guide`](https://github.com/amillez/akit/blob/main/skills/review-guide/SKILL.md) (amillez skill, core). Writes the PR description as the [review guide](#review-guide-in-the-pr-description). Use it when you open or update a non-trivial PR, and skip it for docs-only PRs.
 - `correct`, `blast-radius`, `reflect`, `show-me-your-work`, `figure-it-out`, `unslop` (amillez skills, core). Run each on an explicit slash command or when an amillez-mode trigger names it, not on every launch. `correct` for a mistake Agustín corrects a second time. `blast-radius` for a diff you don't trust. `reflect` when Agustín asks to reflect on a session. `show-me-your-work` for long, autonomous, or later-reviewed work. `figure-it-out` for long single-agent work no narrower playbook fits. `unslop` for any prose surface. See [steal from pstack](steal-from-pstack.md).
 - `draft-upstream` (amillez skill, core). Loads by description when an agent drafts an issue or PR for a third-party repo. It opens the draft only in the `amillez/<repo>` fork and hands Agustín the text to file. It never writes to the upstream repo. Required for every third-party issue or PR per the [agent use policy](../policies/agent-use-policy.md#8-integrations-mcp-vs-cli).
 - [`sharpen`](https://github.com/amillez/akit/blob/main/skills/sharpen/SKILL.md) (amillez skill, core). Runs only on an explicit `/sharpen`. It answers four questions about a task (what a top professional would add, the rawest material to start from, their methods and tools, and an outside check that the result is right). Then it returns only a rewritten prompt and does not do the task.
