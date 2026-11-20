@@ -192,7 +192,7 @@ If usage exploded, do not start by "the model got worse." Walk the levers: vague
 | --- | --- |
 | **Eternal chats** | Compaction blur + baggage re-fed every turn |
 | **Vague "fix auth"** | Exploration + wrong guesses + expensive recovery |
-| **Always-on Fable** | Pays frontier rates for work Claude Haiku 5.5 or Opus 5.5 High would finish |
+| **Always-on Fable** | Pays frontier rates for work Claude Haiku 5.5 or Opus 5.5 would finish. Fable comes only after two failed Opus 5.5 xHigh runs on the same slice, per [Fable escalation](../policies/agent-use-policy.md#fable-escalation). |
 | **Fast by default** | You bought speed, not intelligence |
 | **Giant always-apply rules** | Prefix tax on every request; cache-bust if you edit them mid-flight |
 | **Dumping 30k-line files into context** | Input burn, drowned signal, worse answers |
