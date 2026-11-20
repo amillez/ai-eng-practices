@@ -84,7 +84,7 @@ When the [Review row](../policies/agent-use-policy.md#1-coding-host-routing) req
 
 ```bash
 orca agent launch --agent codex --worktree path:$W --surface terminal \
-  --model gpt-6.1-sol --effort high --prompt "<review brief>" --json
+  --model gpt-6.2-sol --effort high --prompt "<review brief>" --json
 orca terminal wait --terminal <handle> --for tui-idle --json
 orca terminal read --terminal <handle> --json
 ```
