@@ -110,7 +110,7 @@ Codex writes only for a raster image edit, such as an icon or a screenshot, that
 
 #### Fable escalation
 
-Large reasoning and gnarly single-agent debugging start on Opus 5.5 xhigh. They move to Fable 5.2 only after two failed Opus 5.5 xhigh runs on the same slice. A run fails when it ends without a verified result on that slice. That means the fix or answer does not pass its repro or proof on the matching surface, or the run stalls, thrashes, or stops without one. A run stopped for an outside cause, such as a usage limit, a blocked host, or a tool outage, does not count. Difficulty alone never sends work to Fable. A [chat override](#13-overrides) that names Fable still wins for that ask.
+Large reasoning and gnarly single-agent debugging start on Opus 5.5 xhigh. They move to Fable 5.2 only after two failed Opus 5.5 xhigh runs on the same slice. A run fails when it ends without a verified result on that slice. That means the fix or answer does not pass its repro or proof on the matching surface, or the run stalls, thrashes, or stops without one. A run stopped for an outside cause, such as a usage limit, a blocked host, or a tool outage, does not count. Difficulty alone never sends work to Fable. The rule holds for a standalone session and for a large-reasoning worker slice in an Orca Run. A [chat override](#13-overrides) that names Fable still wins for that ask.
 
 #### Claude Code usage > 70%
 
@@ -130,7 +130,7 @@ Use this when you need a pick, not a philosophy. Leave Fast off by default. Esca
 | Large reasoning / gnarly escalate (non-orch) | **Opus 5.5**, then **Fable 5.2** | **xHigh** (Fable: **Medium** → High → xhigh) | Claude Code | Fable only after two failed Opus 5.5 xhigh runs on the same slice, per [Fable escalation](#fable-escalation). Fable is not the Orca coordinator default. |
 | Writing / agreeing on a plan | **Opus 5.5** | **High** (→ **xhigh** if architecture tradeoffs matter) | Claude Code | Use Opus when a human will read the plan. Do not implement in the same turn until the plan is agreed. |
 | Mechanical chore (format, rename in known files, boilerplate with tests already green) | **Claude Haiku 5.5** | **Max** | Claude Code | Few edge cases, little verification needed. |
-| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **Grok 4.7 xHigh** on the Grok CLI, read-only) ×2 + **GPT 6.2 Sol**; synthesizer **Opus 5.5**, falling back to **Grok 4.7 xHigh** when Claude Code is exhausted | Reviewers **High** (Sol and Grok: **xHigh**); synthesizer **xHigh** | Claude Code + Codex, plus the Grok CLI for the fallbacks | The akit [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md) skill. Reviewer and synthesizer sessions start through Orca like any other session. The synthesizer is the one Opus 5.5 xHigh use outside an Orca Run. Output is one PR for review or a garden hand-off. |
+| Reflect on a finished session (explicit only) | Reviewers: **Opus 5.5** (general-code lane, usage > 70% → **Grok 4.7 xHigh** on the Grok CLI, read-only) ×2 + **GPT 6.2 Sol**; synthesizer **Opus 5.5**, falling back to **Grok 4.7 xHigh** when Claude Code is exhausted | Reviewers **High** (Sol and Grok: **xHigh**); synthesizer **xHigh** | Claude Code + Codex, plus the Grok CLI for the fallbacks | The akit [`reflect`](https://github.com/amillez/akit/blob/main/skills/reflect/SKILL.md) skill. Reviewer and synthesizer sessions start through Orca like any other session. Output is one PR for review or a garden hand-off. |
 
 Concrete picks:
 
