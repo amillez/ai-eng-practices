@@ -18,6 +18,7 @@ A coding agent is not done when CI is green or files changed. It is done when it
 ## Host
 
 - **Only:** an [Orca host](../policies/agent-use-policy.md#12-orca-hosts-and-resource-limits), picked per [pick a host](../policies/agent-use-policy.md#pick-a-host), with simulators/AVDs already provisioned. Requires **Argent CLI + MCP** (`@swmansion/argent`) — skills alone are not enough.
+- **Disk before each native build.** Right before each native build, run the host's health check from the [pick a host](../policies/agent-use-policy.md#pick-a-host) table, with `--disk-only`. A host whose script ignores the flag still prints `status` and `disk_free_gb`. Native builds include Android and iOS builds, `expo prebuild`, and `pod install`. If free disk is under the host's floor, run the [finished-session cleanup](agent-dispatch-lifecycle.md#delete-the-session-when-the-task-is-done) and check again. If it is still under the floor, don't start that leg. Mark it unproven in the Proof section, never as passed, ping Ben, and carry on with the rest of the session.
 
 ## Thorough launch prompt
 
@@ -118,6 +119,7 @@ Then inspect the evidence against the success criteria in the launch prompt:
 - The coding agent that drove the app inspects every asset and reports **pass or fail with specifics**: what matched, what did not, and which asset shows it.
 - When the task matches a visual reference, the success criteria list per-element checks: each icon's glyph, relative sizes, presentation type, and native versus drawn chrome. Whoever inspects reports pass or fail per element, not an overall match.
 - A second judge is not required when the implementer already proved the change on device.
+- **Third-party 429.** A 429 from a third-party service is a hard stop for writes, with no retry loop. A read may back off once, then stop and mark it unproven. Proof behind a lock screen or a rate limit is marked unproven in the Proof section of the PR description and never counts as passed.
 - A separate verification session is optional. Give it the success criteria and the PR link. It only inspects proof and never implements. Pick its model per task from the [agent chooser](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ## Teardown after proof
