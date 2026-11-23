@@ -83,7 +83,7 @@ That blip is small. **Do not fear switching** when the task needs a different en
 
 **No single model wins every category.** Do not lock to one provider. Use a **portfolio**.
 
-Our lanes span three providers. Opus 5.5, Fable 5.1, and Haiku 5.5 run on Claude Code. Grok 4.7 xHigh runs on the Grok CLI as the fallback when Claude Code usage is above 70%. GPT 6.1 Sol runs on Codex for code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
+Our lanes span three providers. Opus 5.5, Fable 5.2, and Haiku 5.5 run on Claude Code. Grok 4.7 xHigh runs on the Grok CLI as the fallback when Claude Code usage is above 70%. GPT 6.2 Sol runs on Codex for code review only, plus the [raster image exception](../policies/agent-use-policy.md#codex-raster-image-exception). The picks, efforts, and the Claude Code usage rule are in the [default picks](../policies/agent-use-policy.md#default-picks). Worked situations are in the [agent chooser examples](../policies/agent-use-policy.md#agent-chooser-examples).
 
 ---
 
@@ -192,7 +192,7 @@ If usage exploded, do not start by "the model got worse." Walk the levers: vague
 | --- | --- |
 | **Eternal chats** | Compaction blur + baggage re-fed every turn |
 | **Vague "fix auth"** | Exploration + wrong guesses + expensive recovery |
-| **Always-on Fable** | Pays frontier rates for work Claude Haiku 5.5 or Opus 5.5 High would finish |
+| **Always-on Fable** | Pays frontier rates for work Claude Haiku 5.5 or Opus 5.5 would finish. Fable comes only after two failed Opus 5.5 xHigh runs on the same slice, per [Fable escalation](../policies/agent-use-policy.md#fable-escalation). |
 | **Fast by default** | You bought speed, not intelligence |
 | **Giant always-apply rules** | Prefix tax on every request; cache-bust if you edit them mid-flight |
 | **Dumping 30k-line files into context** | Input burn, drowned signal, worse answers |

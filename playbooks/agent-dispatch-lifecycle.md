@@ -9,7 +9,7 @@ Standing stack: the [Orca hosts](../policies/agent-use-policy.md#12-orca-hosts-a
 - **Task** — one ask with success criteria + proof type (bot chat + [thorough launch prompt](agent-proof-feedback-loop.md#thorough-launch-prompt)).
 - **Workstream** — one git branch + one worktree + one agent session.
 - **Project** (optional) — multi-task effort; thin tracker later (Notion).
-- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) as one Orca session ([launch recipe](#launch-a-coding-session-through-orca)); no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Grok CLI on Grok 4.7 xHigh when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
+- **Size gate → direct agent or Orca Run.** **Small** → corresponding agent (Haiku/Opus/Grok) as one Orca session ([launch recipe](#launch-a-coding-session-through-orca)); no Orca Run. **Large / needs orch** (multi-surface, multi-package, parallelizable, multi-PR, multi-session, unclear blast radius) → eng bot kicks an **Opus 5.5 xhigh** coordinator inside **Orca** (`run-create` → tasks → `worker-start` Claude Code, or the Grok CLI on Grok 4.7 xHigh for a general code, UI, or docs slice when Claude Code usage > 70% → `check --wait`). See [big-work orchestration](big-work-orchestration.md) · [Orca orchestration](https://www.onorca.dev/docs/cli/orchestration).
 
 ## Worktrees on an Orca host
 
@@ -84,7 +84,7 @@ When the [Review row](../policies/agent-use-policy.md#1-coding-host-routing) req
 
 ```bash
 orca agent launch --agent codex --worktree path:$W --surface terminal \
-  --model gpt-6.1-sol --effort high --prompt "<review brief>" --json
+  --model gpt-6.2-sol --effort high --prompt "<review brief>" --json
 orca terminal wait --terminal <handle> --for tui-idle --json
 orca terminal read --terminal <handle> --json
 ```
